@@ -36,7 +36,7 @@
 <div class="ld-container">
 
   <header class="ld-hero">
-    <span class="ld-badge" data-ld-variant="primary">v0.5.0</span>
+    <span class="ld-badge" data-ld-variant="primary">v0.5.1</span>
     <h1>ldcss</h1>
     <p class="ld-text-muted">A small framework built on two ideas: <span class="ld-text-accent">ld-*</span> classes for structure, <span class="ld-text-accent">data-ld-*</span> attributes for state and variants. No build step. No dependencies.</p>
     <pre class="ld-code">&lt;button class="ld-btn" data-ld-variant="primary" data-ld-size="lg"&gt;
@@ -146,6 +146,7 @@
         <p class="ld-text-muted">Include ldcss.css and ldcss.js. Everything else is attributes on plain HTML — no build step.</p>
       </div>
       <div id="tab-3" data-ld-tab-panel>
+        <p class="ld-text-muted"><strong>v0.5.1</strong> — bugfix: <code class="ld-code-inline">[data-ld-dropzone]</code> defaulted to inline layout when used on a <code class="ld-code-inline">&lt;label&gt;</code>, so its border only wrapped the first line and the filename text spilled outside the box. Now explicitly <code class="ld-code-inline">display: flex</code>.</p>
         <p class="ld-text-muted"><strong>v0.5.0</strong> — added offcanvas, stepper, command palette (⌘K), range slider, dropzone, rating, tag input. Added <code class="ld-code-inline">ld-scale-*</code> density presets, <code class="ld-code-inline">ld-accent-*</code> per-element color swap, <code class="ld-code-inline">ld-glass</code>/<code class="ld-code-inline">ld-flat</code> surfaces. ARIA wiring (aria-expanded/aria-hidden/aria-selected, dialog roles, focus trap + focus return, live-region toasts) and a <code class="ld-code-inline">prefers-contrast: more</code> pass.</p>
         <p class="ld-text-muted"><strong>v0.4.0</strong> — added escape-hatch utilities: <code class="ld-code-inline">ld-round*</code>, <code class="ld-code-inline">ld-border-{width}px-{style}</code>, <code class="ld-code-inline">ld-shadow-soft*</code>, <code class="ld-code-inline">ld-font-sans</code> / <code class="ld-code-inline">ld-font-serif</code> — for opting out of the sharp/hard-shadow/monospace defaults per element.</p>
         <p class="ld-text-muted"><strong>v0.3.0</strong> — added kbd, copy-to-clipboard, terminal window, spinner, toast, table, pagination, list group, switch, avatar, popover, skeleton loader.</p>

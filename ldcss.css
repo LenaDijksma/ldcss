@@ -1144,6 +1144,11 @@ code.ld-code-inline {
    ========================================================================== */
 
 [data-ld-dropzone] {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--ld-space-1);
   border: var(--ld-border-width) dashed var(--ld-border-soft);
   padding: var(--ld-space-6);
   text-align: center;
