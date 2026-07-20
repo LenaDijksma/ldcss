@@ -872,7 +872,74 @@ code.ld-code-inline {
 .ld-skeleton[data-ld-shape='text'] { height: 12px; }
 
 /* ==========================================================================
-   29. Misc
+   29. Escape hatches
+   ------------------------------------------------------------------------
+   ldcss defaults to sharp edges, hard offset shadows, and monospace type.
+   These utilities let you opt individual elements out of that look without
+   fighting the framework — mix and match as needed.
+   ========================================================================== */
+
+/* -- Rounded corners ------------------------------------------------------ */
+
+.ld-round-none { border-radius: 0; }
+.ld-round-sm   { border-radius: 4px; }
+.ld-round      { border-radius: 8px; }
+.ld-round-lg   { border-radius: 16px; }
+.ld-round-xl   { border-radius: 24px; }
+.ld-round-full { border-radius: 9999px; }
+
+/* -- Border width x style grid -------------------------------------------
+   ld-border-{width}px-{style}. Color defaults to the standard border
+   token; override with an inline `border-color` or `style` if needed. */
+
+.ld-border-0 { border-width: 0; }
+
+.ld-border-1px-solid,  .ld-border-2px-solid,  .ld-border-3px-solid,  .ld-border-4px-solid,
+.ld-border-1px-dashed, .ld-border-2px-dashed, .ld-border-3px-dashed, .ld-border-4px-dashed,
+.ld-border-1px-dotted, .ld-border-2px-dotted, .ld-border-3px-dotted, .ld-border-4px-dotted,
+.ld-border-1px-double, .ld-border-2px-double, .ld-border-3px-double, .ld-border-4px-double {
+  border-color: var(--ld-border-soft);
+}
+
+.ld-border-1px-solid  { border-width: 1px; border-style: solid; }
+.ld-border-2px-solid  { border-width: 2px; border-style: solid; }
+.ld-border-3px-solid  { border-width: 3px; border-style: solid; }
+.ld-border-4px-solid  { border-width: 4px; border-style: solid; }
+
+.ld-border-1px-dashed { border-width: 1px; border-style: dashed; }
+.ld-border-2px-dashed { border-width: 2px; border-style: dashed; }
+.ld-border-3px-dashed { border-width: 3px; border-style: dashed; }
+.ld-border-4px-dashed { border-width: 4px; border-style: dashed; }
+
+.ld-border-1px-dotted { border-width: 1px; border-style: dotted; }
+.ld-border-2px-dotted { border-width: 2px; border-style: dotted; }
+.ld-border-3px-dotted { border-width: 3px; border-style: dotted; }
+.ld-border-4px-dotted { border-width: 4px; border-style: dotted; }
+
+.ld-border-1px-double { border-width: 3px; border-style: double; }
+.ld-border-2px-double { border-width: 4px; border-style: double; }
+.ld-border-3px-double { border-width: 5px; border-style: double; }
+.ld-border-4px-double { border-width: 6px; border-style: double; }
+
+/* -- Soft shadows (alternative to the hard-offset default) --------------- */
+
+.ld-shadow-none      { box-shadow: none; }
+.ld-shadow-soft-sm   { box-shadow: 0 1px 4px rgba(0, 0, 0, 0.14); }
+.ld-shadow-soft       { box-shadow: 0 4px 12px rgba(0, 0, 0, 0.16); }
+.ld-shadow-soft-lg   { box-shadow: 0 12px 32px rgba(0, 0, 0, 0.20); }
+
+/* -- Type ------------------------------------------------------------------
+   Opt an element out of monospace, e.g. for long-form body copy. */
+
+.ld-font-sans {
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+}
+.ld-font-serif {
+  font-family: ui-serif, Georgia, "Times New Roman", serif;
+}
+
+/* ==========================================================================
+   30. Misc
    ========================================================================== */
 
 .ld-text-muted { color: var(--ld-text-muted); }

@@ -142,6 +142,7 @@
         <p class="ld-text-muted">Include ldcss.css and ldcss.js. Everything else is attributes on plain HTML — no build step.</p>
       </div>
       <div id="tab-3" data-ld-tab-panel>
+        <p class="ld-text-muted"><strong>v0.4.0</strong> — added escape-hatch utilities: <code class="ld-code-inline">ld-round*</code>, <code class="ld-code-inline">ld-border-{width}px-{style}</code>, <code class="ld-code-inline">ld-shadow-soft*</code>, <code class="ld-code-inline">ld-font-sans</code> / <code class="ld-code-inline">ld-font-serif</code> — for opting out of the sharp/hard-shadow/monospace defaults per element.</p>
         <p class="ld-text-muted"><strong>v0.3.0</strong> — added kbd, copy-to-clipboard, terminal window, spinner, toast, table, pagination, list group, switch, avatar, popover, skeleton loader.</p>
         <p class="ld-text-muted"><strong>v0.2.0</strong> — added alerts, accordion, breadcrumbs, tooltip, progress bar. Added <code class="ld-code-inline">data-ld-notheme</code> to freeze a subtree's theme. Fixed low-contrast code blocks on light theme (new <code class="ld-code-inline">--ld-code-text</code> token).</p>
         <p class="ld-text-muted"><strong>v0.1.0</strong> — buttons, cards, nav, forms, dropdown, tabs, modal, theming.</p>
@@ -232,13 +233,11 @@
 $ echo "linked ldcss.css and ldcss.js"</div>
     </div>
 
-    <div class="ld-cols">
+    <div class="ld-row">
       <span class="ld-spinner" aria-label="Loading"></span>
       <span class="ld-spinner" data-ld-variant="dots" aria-label="Loading"></span>
-      <div>
-        <button class="ld-btn" data-ld-toggle="toast" data-ld-toast-message="Build finished" data-ld-toast-variant="success">Trigger toast</button>
+      <button class="ld-btn" data-ld-toggle="toast" data-ld-toast-message="Build finished" data-ld-toast-variant="success">Trigger toast</button>
       <button class="ld-btn" data-ld-toggle="toast" data-ld-toast-message="Deploy failed" data-ld-toast-variant="danger">Trigger error toast</button>
-      </div>
     </div>
   </section>
 
@@ -323,6 +322,35 @@ $ echo "linked ldcss.css and ldcss.js"</div>
       <div class="ld-skeleton" data-ld-shape="text" style="margin-bottom:6px;"></div>
       <div class="ld-skeleton" data-ld-shape="text" style="width:80%;"></div>
     </div>
+  </section>
+
+  <section>
+    <h2>Escape hatches</h2>
+    <p class="ld-section-sub">Opt individual elements out of the sharp/hard-shadow/monospace defaults</p>
+    <div class="ld-row" style="margin-bottom: var(--ld-space-4);">
+      <div class="ld-card ld-round" data-ld-shadow="none" style="max-width:160px;">
+        <div class="ld-card-title" style="font-size:var(--ld-text-sm);">ld-round</div>
+        <div class="ld-card-body">8px corners</div>
+      </div>
+      <div class="ld-card ld-round-full" data-ld-shadow="none" style="max-width:160px;aspect-ratio:1;display:flex;align-items:center;justify-content:center;text-align:center;">
+        <div class="ld-card-body">ld-round-full</div>
+      </div>
+      <div class="ld-card ld-shadow-soft" data-ld-border="none" style="max-width:160px;">
+        <div class="ld-card-title" style="font-size:var(--ld-text-sm);">ld-shadow-soft</div>
+        <div class="ld-card-body">Blurred, not offset</div>
+      </div>
+      <div class="ld-card ld-font-sans" data-ld-shadow="none" style="max-width:160px;">
+        <div class="ld-card-title" style="font-size:var(--ld-text-sm);">ld-font-sans</div>
+        <div class="ld-card-body">Opts out of monospace</div>
+      </div>
+    </div>
+    <div class="ld-row">
+      <div style="width:60px;height:60px;" class="ld-border-1px-dotted"></div>
+      <div style="width:60px;height:60px;" class="ld-border-2px-dashed"></div>
+      <div style="width:60px;height:60px;" class="ld-border-3px-solid"></div>
+      <div style="width:60px;height:60px;" class="ld-border-2px-double"></div>
+    </div>
+    <p class="ld-form-hint" style="margin-top:var(--ld-space-2);">ld-border-1px-dotted · ld-border-2px-dashed · ld-border-3px-solid · ld-border-2px-double</p>
   </section>
 
 </div>
