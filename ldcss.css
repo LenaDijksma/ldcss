@@ -90,6 +90,21 @@
   color: var(--ld-text);
 }
 
+/*
+ * prefers-contrast: more — strengthen muted text and soft borders for
+ * people who've asked their OS/browser for higher contrast.
+ */
+@media (prefers-contrast: more) {
+  :root {
+    --ld-text-muted: #14171A;
+    --ld-border-soft: #14171A;
+  }
+  [data-ld-theme='dark'] {
+    --ld-text-muted: #EDEFEC;
+    --ld-border-soft: #6B746E;
+  }
+}
+
 /* ==========================================================================
    2. Reset / base
    ========================================================================== */
@@ -938,8 +953,243 @@ code.ld-code-inline {
   font-family: ui-serif, Georgia, "Times New Roman", serif;
 }
 
+/* -- Density scale ---------------------------------------------------------
+   Override the spacing tokens for a whole subtree. Apply to a container;
+   every component inside that reads --ld-space-* picks it up. */
+
+.ld-scale-compact {
+  --ld-space-1: 2px; --ld-space-2: 4px; --ld-space-3: 8px; --ld-space-4: 10px;
+  --ld-space-5: 16px; --ld-space-6: 20px; --ld-space-8: 32px;
+}
+.ld-scale-cozy {
+  --ld-space-1: 4px; --ld-space-2: 8px; --ld-space-3: 12px; --ld-space-4: 16px;
+  --ld-space-5: 24px; --ld-space-6: 32px; --ld-space-8: 48px;
+}
+.ld-scale-spacious {
+  --ld-space-1: 6px; --ld-space-2: 12px; --ld-space-3: 18px; --ld-space-4: 24px;
+  --ld-space-5: 36px; --ld-space-6: 48px; --ld-space-8: 64px;
+}
+
+/* -- Per-element accent swap ------------------------------------------------
+   Override just the brand color for one subtree, without touching theme. */
+
+.ld-accent-mint   { --ld-accent: #46E8B3; --ld-accent-text: #04231A; }
+.ld-accent-blue   { --ld-accent: #4C8EFF; --ld-accent-text: #04122E; }
+.ld-accent-purple { --ld-accent: #B98CFF; --ld-accent-text: #1C0A33; }
+.ld-accent-pink   { --ld-accent: #FF6FA5; --ld-accent-text: #330015; }
+.ld-accent-orange { --ld-accent: #FF9A4C; --ld-accent-text: #331500; }
+.ld-accent-yellow { --ld-accent: #F2D93B; --ld-accent-text: #2E2600; }
+.ld-accent-red    { --ld-accent: #FF6B6B; --ld-accent-text: #330000; }
+
+/* -- Surface registers -------------------------------------------------
+   Alternatives to the default bordered/shadowed surface. */
+
+.ld-glass {
+  background: color-mix(in srgb, var(--ld-surface) 55%, transparent);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid var(--ld-border-soft);
+}
+.ld-flat {
+  background: none;
+  border: none;
+  box-shadow: none;
+  padding: 0;
+}
+
 /* ==========================================================================
-   30. Misc
+   30. Offcanvas — data-ld-toggle="offcanvas"
+   ========================================================================== */
+
+.ld-offcanvas-backdrop {
+  position: fixed; inset: 0;
+  background: rgba(13, 15, 14, 0.6);
+  display: none;
+  z-index: 55;
+}
+.ld-offcanvas-backdrop.ld-show { display: block; }
+
+.ld-offcanvas {
+  position: fixed;
+  top: 0; bottom: 0; left: 0;
+  width: 300px;
+  max-width: 85vw;
+  background: var(--ld-surface);
+  border-right: var(--ld-border-width) solid var(--ld-border);
+  box-shadow: 8px 0 0 var(--ld-shadow-color);
+  transform: translateX(-100%);
+  transition: transform 220ms ease;
+  padding: var(--ld-space-5);
+  overflow-y: auto;
+}
+.ld-offcanvas-backdrop.ld-show .ld-offcanvas { transform: translateX(0); }
+
+.ld-offcanvas-backdrop[data-ld-pos='right'] .ld-offcanvas {
+  left: auto; right: 0;
+  border-right: none;
+  border-left: var(--ld-border-width) solid var(--ld-border);
+  box-shadow: -8px 0 0 var(--ld-shadow-color);
+  transform: translateX(100%);
+}
+.ld-offcanvas-backdrop[data-ld-pos='right'].ld-show .ld-offcanvas { transform: translateX(0); }
+
+.ld-offcanvas-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--ld-space-4); }
+.ld-offcanvas-close { background: none; border: none; font-family: var(--ld-font-mono); font-size: var(--ld-text-lg); cursor: pointer; color: var(--ld-text-muted); }
+.ld-offcanvas-close:hover { color: var(--ld-text); }
+
+/* ==========================================================================
+   31. Stepper / wizard — ld-stepper
+   ========================================================================== */
+
+.ld-stepper { display: flex; list-style: none; margin: 0; padding: 0; }
+.ld-step {
+  display: flex;
+  align-items: center;
+  gap: var(--ld-space-2);
+  font-size: var(--ld-text-xs);
+  color: var(--ld-text-muted);
+  flex: 1;
+}
+.ld-step-index {
+  width: 24px; height: 24px;
+  border: var(--ld-border-width) solid var(--ld-border-soft);
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 700;
+  flex-shrink: 0;
+  background: var(--ld-surface);
+}
+.ld-step:not(:last-child)::after {
+  content: '';
+  flex: 1;
+  height: 2px;
+  background: var(--ld-border-soft);
+  margin: 0 var(--ld-space-2);
+}
+.ld-step[data-ld-active='true'] { color: var(--ld-text); }
+.ld-step[data-ld-active='true'] .ld-step-index { border-color: var(--ld-accent); color: var(--ld-accent); }
+.ld-step[data-ld-complete='true'] .ld-step-index { background: var(--ld-accent); border-color: var(--ld-accent); color: var(--ld-accent-text); }
+.ld-step[data-ld-complete='true']:not(:last-child)::after { background: var(--ld-accent); }
+
+/* ==========================================================================
+   32. Command palette — data-ld-toggle="command", ⌘K / Ctrl+K
+   ========================================================================== */
+
+.ld-command-backdrop {
+  position: fixed; inset: 0;
+  background: rgba(13, 15, 14, 0.6);
+  display: none;
+  align-items: flex-start;
+  justify-content: center;
+  padding-top: 15vh;
+  z-index: 70;
+}
+.ld-command-backdrop.ld-show { display: flex; }
+.ld-command {
+  width: 100%;
+  max-width: 480px;
+  background: var(--ld-surface);
+  border: var(--ld-border-width) solid var(--ld-border);
+  box-shadow: 8px 8px 0 var(--ld-shadow-color);
+  overflow: hidden;
+}
+.ld-command-input {
+  width: 100%;
+  padding: var(--ld-space-4);
+  border: none;
+  border-bottom: 1px solid var(--ld-border-soft);
+  background: var(--ld-surface);
+  color: var(--ld-text);
+  font-family: var(--ld-font-mono);
+  font-size: var(--ld-text-base);
+}
+.ld-command-input:focus { outline: none; }
+.ld-command-list { list-style: none; margin: 0; padding: var(--ld-space-2); max-height: 320px; overflow-y: auto; }
+.ld-command-item { padding: var(--ld-space-2) var(--ld-space-3); font-size: var(--ld-text-sm); cursor: pointer; color: var(--ld-text); }
+.ld-command-item[data-ld-highlighted='true'] { background: var(--ld-accent); color: var(--ld-accent-text); }
+.ld-command-item.ld-hide { display: none; }
+.ld-command-empty { padding: var(--ld-space-3) var(--ld-space-4); font-size: var(--ld-text-sm); color: var(--ld-text-muted); display: none; }
+.ld-command-empty.ld-show { display: block; }
+.ld-command-hint { display: flex; justify-content: flex-end; gap: var(--ld-space-2); padding: var(--ld-space-2) var(--ld-space-3); border-top: 1px solid var(--ld-border-soft); font-size: var(--ld-text-xs); color: var(--ld-text-muted); }
+
+/* ==========================================================================
+   33. Range slider — ld-range
+   ========================================================================== */
+
+.ld-range {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 4px;
+  background: var(--ld-border-soft);
+  outline: none;
+}
+.ld-range::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 16px; height: 16px;
+  background: var(--ld-accent);
+  border: 2px solid var(--ld-border);
+  cursor: pointer;
+}
+.ld-range::-moz-range-thumb {
+  width: 16px; height: 16px;
+  background: var(--ld-accent);
+  border: 2px solid var(--ld-border);
+  border-radius: 0;
+  cursor: pointer;
+}
+.ld-range::-moz-range-track { background: var(--ld-border-soft); height: 4px; }
+
+/* ==========================================================================
+   34. Dropzone / file upload — data-ld-dropzone
+   ========================================================================== */
+
+[data-ld-dropzone] {
+  border: var(--ld-border-width) dashed var(--ld-border-soft);
+  padding: var(--ld-space-6);
+  text-align: center;
+  font-size: var(--ld-text-sm);
+  color: var(--ld-text-muted);
+  cursor: pointer;
+  transition: border-color var(--ld-transition), background var(--ld-transition), color var(--ld-transition);
+}
+[data-ld-dropzone]:hover,
+[data-ld-dropzone][data-ld-active='true'] {
+  border-color: var(--ld-accent);
+  background: var(--ld-surface-raised);
+  color: var(--ld-text);
+}
+[data-ld-dropzone] input[type='file'] { display: none; }
+.ld-dropzone-hint { font-size: var(--ld-text-xs); color: var(--ld-text-muted); margin-top: var(--ld-space-1); }
+
+/* ==========================================================================
+   35. Rating — data-ld-rating
+   ========================================================================== */
+
+[data-ld-rating] { display: inline-flex; gap: 2px; }
+[data-ld-star] { font-size: var(--ld-text-lg); color: var(--ld-border-soft); cursor: pointer; line-height: 1; background: none; border: none; padding: 0; }
+[data-ld-star][data-ld-active='true'] { color: var(--ld-accent); }
+
+/* ==========================================================================
+   36. Tag input — data-ld-tags
+   ========================================================================== */
+
+[data-ld-tags] {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--ld-space-2);
+  align-items: center;
+  padding: var(--ld-space-2);
+  border: var(--ld-border-width) solid var(--ld-border-soft);
+  background: var(--ld-surface);
+}
+[data-ld-tags]:focus-within { border-color: var(--ld-accent); }
+.ld-tag { display: inline-flex; align-items: center; gap: 4px; background: var(--ld-surface-raised); border: 1px solid var(--ld-border-soft); padding: 2px 8px; font-size: var(--ld-text-xs); }
+.ld-tag-remove { background: none; border: none; color: var(--ld-text-muted); cursor: pointer; font-size: var(--ld-text-sm); line-height: 1; padding: 0; }
+.ld-tag-remove:hover { color: var(--ld-danger); }
+[data-ld-tags-input] { flex: 1; min-width: 100px; border: none; background: none; font-family: var(--ld-font-mono); font-size: var(--ld-text-sm); color: var(--ld-text); outline: none; }
+
+/* ==========================================================================
+   37. Misc
    ========================================================================== */
 
 .ld-text-muted { color: var(--ld-text-muted); }

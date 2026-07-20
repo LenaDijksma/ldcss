@@ -1,0 +1,237 @@
+<!doctype html>
+<html lang="en" data-ld-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ldcss — Cheat Sheet</title>
+<link rel="stylesheet" href="ldcss.css">
+<style>
+  body { padding-bottom: var(--ld-space-8); }
+  .ld-hero { padding: var(--ld-space-6) 0 var(--ld-space-4); }
+  .ld-toc { display: flex; flex-wrap: wrap; gap: var(--ld-space-2); margin: var(--ld-space-4) 0; }
+  .ld-toc a { font-size: var(--ld-text-xs); padding: 2px var(--ld-space-2); border: 1px solid var(--ld-border-soft); text-decoration: none; color: var(--ld-text-muted); }
+  .ld-toc a:hover { color: var(--ld-text); border-color: var(--ld-text); }
+  section { padding: var(--ld-space-5) 0; border-top: 1px solid var(--ld-border-soft); }
+  section h2 { font-size: var(--ld-text-lg); margin-bottom: var(--ld-space-3); }
+  .ld-table code { font-size: 0.9em; }
+  #filter-input { position: sticky; top: 0; z-index: 10; margin-bottom: var(--ld-space-2); }
+  tr.ld-hide { display: none; }
+</style>
+</head>
+<body>
+
+<nav class="ld-nav">
+  <a href="#" class="ld-nav-brand">ldcss</a>
+  <span class="ld-badge" data-ld-variant="primary">cheat sheet</span>
+  <button class="ld-btn" data-ld-size="sm" data-ld-toggle="theme">toggle theme</button>
+</nav>
+
+<div class="ld-container">
+  <header class="ld-hero">
+    <h1>Cheat sheet</h1>
+    <p class="ld-text-muted">Every <code class="ld-code-inline">ld-*</code> class and <code class="ld-code-inline">data-ld-*</code> attribute in ldcss, in one scannable page. See <code class="ld-code-inline">README.md</code> for full markup examples.</p>
+    <input id="filter-input" class="ld-input" type="text" placeholder="Filter (e.g. &quot;modal&quot;, &quot;shadow&quot;)…">
+    <div class="ld-toc" id="toc"></div>
+  </header>
+
+  <section id="ref-theme">
+    <h2>Theming</h2>
+    <table class="ld-table" data-ld-striped="true">
+      <thead><tr><th>Attribute</th><th>Values</th><th>Notes</th></tr></thead>
+      <tbody>
+        <tr><td><code class="ld-code-inline">data-ld-theme</code></td><td>light · dark</td><td>On &lt;html&gt; or any container</td></tr>
+        <tr><td><code class="ld-code-inline">data-ld-notheme</code></td><td>—</td><td>Freezes subtree at light appearance</td></tr>
+        <tr><td><code class="ld-code-inline">data-ld-toggle="theme"</code></td><td>—</td><td>Click to flip theme, persists via localStorage</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section id="ref-layout">
+    <h2>Layout</h2>
+    <table class="ld-table" data-ld-striped="true">
+      <thead><tr><th>Class</th><th>Attribute</th><th>Notes</th></tr></thead>
+      <tbody>
+        <tr><td><code class="ld-code-inline">ld-container</code></td><td>—</td><td>Centered, max-width 1100px</td></tr>
+        <tr><td><code class="ld-code-inline">ld-grid</code></td><td><code class="ld-code-inline">data-ld-cols</code>: 2·3·4</td><td>Responsive grid</td></tr>
+        <tr><td><code class="ld-code-inline">ld-stack</code></td><td>—</td><td>Vertical spacing between children</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section id="ref-utility">
+    <h2>Utility attributes</h2>
+    <table class="ld-table" data-ld-striped="true">
+      <thead><tr><th>Attribute</th><th>Values</th><th>Notes</th></tr></thead>
+      <tbody>
+        <tr><td><code class="ld-code-inline">data-ld-shadow</code></td><td>none · sm · md · lg</td><td>Hard offset shadow depth</td></tr>
+        <tr><td><code class="ld-code-inline">data-ld-border</code></td><td>none · thin · thick · accent</td><td>Border weight/color</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section id="ref-buttons">
+    <h2>Buttons &amp; badges</h2>
+    <table class="ld-table" data-ld-striped="true">
+      <thead><tr><th>Class</th><th>Attribute</th><th>Values</th></tr></thead>
+      <tbody>
+        <tr><td><code class="ld-code-inline">ld-btn</code></td><td><code class="ld-code-inline">data-ld-variant</code></td><td>primary · outline · ghost · danger</td></tr>
+        <tr><td></td><td><code class="ld-code-inline">data-ld-size</code></td><td>sm · md · lg</td></tr>
+        <tr><td></td><td><code class="ld-code-inline">data-ld-disabled</code></td><td>true</td></tr>
+        <tr><td></td><td><code class="ld-code-inline">data-ld-prompt</code></td><td>true — prefixes label with &gt;</td></tr>
+        <tr><td><code class="ld-code-inline">ld-badge</code></td><td><code class="ld-code-inline">data-ld-variant</code></td><td>primary · danger</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section id="ref-cards">
+    <h2>Cards &amp; nav</h2>
+    <table class="ld-table" data-ld-striped="true">
+      <thead><tr><th>Class</th><th>Attribute</th><th>Values</th></tr></thead>
+      <tbody>
+        <tr><td><code class="ld-code-inline">ld-card</code></td><td><code class="ld-code-inline">data-ld-interactive</code></td><td>true — lift on hover</td></tr>
+        <tr><td><code class="ld-code-inline">ld-card-eyebrow / -title / -body / -footer</code></td><td>—</td><td>Card subparts</td></tr>
+        <tr><td><code class="ld-code-inline">ld-nav</code>, <code class="ld-code-inline">ld-nav-brand</code>, <code class="ld-code-inline">ld-nav-links</code>, <code class="ld-code-inline">ld-nav-link</code></td><td><code class="ld-code-inline">data-ld-active</code></td><td>true, on ld-nav-link</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section id="ref-forms">
+    <h2>Forms</h2>
+    <table class="ld-table" data-ld-striped="true">
+      <thead><tr><th>Class</th><th>Attribute</th><th>Values</th></tr></thead>
+      <tbody>
+        <tr><td><code class="ld-code-inline">ld-form-group</code>, <code class="ld-code-inline">ld-label</code></td><td>—</td><td>—</td></tr>
+        <tr><td><code class="ld-code-inline">ld-input</code>, <code class="ld-code-inline">ld-textarea</code>, <code class="ld-code-inline">ld-select</code></td><td><code class="ld-code-inline">data-ld-error</code></td><td>true</td></tr>
+        <tr><td><code class="ld-code-inline">ld-form-hint</code>, <code class="ld-code-inline">ld-form-error</code></td><td>—</td><td>—</td></tr>
+        <tr><td><code class="ld-code-inline">ld-checkbox</code></td><td>—</td><td>Wraps a native checkbox</td></tr>
+        <tr><td><code class="ld-code-inline">ld-switch</code></td><td>—</td><td>Wraps a native checkbox, styled as toggle</td></tr>
+        <tr><td><code class="ld-code-inline">ld-range</code></td><td>—</td><td>Styled &lt;input type="range"&gt;</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section id="ref-overlays">
+    <h2>Dropdown, popover, modal, offcanvas, command palette</h2>
+    <table class="ld-table" data-ld-striped="true">
+      <thead><tr><th>Trigger</th><th>Container / target</th><th>Notes</th></tr></thead>
+      <tbody>
+        <tr><td><code class="ld-code-inline">data-ld-toggle="dropdown"</code></td><td><code class="ld-code-inline">data-ld-dropdown-menu</code></td><td>Wrap both in <code class="ld-code-inline">data-ld-dropdown</code></td></tr>
+        <tr><td><code class="ld-code-inline">data-ld-toggle="popover"</code></td><td><code class="ld-code-inline">data-ld-popover-content</code></td><td>Wrap both in <code class="ld-code-inline">data-ld-popover</code></td></tr>
+        <tr><td><code class="ld-code-inline">data-ld-toggle="modal"</code></td><td><code class="ld-code-inline">.ld-modal-backdrop</code> &gt; <code class="ld-code-inline">.ld-modal</code></td><td>Dismiss: <code class="ld-code-inline">data-ld-dismiss="modal"</code></td></tr>
+        <tr><td><code class="ld-code-inline">data-ld-toggle="offcanvas"</code></td><td><code class="ld-code-inline">.ld-offcanvas-backdrop</code> &gt; <code class="ld-code-inline">.ld-offcanvas</code></td><td><code class="ld-code-inline">data-ld-pos="right"</code> on backdrop; dismiss: <code class="ld-code-inline">data-ld-dismiss="offcanvas"</code></td></tr>
+        <tr><td><code class="ld-code-inline">data-ld-toggle="command"</code></td><td><code class="ld-code-inline">.ld-command-backdrop</code></td><td>Also opens with ⌘/Ctrl+K</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section id="ref-tabs">
+    <h2>Tabs &amp; accordion</h2>
+    <table class="ld-table" data-ld-striped="true">
+      <thead><tr><th>Class / attribute</th><th>Notes</th></tr></thead>
+      <tbody>
+        <tr><td><code class="ld-code-inline">data-ld-tabs</code>, <code class="ld-code-inline">data-ld-panels</code></td><td>Container + panel-group selector</td></tr>
+        <tr><td><code class="ld-code-inline">data-ld-toggle="tab"</code>, <code class="ld-code-inline">data-ld-tab-panel</code></td><td>Trigger / panel pair</td></tr>
+        <tr><td><code class="ld-code-inline">data-ld-accordion="single"</code></td><td>Mutually exclusive; omit for independent items</td></tr>
+        <tr><td><code class="ld-code-inline">ld-accordion-item</code>, <code class="ld-code-inline">ld-accordion-trigger</code>, <code class="ld-code-inline">data-ld-accordion-panel</code></td><td>—</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section id="ref-feedback">
+    <h2>Alerts, toast, progress, skeleton, spinner</h2>
+    <table class="ld-table" data-ld-striped="true">
+      <thead><tr><th>Class</th><th>Attribute</th><th>Values</th></tr></thead>
+      <tbody>
+        <tr><td><code class="ld-code-inline">ld-alert</code></td><td><code class="ld-code-inline">data-ld-variant</code></td><td>info · success · warning · danger</td></tr>
+        <tr><td><code class="ld-code-inline">data-ld-toggle="toast"</code></td><td><code class="ld-code-inline">data-ld-toast-message/-variant/-duration</code></td><td>variant: success · danger</td></tr>
+        <tr><td><code class="ld-code-inline">ld-progress-bar</code></td><td><code class="ld-code-inline">data-ld-progress</code>, <code class="ld-code-inline">data-ld-value</code></td><td>0–100</td></tr>
+        <tr><td><code class="ld-code-inline">ld-skeleton</code></td><td><code class="ld-code-inline">data-ld-shape</code></td><td>circle · text</td></tr>
+        <tr><td><code class="ld-code-inline">ld-spinner</code></td><td><code class="ld-code-inline">data-ld-variant</code></td><td>dots</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section id="ref-data">
+    <h2>Table, list, pagination, breadcrumbs, stepper, avatar</h2>
+    <table class="ld-table" data-ld-striped="true">
+      <thead><tr><th>Class</th><th>Attribute</th><th>Values</th></tr></thead>
+      <tbody>
+        <tr><td><code class="ld-code-inline">ld-table</code></td><td><code class="ld-code-inline">data-ld-striped</code>, <code class="ld-code-inline">data-ld-bordered</code></td><td>true</td></tr>
+        <tr><td><code class="ld-code-inline">ld-list</code>, <code class="ld-code-inline">ld-list-item</code></td><td><code class="ld-code-inline">data-ld-interactive</code>, <code class="ld-code-inline">data-ld-active</code></td><td>true</td></tr>
+        <tr><td><code class="ld-code-inline">ld-pagination</code></td><td><code class="ld-code-inline">data-ld-active</code></td><td>true, on &lt;li&gt;</td></tr>
+        <tr><td><code class="ld-code-inline">ld-breadcrumbs</code></td><td><code class="ld-code-inline">data-ld-active</code></td><td>true, on &lt;li&gt;</td></tr>
+        <tr><td><code class="ld-code-inline">ld-stepper</code>, <code class="ld-code-inline">ld-step</code></td><td><code class="ld-code-inline">data-ld-active</code>, <code class="ld-code-inline">data-ld-complete</code></td><td>true</td></tr>
+        <tr><td><code class="ld-code-inline">ld-avatar</code></td><td><code class="ld-code-inline">data-ld-size</code>, <code class="ld-code-inline">data-ld-variant</code></td><td>size: sm·lg; variant: accent</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section id="ref-misc">
+    <h2>Kbd, copy, terminal, tooltip, dropzone, rating, tags</h2>
+    <table class="ld-table" data-ld-striped="true">
+      <thead><tr><th>Class</th><th>Attribute</th><th>Notes</th></tr></thead>
+      <tbody>
+        <tr><td><code class="ld-code-inline">ld-kbd</code></td><td>—</td><td>Keyboard key badge</td></tr>
+        <tr><td>—</td><td><code class="ld-code-inline">data-ld-toggle="copy"</code>, <code class="ld-code-inline">data-ld-copy</code> / <code class="ld-code-inline">data-ld-target</code></td><td>Copies literal text or a target's textContent</td></tr>
+        <tr><td><code class="ld-code-inline">ld-terminal</code>, <code class="ld-code-inline">ld-terminal-bar</code>, <code class="ld-code-inline">ld-terminal-body</code></td><td>—</td><td>Terminal window chrome</td></tr>
+        <tr><td>—</td><td><code class="ld-code-inline">data-ld-tooltip</code>, <code class="ld-code-inline">data-ld-tooltip-pos</code></td><td>pos: top·bottom·left·right</td></tr>
+        <tr><td>—</td><td><code class="ld-code-inline">data-ld-dropzone</code>, <code class="ld-code-inline">data-ld-dropzone-label</code></td><td>Click-to-browse + drag/drop</td></tr>
+        <tr><td>—</td><td><code class="ld-code-inline">data-ld-rating</code>, <code class="ld-code-inline">data-ld-star</code>, <code class="ld-code-inline">data-ld-value</code></td><td>1–5 click-to-set</td></tr>
+        <tr><td>—</td><td><code class="ld-code-inline">data-ld-tags</code>, <code class="ld-code-inline">data-ld-tags-input</code></td><td>Enter/comma to add, Backspace to remove last</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section id="ref-escape">
+    <h2>Escape hatches</h2>
+    <table class="ld-table" data-ld-striped="true">
+      <thead><tr><th>Class</th><th>Values</th><th>Effect</th></tr></thead>
+      <tbody>
+        <tr><td><code class="ld-code-inline">ld-round*</code></td><td>-none·-sm·(default)·-lg·-xl·-full</td><td>Border radius</td></tr>
+        <tr><td><code class="ld-code-inline">ld-border-{1,2,3,4}px-{solid,dashed,dotted,double}</code></td><td>+ <code class="ld-code-inline">ld-border-0</code></td><td>Border width × style grid</td></tr>
+        <tr><td><code class="ld-code-inline">ld-shadow-soft*</code></td><td>-sm·(default)·-lg·-none</td><td>Blurred shadow instead of hard offset</td></tr>
+        <tr><td><code class="ld-code-inline">ld-font-sans</code>, <code class="ld-code-inline">ld-font-serif</code></td><td>—</td><td>Opt out of monospace</td></tr>
+        <tr><td><code class="ld-code-inline">ld-scale-{compact,cozy,spacious}</code></td><td>—</td><td>Override spacing tokens for a subtree</td></tr>
+        <tr><td><code class="ld-code-inline">ld-accent-{color}</code></td><td>mint·blue·purple·pink·orange·yellow·red</td><td>Swap brand color for a subtree</td></tr>
+        <tr><td><code class="ld-code-inline">ld-glass</code>, <code class="ld-code-inline">ld-flat</code></td><td>—</td><td>Alternative surface registers</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section id="ref-code">
+    <h2>Code</h2>
+    <table class="ld-table" data-ld-striped="true">
+      <thead><tr><th>Class</th><th>Notes</th></tr></thead>
+      <tbody>
+        <tr><td><code class="ld-code-inline">ld-code</code></td><td>Block <code class="ld-code-inline">&lt;pre&gt;</code>, uses <code class="ld-code-inline">--ld-code-text</code> for contrast-safe color</td></tr>
+        <tr><td><code class="ld-code-inline">ld-code-inline</code></td><td>Inline <code class="ld-code-inline">&lt;code&gt;</code></td></tr>
+      </tbody>
+    </table>
+  </section>
+</div>
+
+<script src="ldcss.js"></script>
+<script>
+  // Build the table-of-contents from section headings.
+  var toc = document.getElementById('toc');
+  document.querySelectorAll('section[id] h2').forEach(function (h2) {
+    var a = document.createElement('a');
+    a.href = '#' + h2.parentElement.id;
+    a.textContent = h2.textContent;
+    toc.appendChild(a);
+  });
+
+  // Live-filter every table row by text content.
+  document.getElementById('filter-input').addEventListener('input', function (e) {
+    var q = e.target.value.trim().toLowerCase();
+    document.querySelectorAll('table.ld-table tbody tr').forEach(function (row) {
+      row.classList.toggle('ld-hide', !!q && row.textContent.toLowerCase().indexOf(q) === -1);
+    });
+    document.querySelectorAll('section[id]').forEach(function (section) {
+      var visibleRows = section.querySelectorAll('tbody tr:not(.ld-hide)');
+      section.style.display = (q && visibleRows.length === 0) ? 'none' : '';
+    });
+  });
+</script>
+</body>
+</html>

@@ -270,6 +270,83 @@ Shares open/close/outside-click behavior with dropdown, just with richer content
 <div class="ld-skeleton" data-ld-shape="text"></div>
 ```
 
+### Offcanvas / sidebar drawer
+```html
+<button class="ld-btn" data-ld-toggle="offcanvas" data-ld-target="#side-left">Open</button>
+
+<div class="ld-offcanvas-backdrop" id="side-left">
+  <div class="ld-offcanvas">
+    <div class="ld-offcanvas-header">
+      <strong>Navigation</strong>
+      <button class="ld-offcanvas-close" data-ld-dismiss="offcanvas">×</button>
+    </div>
+    …
+  </div>
+</div>
+```
+Add `data-ld-pos="right"` on the `.ld-offcanvas-backdrop` to slide in from the right instead of the left. Closes on Escape, backdrop click, or `[data-ld-dismiss="offcanvas"]`, and returns focus to the button that opened it.
+
+### Stepper — `ld-stepper`
+```html
+<ul class="ld-stepper">
+  <li class="ld-step" data-ld-complete="true"><span class="ld-step-index">✓</span> Account</li>
+  <li class="ld-step" data-ld-active="true"><span class="ld-step-index">2</span> Details</li>
+  <li class="ld-step"><span class="ld-step-index">3</span> Review</li>
+</ul>
+```
+
+### Command palette
+```html
+<button data-ld-toggle="command" data-ld-target="#cmdk">⌘K</button>
+
+<div class="ld-command-backdrop" id="cmdk">
+  <div class="ld-command">
+    <input class="ld-command-input" type="text" placeholder="Type a command…" data-ld-autofocus>
+    <ul class="ld-command-list" data-ld-command-list>
+      <li class="ld-command-item" data-ld-command-item>Open dashboard</li>
+    </ul>
+    <div class="ld-command-empty">No matching commands.</div>
+  </div>
+</div>
+```
+Opens with the trigger button *or* <kbd>⌘/Ctrl</kbd>+<kbd>K</kbd> from anywhere on the page (as long as one `.ld-command-backdrop` exists). Type to filter, arrow keys to move the highlight, Enter to "select" (fires a click on the highlighted item — hook your own click handler on `[data-ld-command-item]` for real actions).
+
+### Range slider — `ld-range`
+```html
+<input type="range" class="ld-range" min="0" max="100" value="65">
+```
+
+### Dropzone / file upload
+```html
+<label data-ld-dropzone>
+  <input type="file">
+  Drop a file here, or click to browse
+  <div data-ld-dropzone-filename>No file selected</div>
+</label>
+```
+Handles click-to-browse and drag-and-drop, and updates the element flagged `data-ld-dropzone-filename` with the selected filename(s). Point `data-ld-dropzone-label="#some-id"` at the zone if you'd rather the filename go somewhere else.
+
+### Rating — `data-ld-rating`
+```html
+<div data-ld-rating data-ld-value="3">
+  <button type="button" data-ld-star>★</button>
+  <button type="button" data-ld-star>★</button>
+  <button type="button" data-ld-star>★</button>
+  <button type="button" data-ld-star>★</button>
+  <button type="button" data-ld-star>★</button>
+</div>
+```
+`data-ld-value` sets the initial rating; clicking a star updates it and reflects the new value back onto the wrapper's `data-ld-value`.
+
+### Tag input — `data-ld-tags`
+```html
+<div data-ld-tags>
+  <span class="ld-tag"><span>design</span><button type="button" class="ld-tag-remove">×</button></span>
+  <input type="text" data-ld-tags-input placeholder="Add a tag, press Enter">
+</div>
+```
+Enter or comma adds a tag from the input's current text; Backspace on an empty input removes the last tag; the × button on any tag removes it.
+
 ---
 
 ## Escape hatches
@@ -309,6 +386,27 @@ Pattern is `ld-border-{1,2,3,4}px-{solid,dashed,dotted,double}`. Color defaults 
 <p class="ld-font-serif">…or serif, for a different register.</p>
 ```
 
+**Density scale** — override spacing tokens for a whole subtree
+```html
+<div class="ld-scale-compact">…tighter padding throughout…</div>
+<div class="ld-scale-spacious">…looser padding throughout…</div>
+```
+`ld-scale-cozy` is the (identical) default — useful if you need to reset back to it inside a `compact`/`spacious` ancestor.
+
+**Per-element accent** — swap the brand color without touching the theme
+```html
+<div class="ld-card ld-accent-blue">
+  <button class="ld-btn" data-ld-variant="primary">Blue in here</button>
+</div>
+```
+Options: `ld-accent-mint` (default) · `blue` · `purple` · `pink` · `orange` · `yellow` · `red`.
+
+**Surface registers** — alternatives to the bordered/shadowed default
+```html
+<div class="ld-card ld-glass">Frosted, translucent background</div>
+<div class="ld-flat">No border, shadow, or padding — just content</div>
+```
+
 ---
 
 ## Utility attributes
@@ -339,6 +437,15 @@ Uses `--ld-code-text`, a token tuned separately per theme so mint-on-white stays
 
 ---
 
+## Accessibility
+
+- **Focus management** — modal, offcanvas, and command palette trap Tab within themselves while open, and return focus to whatever triggered them on close.
+- **ARIA state** — dropdown/popover/accordion triggers get `aria-expanded`; accordion/tab panels get `aria-hidden`; tabs get `aria-selected`; modal/offcanvas get `role="dialog"` + `aria-modal="true"`.
+- **Live region** — the toast container is `role="status"` / `aria-live="polite"`, so screen readers announce new toasts without stealing focus.
+- **`prefers-contrast: more`** — muted text and soft borders switch to full-contrast values automatically when the user has requested higher contrast at the OS/browser level.
+
+This covers the common cases but isn't a substitute for testing with a real screen reader on your actual markup — always verify in your specific context.
+
 ## JavaScript API
 
 `ldcss.js` is a single IIFE, no globals except one helper function:
@@ -347,11 +454,11 @@ Uses `--ld-code-text`, a token tuned separately per theme so mint-on-white stays
 showToast('Saved.', 'success', 4000);
 ```
 
-Everything else is wired through delegated click/keydown listeners reading `data-ld-toggle`:
+Everything else is wired through delegated click/keydown/input listeners reading `data-ld-toggle`:
 
-`theme` · `dropdown` · `popover` · `tab` · `modal` · `accordion` · `copy` · `toast`
+`theme` · `dropdown` · `popover` · `tab` · `modal` · `offcanvas` · `command` · `accordion` · `copy` · `toast`
 
-Escape closes any open dropdown, popover, or modal.
+Escape closes any open dropdown, popover, modal, offcanvas, or command palette. <kbd>⌘/Ctrl</kbd>+<kbd>K</kbd> opens the command palette from anywhere.
 
 ---
 

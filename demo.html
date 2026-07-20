@@ -25,14 +25,18 @@
     <li><a href="#interactive" class="ld-nav-link">interactive</a></li>
     <li><a href="#more" class="ld-nav-link">more</a></li>
     <li><a href="#batch" class="ld-nav-link">v0.3</a></li>
+    <li><a href="#v05" class="ld-nav-link">v0.5</a></li>
   </ul>
-  <button class="ld-btn" data-ld-size="sm" data-ld-toggle="theme">toggle theme</button>
+  <div class="ld-row">
+    <button class="ld-btn" data-ld-size="sm" data-ld-variant="ghost" data-ld-toggle="command" data-ld-target="#demo-command">⌘K</button>
+    <button class="ld-btn" data-ld-size="sm" data-ld-toggle="theme">toggle theme</button>
+  </div>
 </nav>
 
 <div class="ld-container">
 
   <header class="ld-hero">
-    <span class="ld-badge" data-ld-variant="primary">v0.1.0</span>
+    <span class="ld-badge" data-ld-variant="primary">v0.5.0</span>
     <h1>ldcss</h1>
     <p class="ld-text-muted">A small framework built on two ideas: <span class="ld-text-accent">ld-*</span> classes for structure, <span class="ld-text-accent">data-ld-*</span> attributes for state and variants. No build step. No dependencies.</p>
     <pre class="ld-code">&lt;button class="ld-btn" data-ld-variant="primary" data-ld-size="lg"&gt;
@@ -142,6 +146,7 @@
         <p class="ld-text-muted">Include ldcss.css and ldcss.js. Everything else is attributes on plain HTML — no build step.</p>
       </div>
       <div id="tab-3" data-ld-tab-panel>
+        <p class="ld-text-muted"><strong>v0.5.0</strong> — added offcanvas, stepper, command palette (⌘K), range slider, dropzone, rating, tag input. Added <code class="ld-code-inline">ld-scale-*</code> density presets, <code class="ld-code-inline">ld-accent-*</code> per-element color swap, <code class="ld-code-inline">ld-glass</code>/<code class="ld-code-inline">ld-flat</code> surfaces. ARIA wiring (aria-expanded/aria-hidden/aria-selected, dialog roles, focus trap + focus return, live-region toasts) and a <code class="ld-code-inline">prefers-contrast: more</code> pass.</p>
         <p class="ld-text-muted"><strong>v0.4.0</strong> — added escape-hatch utilities: <code class="ld-code-inline">ld-round*</code>, <code class="ld-code-inline">ld-border-{width}px-{style}</code>, <code class="ld-code-inline">ld-shadow-soft*</code>, <code class="ld-code-inline">ld-font-sans</code> / <code class="ld-code-inline">ld-font-serif</code> — for opting out of the sharp/hard-shadow/monospace defaults per element.</p>
         <p class="ld-text-muted"><strong>v0.3.0</strong> — added kbd, copy-to-clipboard, terminal window, spinner, toast, table, pagination, list group, switch, avatar, popover, skeleton loader.</p>
         <p class="ld-text-muted"><strong>v0.2.0</strong> — added alerts, accordion, breadcrumbs, tooltip, progress bar. Added <code class="ld-code-inline">data-ld-notheme</code> to freeze a subtree's theme. Fixed low-contrast code blocks on light theme (new <code class="ld-code-inline">--ld-code-text</code> token).</p>
@@ -353,6 +358,106 @@ $ echo "linked ldcss.css and ldcss.js"</div>
     <p class="ld-form-hint" style="margin-top:var(--ld-space-2);">ld-border-1px-dotted · ld-border-2px-dashed · ld-border-3px-solid · ld-border-2px-double</p>
   </section>
 
+  <section id="v05">
+    <h2>Offcanvas &amp; stepper</h2>
+    <p class="ld-section-sub">Offcanvas slides in from either edge; stepper tracks progress through a flow</p>
+    <div class="ld-row" style="margin-bottom: var(--ld-space-6);">
+      <button class="ld-btn" data-ld-variant="outline" data-ld-toggle="offcanvas" data-ld-target="#side-left">Open left</button>
+      <button class="ld-btn" data-ld-variant="outline" data-ld-toggle="offcanvas" data-ld-target="#side-right">Open right</button>
+    </div>
+    <ul class="ld-stepper">
+      <li class="ld-step" data-ld-complete="true"><span class="ld-step-index">✓</span> Account</li>
+      <li class="ld-step" data-ld-active="true"><span class="ld-step-index">2</span> Details</li>
+      <li class="ld-step"><span class="ld-step-index">3</span> Review</li>
+    </ul>
+  </section>
+
+  <section>
+    <h2>Command palette</h2>
+    <p class="ld-section-sub">Press <span class="ld-kbd">⌘</span>/<span class="ld-kbd">Ctrl</span> + <span class="ld-kbd">K</span> anywhere on this page, or use the button in the nav</p>
+    <button class="ld-btn" data-ld-toggle="command" data-ld-target="#demo-command">Open command palette</button>
+  </section>
+
+  <section>
+    <h2>Range, dropzone, rating, tags</h2>
+    <div class="ld-grid" data-ld-cols="2">
+      <div>
+        <div class="ld-form-group">
+          <label class="ld-label" for="vol">Volume</label>
+          <input type="range" class="ld-range" id="vol" min="0" max="100" value="65">
+        </div>
+        <div class="ld-form-group">
+          <label class="ld-label">Rating</label>
+          <div data-ld-rating data-ld-value="3">
+            <button type="button" data-ld-star>★</button>
+            <button type="button" data-ld-star>★</button>
+            <button type="button" data-ld-star>★</button>
+            <button type="button" data-ld-star>★</button>
+            <button type="button" data-ld-star>★</button>
+          </div>
+        </div>
+        <div class="ld-form-group">
+          <label class="ld-label">Tags</label>
+          <div data-ld-tags>
+            <span class="ld-tag"><span>design</span><button type="button" class="ld-tag-remove" aria-label="Remove design">×</button></span>
+            <span class="ld-tag"><span>css</span><button type="button" class="ld-tag-remove" aria-label="Remove css">×</button></span>
+            <input type="text" data-ld-tags-input placeholder="Add a tag, press Enter">
+          </div>
+        </div>
+      </div>
+      <div>
+        <label class="ld-label">File upload</label>
+        <label data-ld-dropzone>
+          <input type="file">
+          Drop a file here, or click to browse
+          <div class="ld-dropzone-hint" data-ld-dropzone-filename>No file selected</div>
+        </label>
+      </div>
+    </div>
+  </section>
+
+</div>
+
+<!-- Offcanvas panels -->
+<div class="ld-offcanvas-backdrop" id="side-left">
+  <div class="ld-offcanvas">
+    <div class="ld-offcanvas-header">
+      <strong>Navigation</strong>
+      <button class="ld-offcanvas-close" data-ld-dismiss="offcanvas" aria-label="Close">×</button>
+    </div>
+    <ul class="ld-list">
+      <li class="ld-list-item" data-ld-interactive="true">Dashboard</li>
+      <li class="ld-list-item" data-ld-interactive="true">Projects</li>
+      <li class="ld-list-item" data-ld-interactive="true">Settings</li>
+    </ul>
+  </div>
+</div>
+
+<div class="ld-offcanvas-backdrop" id="side-right" data-ld-pos="right">
+  <div class="ld-offcanvas">
+    <div class="ld-offcanvas-header">
+      <strong>Filters</strong>
+      <button class="ld-offcanvas-close" data-ld-dismiss="offcanvas" aria-label="Close">×</button>
+    </div>
+    <label class="ld-switch" style="margin-bottom: var(--ld-space-3);"><input type="checkbox" checked> In stock only</label>
+    <label class="ld-switch"><input type="checkbox"> On sale</label>
+  </div>
+</div>
+
+<!-- Command palette -->
+<div class="ld-command-backdrop" id="demo-command">
+  <div class="ld-command">
+    <input class="ld-command-input" type="text" placeholder="Type a command or search…" data-ld-autofocus>
+    <ul class="ld-command-list" data-ld-command-list>
+      <li class="ld-command-item" data-ld-command-item data-ld-highlighted="true">Open dashboard</li>
+      <li class="ld-command-item" data-ld-command-item>Create new file</li>
+      <li class="ld-command-item" data-ld-command-item>Toggle theme</li>
+      <li class="ld-command-item" data-ld-command-item>Open settings</li>
+      <li class="ld-command-item" data-ld-command-item>Invite a teammate</li>
+    </ul>
+    <div class="ld-command-empty">No matching commands.</div>
+    <div class="ld-command-hint"><span class="ld-kbd">↑↓</span> navigate <span class="ld-kbd">↵</span> select <span class="ld-kbd">esc</span> close</div>
+  </div>
 </div>
 
 <div class="ld-modal-backdrop" id="demo-modal">
