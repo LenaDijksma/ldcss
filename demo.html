@@ -1,0 +1,346 @@
+<!doctype html>
+<html lang="en" data-ld-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ldcss — Lena Dijksma CSS</title>
+<link rel="stylesheet" href="ldcss.css">
+<style>
+  .ld-hero { padding: var(--ld-space-8) 0 var(--ld-space-6); }
+  .ld-hero pre.ld-code { margin: var(--ld-space-4) 0; }
+  section { padding: var(--ld-space-6) 0; border-top: 1px solid var(--ld-border-soft); }
+  section h2 { font-size: var(--ld-text-xl); margin-bottom: var(--ld-space-1); }
+  section .ld-section-sub { color: var(--ld-text-muted); font-size: var(--ld-text-sm); margin-bottom: var(--ld-space-5); }
+  .ld-row { display: flex; flex-wrap: wrap; gap: var(--ld-space-3); align-items: center; }
+</style>
+</head>
+<body>
+
+<nav class="ld-nav">
+  <a href="#" class="ld-nav-brand">ldcss</a>
+  <ul class="ld-nav-links">
+    <li><a href="#buttons" class="ld-nav-link" data-ld-active="true">buttons</a></li>
+    <li><a href="#cards" class="ld-nav-link">cards</a></li>
+    <li><a href="#forms" class="ld-nav-link">forms</a></li>
+    <li><a href="#interactive" class="ld-nav-link">interactive</a></li>
+    <li><a href="#more" class="ld-nav-link">more</a></li>
+    <li><a href="#batch" class="ld-nav-link">v0.3</a></li>
+  </ul>
+  <button class="ld-btn" data-ld-size="sm" data-ld-toggle="theme">toggle theme</button>
+</nav>
+
+<div class="ld-container">
+
+  <header class="ld-hero">
+    <span class="ld-badge" data-ld-variant="primary">v0.1.0</span>
+    <h1>ldcss</h1>
+    <p class="ld-text-muted">A small framework built on two ideas: <span class="ld-text-accent">ld-*</span> classes for structure, <span class="ld-text-accent">data-ld-*</span> attributes for state and variants. No build step. No dependencies.</p>
+    <pre class="ld-code">&lt;button class="ld-btn" data-ld-variant="primary" data-ld-size="lg"&gt;
+  Run
+&lt;/button&gt;</pre>
+    <div class="ld-row">
+      <button class="ld-btn" data-ld-variant="primary" data-ld-prompt="true">Get started</button>
+      <button class="ld-btn" data-ld-variant="outline">Read the docs</button>
+    </div>
+  </header>
+
+  <section id="buttons">
+    <h2>Buttons</h2>
+    <p class="ld-section-sub">data-ld-variant: primary · outline · ghost · danger &nbsp;|&nbsp; data-ld-size: sm · md · lg</p>
+    <div class="ld-row">
+      <button class="ld-btn" data-ld-variant="primary">Primary</button>
+      <button class="ld-btn" data-ld-variant="outline">Outline</button>
+      <button class="ld-btn" data-ld-variant="ghost">Ghost</button>
+      <button class="ld-btn" data-ld-variant="danger">Danger</button>
+      <button class="ld-btn" data-ld-disabled="true" disabled>Disabled</button>
+    </div>
+    <div class="ld-row" style="margin-top: var(--ld-space-3);">
+      <button class="ld-btn" data-ld-variant="primary" data-ld-size="sm">Small</button>
+      <button class="ld-btn" data-ld-variant="primary">Medium</button>
+      <button class="ld-btn" data-ld-variant="primary" data-ld-size="lg">Large</button>
+    </div>
+  </section>
+
+  <section id="cards">
+    <h2>Cards</h2>
+    <p class="ld-section-sub">data-ld-shadow: sm · md · lg &nbsp;|&nbsp; data-ld-interactive lifts the card on hover</p>
+    <div class="ld-grid" data-ld-cols="3">
+      <div class="ld-card" data-ld-interactive="true">
+        <div class="ld-card-eyebrow">Component</div>
+        <div class="ld-card-title">Cards</div>
+        <div class="ld-card-body">Hard shadow, hard edge. Hover lifts it two pixels off the page.</div>
+        <div class="ld-card-footer">
+          <button class="ld-btn" data-ld-size="sm" data-ld-variant="outline">Open</button>
+        </div>
+      </div>
+      <div class="ld-card" data-ld-shadow="lg" data-ld-interactive="true">
+        <div class="ld-card-eyebrow">Utility</div>
+        <div class="ld-card-title">data-ld-shadow</div>
+        <div class="ld-card-body">Shadow depth is an attribute, not a class name to memorize.</div>
+      </div>
+      <div class="ld-card" data-ld-border="accent" data-ld-shadow="none">
+        <div class="ld-card-eyebrow">Utility</div>
+        <div class="ld-card-title">data-ld-border</div>
+        <div class="ld-card-body">Thin, thick, accent, or none — same attribute, four states.</div>
+      </div>
+    </div>
+  </section>
+
+  <section id="forms">
+    <h2>Forms</h2>
+    <p class="ld-section-sub">data-ld-error flips a field into its error state</p>
+    <div class="ld-grid" data-ld-cols="2">
+      <div>
+        <div class="ld-form-group">
+          <label class="ld-label" for="name">Name</label>
+          <input class="ld-input" id="name" type="text" placeholder="Lena Dijksma">
+        </div>
+        <div class="ld-form-group">
+          <label class="ld-label" for="email">Email</label>
+          <input class="ld-input" id="email" type="email" data-ld-error="true" placeholder="you@example.com">
+          <div class="ld-form-error">Enter a valid email address.</div>
+        </div>
+        <label class="ld-checkbox">
+          <input type="checkbox"> Subscribe to updates
+        </label>
+      </div>
+      <div class="ld-form-group">
+        <label class="ld-label" for="msg">Message</label>
+        <textarea class="ld-textarea" id="msg" rows="6" placeholder="Say something..."></textarea>
+        <div class="ld-form-hint">Plain text, no formatting.</div>
+      </div>
+    </div>
+  </section>
+
+  <section id="interactive">
+    <h2>Interactive</h2>
+    <p class="ld-section-sub">Dropdown, tabs, and modal — powered by ldcss.js, wired entirely through data-ld-* attributes</p>
+
+    <div class="ld-row" style="margin-bottom: var(--ld-space-6);">
+      <div data-ld-dropdown>
+        <button class="ld-btn" data-ld-toggle="dropdown">Menu ▾</button>
+        <div data-ld-dropdown-menu>
+          <a href="#">Profile</a>
+          <a href="#">Settings</a>
+          <button type="button">Sign out</button>
+        </div>
+      </div>
+
+      <button class="ld-btn" data-ld-variant="primary" data-ld-toggle="modal" data-ld-target="#demo-modal">Open modal</button>
+    </div>
+
+    <div data-ld-tabs data-ld-panels="#tab-panels">
+      <button data-ld-toggle="tab" data-ld-target="#tab-1" data-ld-active="true">Overview</button>
+      <button data-ld-toggle="tab" data-ld-target="#tab-2">Usage</button>
+      <button data-ld-toggle="tab" data-ld-target="#tab-3">Changelog</button>
+    </div>
+    <div id="tab-panels">
+      <div id="tab-1" data-ld-tab-panel class="ld-show">
+        <p class="ld-text-muted">ldcss pairs structural classes with state-carrying attributes, so a component's markup reads like a small config file.</p>
+      </div>
+      <div id="tab-2" data-ld-tab-panel>
+        <p class="ld-text-muted">Include ldcss.css and ldcss.js. Everything else is attributes on plain HTML — no build step.</p>
+      </div>
+      <div id="tab-3" data-ld-tab-panel>
+        <p class="ld-text-muted"><strong>v0.3.0</strong> — added kbd, copy-to-clipboard, terminal window, spinner, toast, table, pagination, list group, switch, avatar, popover, skeleton loader.</p>
+        <p class="ld-text-muted"><strong>v0.2.0</strong> — added alerts, accordion, breadcrumbs, tooltip, progress bar. Added <code class="ld-code-inline">data-ld-notheme</code> to freeze a subtree's theme. Fixed low-contrast code blocks on light theme (new <code class="ld-code-inline">--ld-code-text</code> token).</p>
+        <p class="ld-text-muted"><strong>v0.1.0</strong> — buttons, cards, nav, forms, dropdown, tabs, modal, theming.</p>
+      </div>
+    </div>
+  </section>
+
+  <section id="more">
+    <h2>Alerts</h2>
+    <p class="ld-section-sub">data-ld-variant: info · success · warning · danger &nbsp;|&nbsp; data-ld-dismiss="alert" removes it</p>
+    <div class="ld-stack">
+      <div class="ld-alert" data-ld-variant="info">
+        <div class="ld-alert-body"><div class="ld-alert-title">Heads up</div>Attribute-driven variants keep the class list short.</div>
+      </div>
+      <div class="ld-alert" data-ld-variant="success">
+        <div class="ld-alert-body"><div class="ld-alert-title">Saved</div>Your changes were written to disk.</div>
+        <button class="ld-alert-close" data-ld-dismiss="alert" aria-label="Dismiss">×</button>
+      </div>
+      <div class="ld-alert" data-ld-variant="warning">
+        <div class="ld-alert-body"><div class="ld-alert-title">Careful</div>This action can't easily be undone.</div>
+        <button class="ld-alert-close" data-ld-dismiss="alert" aria-label="Dismiss">×</button>
+      </div>
+      <div class="ld-alert" data-ld-variant="danger">
+        <div class="ld-alert-body"><div class="ld-alert-title">Failed</div>The build exited with a non-zero status.</div>
+        <button class="ld-alert-close" data-ld-dismiss="alert" aria-label="Dismiss">×</button>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <h2>Accordion</h2>
+    <p class="ld-section-sub">data-ld-accordion="single" makes items mutually exclusive; omit it and they open independently</p>
+    <div data-ld-accordion="single">
+      <div class="ld-accordion-item">
+        <button class="ld-accordion-trigger" data-ld-toggle="accordion" data-ld-target="#acc-1" data-ld-active="true">What is ldcss?</button>
+        <div id="acc-1" data-ld-accordion-panel class="ld-show">A small framework: ld-* classes for structure, data-ld-* attributes for variants and state.</div>
+      </div>
+      <div class="ld-accordion-item">
+        <button class="ld-accordion-trigger" data-ld-toggle="accordion" data-ld-target="#acc-2">Does it need a build step?</button>
+        <div id="acc-2" data-ld-accordion-panel>No — link ldcss.css and ldcss.js and start writing HTML.</div>
+      </div>
+      <div class="ld-accordion-item">
+        <button class="ld-accordion-trigger" data-ld-toggle="accordion" data-ld-target="#acc-3">Can I freeze the theme on part of a page?</button>
+        <div id="acc-3" data-ld-accordion-panel>Yes — add <code class="ld-code-inline">data-ld-notheme</code> to any element and its subtree stays in its light appearance regardless of the page theme.</div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <h2>Breadcrumbs, tooltip, progress</h2>
+    <ul class="ld-breadcrumbs">
+      <li><a href="#">Home</a></li>
+      <li><a href="#">Docs</a></li>
+      <li data-ld-active="true">Components</li>
+    </ul>
+
+    <div class="ld-row" style="margin: var(--ld-space-5) 0;">
+      <button class="ld-btn" data-ld-variant="outline" data-ld-tooltip="Shown on hover or focus">Hover me</button>
+      <button class="ld-btn" data-ld-variant="outline" data-ld-tooltip="I open below" data-ld-tooltip-pos="bottom">Tooltip below</button>
+    </div>
+
+    <div class="ld-progress">
+      <div class="ld-progress-bar" data-ld-progress data-ld-value="72"></div>
+    </div>
+  </section>
+
+  <section>
+    <h2>data-ld-notheme</h2>
+    <p class="ld-section-sub">This card ignores the page theme toggle — try it</p>
+    <div class="ld-card" data-ld-notheme data-ld-border="thick">
+      <div class="ld-card-eyebrow">Frozen</div>
+      <div class="ld-card-title">Always light</div>
+      <div class="ld-card-body">Useful for embeds, brand marks, or screenshots that shouldn't shift when the surrounding page switches theme.</div>
+    </div>
+  </section>
+
+  <section id="batch">
+    <h2>Kbd, copy, terminal, spinner</h2>
+    <p class="ld-section-sub">Press <span class="ld-kbd">⌘</span> + <span class="ld-kbd">K</span> to open the command menu.</p>
+
+    <div class="ld-terminal" style="margin: var(--ld-space-4) 0;">
+      <div class="ld-terminal-bar">
+        <span class="ld-terminal-dot"></span><span class="ld-terminal-dot"></span><span class="ld-terminal-dot"></span>
+        <span class="ld-terminal-title">install.sh</span>
+        <button class="ld-btn" data-ld-size="sm" data-ld-variant="ghost" data-ld-toggle="copy" data-ld-target="#term-body" style="margin-left:auto;">Copy</button>
+      </div>
+      <div class="ld-terminal-body" id="term-body">$ npm install ldcss
+$ echo "linked ldcss.css and ldcss.js"</div>
+    </div>
+
+    <div class="ld-cols">
+      <span class="ld-spinner" aria-label="Loading"></span>
+      <span class="ld-spinner" data-ld-variant="dots" aria-label="Loading"></span>
+      <div>
+        <button class="ld-btn" data-ld-toggle="toast" data-ld-toast-message="Build finished" data-ld-toast-variant="success">Trigger toast</button>
+      <button class="ld-btn" data-ld-toggle="toast" data-ld-toast-message="Deploy failed" data-ld-toast-variant="danger">Trigger error toast</button>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <h2>Table &amp; pagination</h2>
+    <table class="ld-table" data-ld-striped="true">
+      <thead>
+        <tr><th>Name</th><th>Role</th><th>Status</th></tr>
+      </thead>
+      <tbody>
+        <tr data-ld-interactive="true"><td>Lena Dijksma</td><td>Maintainer</td><td><span class="ld-badge" data-ld-variant="primary">active</span></td></tr>
+        <tr data-ld-interactive="true"><td>Sam Okafor</td><td>Contributor</td><td><span class="ld-badge">idle</span></td></tr>
+        <tr data-ld-interactive="true"><td>Priya Rao</td><td>Contributor</td><td><span class="ld-badge" data-ld-variant="primary">active</span></td></tr>
+      </tbody>
+    </table>
+    <ul class="ld-pagination" style="margin-top: var(--ld-space-4);">
+      <li><button disabled>‹</button></li>
+      <li data-ld-active="true"><button>1</button></li>
+      <li><button>2</button></li>
+      <li><button>3</button></li>
+      <li><button>›</button></li>
+    </ul>
+  </section>
+
+  <section>
+    <h2>List group, switch, avatar</h2>
+    <div class="ld-grid" data-ld-cols="2">
+      <ul class="ld-list">
+        <li class="ld-list-item" data-ld-interactive="true">
+          <span style="display:flex;align-items:center;gap:var(--ld-space-3);">
+            <span class="ld-avatar" data-ld-size="sm" data-ld-variant="accent">LD</span> Lena Dijksma
+          </span>
+          <span class="ld-badge" data-ld-variant="primary">owner</span>
+        </li>
+        <li class="ld-list-item" data-ld-interactive="true">
+          <span style="display:flex;align-items:center;gap:var(--ld-space-3);">
+            <span class="ld-avatar" data-ld-size="sm">SO</span> Sam Okafor
+          </span>
+          <span class="ld-badge">member</span>
+        </li>
+        <li class="ld-list-item" data-ld-active="true">
+          <span style="display:flex;align-items:center;gap:var(--ld-space-3);">
+            <span class="ld-avatar" data-ld-size="sm">PR</span> Priya Rao
+          </span>
+          <span class="ld-badge">member</span>
+        </li>
+      </ul>
+      <div>
+        <label class="ld-switch" style="margin-bottom: var(--ld-space-3);">
+          <input type="checkbox" checked> Email notifications
+        </label>
+        <label class="ld-switch" style="margin-bottom: var(--ld-space-3);">
+          <input type="checkbox"> Dark mode by default
+        </label>
+        <label class="ld-switch">
+          <input type="checkbox"> Public profile
+        </label>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <h2>Popover &amp; skeleton</h2>
+    <div class="ld-row" style="margin-bottom: var(--ld-space-6);">
+      <div data-ld-popover>
+        <button class="ld-btn" data-ld-variant="outline" data-ld-toggle="popover">Version info ▾</button>
+        <div data-ld-popover-content>
+          <div class="ld-popover-title">ldcss v0.3.0</div>
+          <p class="ld-text-muted" style="margin:0;">Classes for structure, <code class="ld-code-inline">data-ld-*</code> attributes for state. MIT licensed.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="ld-card" style="max-width: 320px;">
+      <div class="ld-row" style="margin-bottom: var(--ld-space-3);">
+        <div class="ld-skeleton" data-ld-shape="circle" style="width:40px;height:40px;"></div>
+        <div style="flex:1;">
+          <div class="ld-skeleton" data-ld-shape="text" style="width:60%;margin-bottom:6px;"></div>
+          <div class="ld-skeleton" data-ld-shape="text" style="width:40%;"></div>
+        </div>
+      </div>
+      <div class="ld-skeleton" data-ld-shape="text" style="margin-bottom:6px;"></div>
+      <div class="ld-skeleton" data-ld-shape="text" style="width:80%;"></div>
+    </div>
+  </section>
+
+</div>
+
+<div class="ld-modal-backdrop" id="demo-modal">
+  <div class="ld-modal">
+    <div class="ld-modal-header">
+      <h3 style="margin:0;">Confirm action</h3>
+      <button class="ld-modal-close" data-ld-dismiss="modal" aria-label="Close">×</button>
+    </div>
+    <p class="ld-text-muted">This is a modal opened with <code>data-ld-toggle="modal"</code>. It closes on Escape, backdrop click, or the × button.</p>
+    <div class="ld-row" style="margin-top: var(--ld-space-4);">
+      <button class="ld-btn" data-ld-variant="danger" data-ld-dismiss="modal">Confirm</button>
+      <button class="ld-btn" data-ld-variant="ghost" data-ld-dismiss="modal">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<script src="ldcss.js"></script>
+</body>
+</html>
