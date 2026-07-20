@@ -36,7 +36,7 @@
 <div class="ld-container">
 
   <header class="ld-hero">
-    <span class="ld-badge" data-ld-variant="primary">v0.5.2</span>
+    <span class="ld-badge" data-ld-variant="primary">v0.6.0</span>
     <h1>ldcss</h1>
     <p class="ld-text-muted">A small framework built on two ideas: <span class="ld-text-accent">ld-*</span> classes for structure, <span class="ld-text-accent">data-ld-*</span> attributes for state and variants. No build step. No dependencies.</p>
     <pre class="ld-code">&lt;button class="ld-btn" data-ld-variant="primary" data-ld-size="lg"&gt;
@@ -146,6 +146,8 @@
         <p class="ld-text-muted">Include ldcss.css and ldcss.js. Everything else is attributes on plain HTML — no build step.</p>
       </div>
       <div id="tab-3" data-ld-tab-panel>
+        <p class="ld-text-muted"><strong>v0.7.0</strong> — added generated spacing/layout utility classes: <code class="ld-code-inline">ld-pad-{side}-{size}</code> and <code class="ld-code-inline">ld-mar-{side}-{size}</code> (side: a/t/r/b/l/v/h, size: 0–8 mapped to <code class="ld-code-inline">--ld-space-*</code>), plus negative margins (<code class="ld-code-inline">ld-mar-t-n3</code>), <code class="ld-code-inline">ld-gap-*</code>, and display/flex helpers (<code class="ld-code-inline">ld-d-*</code>, <code class="ld-code-inline">ld-flex-*</code>, <code class="ld-code-inline">ld-items-*</code>, <code class="ld-code-inline">ld-justify-*</code>, <code class="ld-code-inline">ld-text-{left,center,right}</code>, <code class="ld-code-inline">ld-w-*</code>, <code class="ld-code-inline">ld-max-w-*</code>). These are real classes in <code class="ld-code-inline">ldcss.css</code> §3b–3c, not a naming convention to remember.</p>
+        <p class="ld-text-muted"><strong>v0.6.0</strong> — pagination is now data-driven: <code class="ld-code-inline">data-ld-paginate="#target"</code> + <code class="ld-code-inline">data-ld-page-size="3"</code> on a <code class="ld-code-inline">.ld-pagination</code> element auto-generates the right number of page buttons from the target's row/item count, and clicking a page actually shows/hides that slice of rows. Manual (hand-written) pagination markup still works as before.</p>
         <p class="ld-text-muted"><strong>v0.5.2</strong> — bugfix: three components had markup but no wiring. Command palette items now do nothing by default unless given <code class="ld-code-inline">data-ld-command-action</code> — added real actions to the demo. List group items are now clickable and select themselves (<code class="ld-code-inline">data-ld-active</code>) among siblings. Pagination buttons now actually update the active page and disable prev/next at the ends (mark them with <code class="ld-code-inline">data-ld-page="prev"/"next"</code>).</p>
         <p class="ld-text-muted"><strong>v0.5.1</strong> — bugfix: <code class="ld-code-inline">[data-ld-dropzone]</code> defaulted to inline layout when used on a <code class="ld-code-inline">&lt;label&gt;</code>, so its border only wrapped the first line and the filename text spilled outside the box. Now explicitly <code class="ld-code-inline">display: flex</code>.</p>
         <p class="ld-text-muted"><strong>v0.5.0</strong> — added offcanvas, stepper, command palette (⌘K), range slider, dropzone, rating, tag input. Added <code class="ld-code-inline">ld-scale-*</code> density presets, <code class="ld-code-inline">ld-accent-*</code> per-element color swap, <code class="ld-code-inline">ld-glass</code>/<code class="ld-code-inline">ld-flat</code> surfaces. ARIA wiring (aria-expanded/aria-hidden/aria-selected, dialog roles, focus trap + focus return, live-region toasts) and a <code class="ld-code-inline">prefers-contrast: more</code> pass.</p>
@@ -250,7 +252,7 @@ $ echo "linked ldcss.css and ldcss.js"</div>
 
   <section>
     <h2>Table &amp; pagination</h2>
-    <table class="ld-table" data-ld-striped="true">
+    <table class="ld-table" data-ld-striped="true" id="demo-table">
       <thead>
         <tr><th>Name</th><th>Role</th><th>Status</th></tr>
       </thead>
@@ -258,15 +260,16 @@ $ echo "linked ldcss.css and ldcss.js"</div>
         <tr data-ld-interactive="true"><td>Lena Dijksma</td><td>Maintainer</td><td><span class="ld-badge" data-ld-variant="primary">active</span></td></tr>
         <tr data-ld-interactive="true"><td>Sam Okafor</td><td>Contributor</td><td><span class="ld-badge">idle</span></td></tr>
         <tr data-ld-interactive="true"><td>Priya Rao</td><td>Contributor</td><td><span class="ld-badge" data-ld-variant="primary">active</span></td></tr>
+        <tr data-ld-interactive="true"><td>Tomás Ferreira</td><td>Contributor</td><td><span class="ld-badge">idle</span></td></tr>
+        <tr data-ld-interactive="true"><td>Naomi Achterberg</td><td>Reviewer</td><td><span class="ld-badge" data-ld-variant="primary">active</span></td></tr>
+        <tr data-ld-interactive="true"><td>Kwame Boateng</td><td>Contributor</td><td><span class="ld-badge">idle</span></td></tr>
+        <tr data-ld-interactive="true"><td>Elin Karlsson</td><td>Maintainer</td><td><span class="ld-badge" data-ld-variant="primary">active</span></td></tr>
+        <tr data-ld-interactive="true"><td>Marcus Bui</td><td>Contributor</td><td><span class="ld-badge">idle</span></td></tr>
+        <tr data-ld-interactive="true"><td>Ana Ionescu</td><td>Reviewer</td><td><span class="ld-badge" data-ld-variant="primary">active</span></td></tr>
       </tbody>
     </table>
-    <ul class="ld-pagination" style="margin-top: var(--ld-space-4);">
-      <li data-ld-page="prev"><button disabled>‹</button></li>
-      <li data-ld-active="true"><button>1</button></li>
-      <li><button>2</button></li>
-      <li><button>3</button></li>
-      <li data-ld-page="next"><button>›</button></li>
-    </ul>
+    <ul class="ld-pagination" data-ld-paginate="#demo-table" data-ld-page-size="3" style="margin-top: var(--ld-space-4);"></ul>
+    <p class="ld-form-hint" style="margin-top:var(--ld-space-2);">9 rows, 3 per page → <code class="ld-code-inline">data-ld-page-size="3"</code> on the pagination element builds 3 page buttons automatically.</p>
   </section>
 
   <section>
@@ -358,6 +361,35 @@ $ echo "linked ldcss.css and ldcss.js"</div>
       <div style="width:60px;height:60px;" class="ld-border-2px-double"></div>
     </div>
     <p class="ld-form-hint" style="margin-top:var(--ld-space-2);">ld-border-1px-dotted · ld-border-2px-dashed · ld-border-3px-solid · ld-border-2px-double</p>
+  </section>
+
+  <section id="spacing">
+    <h2>Spacing &amp; display utilities</h2>
+    <p class="ld-section-sub"><code class="ld-code-inline">ld-{pad|mar}-{a·t·r·b·l·v·h}-{0..8}</code>, plus gap/display/flex helpers</p>
+    <div class="ld-row" style="margin-bottom: var(--ld-space-4);">
+      <div class="ld-card ld-pad-a-2" data-ld-shadow="none" style="max-width:140px;">
+        <div class="ld-card-body" style="font-size:var(--ld-text-xs);">ld-pad-a-2</div>
+      </div>
+      <div class="ld-card ld-pad-a-6" data-ld-shadow="none" style="max-width:140px;">
+        <div class="ld-card-body" style="font-size:var(--ld-text-xs);">ld-pad-a-6</div>
+      </div>
+      <div class="ld-card" data-ld-shadow="none" style="max-width:140px;">
+        <div class="ld-card-body ld-pad-t-0 ld-pad-b-6" style="font-size:var(--ld-text-xs);">ld-pad-b-6 on body only</div>
+      </div>
+      <div class="ld-card" data-ld-shadow="none" style="max-width:180px;">
+        <div class="ld-card-body" style="font-size:var(--ld-text-xs);">
+          <div class="ld-mar-b-3" style="background:var(--ld-surface-raised);">ld-mar-b-3</div>
+          <div style="background:var(--ld-surface-raised);">next item</div>
+        </div>
+      </div>
+    </div>
+    <div class="ld-d-flex ld-justify-between ld-items-center ld-gap-3 ld-pad-a-3" style="border:var(--ld-border-width) solid var(--ld-border); margin-bottom: var(--ld-space-4);">
+      <span class="ld-badge" data-ld-variant="primary">ld-d-flex</span>
+      <span class="ld-badge">ld-justify-between</span>
+      <span class="ld-badge">ld-items-center</span>
+      <span class="ld-badge">ld-gap-3</span>
+    </div>
+    <p class="ld-form-hint">Full pattern reference and negative-margin syntax are in the README and cheat sheet.</p>
   </section>
 
   <section id="v05">

@@ -58,6 +58,36 @@
     </table>
   </section>
 
+  <section id="ref-spacing">
+    <h2>Spacing utilities</h2>
+    <table class="ld-table" data-ld-striped="true">
+      <thead><tr><th>Pattern</th><th>Options</th><th>Notes</th></tr></thead>
+      <tbody>
+        <tr><td><code class="ld-code-inline">ld-pad-{side}-{size}</code></td><td>side: a·t·r·b·l·v·h</td><td>Padding, e.g. <code class="ld-code-inline">ld-pad-a-3</code></td></tr>
+        <tr><td><code class="ld-code-inline">ld-mar-{side}-{size}</code></td><td>side: a·t·r·b·l·v·h</td><td>Margin, e.g. <code class="ld-code-inline">ld-mar-v-6</code></td></tr>
+        <tr><td>size</td><td>0·1·2·3·4·5·6·8</td><td>Maps to <code class="ld-code-inline">--ld-space-{size}</code></td></tr>
+        <tr><td><code class="ld-code-inline">ld-mar-{side}-n{size}</code></td><td>side: a·t·r·b·l·v·h</td><td>Negative margin, e.g. <code class="ld-code-inline">ld-mar-t-n3</code></td></tr>
+        <tr><td><code class="ld-code-inline">ld-gap-{size}</code></td><td>+ <code class="ld-code-inline">-x-</code>, <code class="ld-code-inline">-y-</code> variants</td><td>Flex/grid gap</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section id="ref-display">
+    <h2>Display &amp; flex utilities</h2>
+    <table class="ld-table" data-ld-striped="true">
+      <thead><tr><th>Class</th><th>Values</th><th>Notes</th></tr></thead>
+      <tbody>
+        <tr><td><code class="ld-code-inline">ld-d-*</code></td><td>block·inline·inline-block·flex·inline-flex·grid·none</td><td>Display</td></tr>
+        <tr><td><code class="ld-code-inline">ld-flex-*</code></td><td>row·row-rev·col·col-rev·wrap·nowrap·1·auto·none</td><td>Flex direction / wrap / grow</td></tr>
+        <tr><td><code class="ld-code-inline">ld-items-*</code></td><td>start·center·end·stretch·baseline</td><td><code class="ld-code-inline">align-items</code></td></tr>
+        <tr><td><code class="ld-code-inline">ld-justify-*</code></td><td>start·center·end·between·around·evenly</td><td><code class="ld-code-inline">justify-content</code></td></tr>
+        <tr><td><code class="ld-code-inline">ld-text-*</code></td><td>left·center·right</td><td>Text align</td></tr>
+        <tr><td><code class="ld-code-inline">ld-w-*</code></td><td>25·50·75·100</td><td>Percentage width</td></tr>
+        <tr><td><code class="ld-code-inline">ld-max-w-*</code></td><td>sm·md·lg·xl·full</td><td>480 / 640 / 800 / 1000px / 100%</td></tr>
+      </tbody>
+    </table>
+  </section>
+
   <section id="ref-utility">
     <h2>Utility attributes</h2>
     <table class="ld-table" data-ld-striped="true">
@@ -158,7 +188,7 @@
       <tbody>
         <tr><td><code class="ld-code-inline">ld-table</code></td><td><code class="ld-code-inline">data-ld-striped</code>, <code class="ld-code-inline">data-ld-bordered</code></td><td>true</td></tr>
         <tr><td><code class="ld-code-inline">ld-list</code>, <code class="ld-code-inline">ld-list-item</code></td><td><code class="ld-code-inline">data-ld-interactive</code>, <code class="ld-code-inline">data-ld-active</code></td><td>true</td></tr>
-        <tr><td><code class="ld-code-inline">ld-pagination</code></td><td><code class="ld-code-inline">data-ld-active</code></td><td>true, on &lt;li&gt;</td></tr>
+        <tr><td><code class="ld-code-inline">ld-pagination</code></td><td><code class="ld-code-inline">data-ld-paginate</code>, <code class="ld-code-inline">data-ld-page-size</code></td><td>Auto-builds page buttons from a target's row/item count; or write <code class="ld-code-inline">data-ld-active</code>/<code class="ld-code-inline">data-ld-page="prev/next"</code> manually</td></tr>
         <tr><td><code class="ld-code-inline">ld-breadcrumbs</code></td><td><code class="ld-code-inline">data-ld-active</code></td><td>true, on &lt;li&gt;</td></tr>
         <tr><td><code class="ld-code-inline">ld-stepper</code>, <code class="ld-code-inline">ld-step</code></td><td><code class="ld-code-inline">data-ld-active</code>, <code class="ld-code-inline">data-ld-complete</code></td><td>true</td></tr>
         <tr><td><code class="ld-code-inline">ld-avatar</code></td><td><code class="ld-code-inline">data-ld-size</code>, <code class="ld-code-inline">data-ld-variant</code></td><td>size: sm·lg; variant: accent</td></tr>

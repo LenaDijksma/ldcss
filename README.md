@@ -223,6 +223,15 @@ Or call it from your own JS: `showToast(message, variant, durationMs)`.
 ```
 
 ### Pagination — `ld-pagination`
+
+**Auto-generated** (recommended) — point it at a table or list and give it a page size; it builds the right number of page buttons and shows/hides items itself:
+```html
+<table id="demo-table">…9 rows…</table>
+<ul class="ld-pagination" data-ld-paginate="#demo-table" data-ld-page-size="3"></ul>
+```
+9 rows at 3 per page builds 3 page buttons automatically — resize the data and the page count updates on next load. Works on a `<table>` (paginates its `<tbody>` rows) or any other container (paginates its direct children, e.g. a `<ul>` of cards).
+
+**Manual** — write the buttons yourself if you want full control over labels/behavior:
 ```html
 <ul class="ld-pagination">
   <li data-ld-page="prev"><button disabled>‹</button></li>
@@ -231,7 +240,7 @@ Or call it from your own JS: `showToast(message, variant, durationMs)`.
   <li data-ld-page="next"><button>›</button></li>
 </ul>
 ```
-Mark the previous/next `<li>` with `data-ld-page="prev"` / `data-ld-page="next"` — everything else is treated as a page number. Clicking updates `data-ld-active` and auto-disables prev/next at the ends. This only handles the *interaction state*; wire your own logic to actually swap page content on click.
+Mark the previous/next `<li>` with `data-ld-page="prev"` / `data-ld-page="next"` — everything else is treated as a page number. In manual mode you still get click handling and auto-disable at the ends, but you're responsible for showing/hiding your own content on page change.
 
 ### List group — `ld-list`
 ```html
@@ -438,6 +447,56 @@ Available on most components:
 <div class="ld-stack">…</div> <!-- vertical spacing between children -->
 ```
 `data-ld-cols` accepts `2`, `3`, or `4` and is responsive (collapses to 1 column on small screens).
+
+## Spacing utilities
+
+Bootstrap-style, generated once into `ldcss.css` (no build step — every class already exists in the file).
+
+**Pattern:** `ld-{pad|mar}-{side}-{size}`
+
+| Part | Options |
+|---|---|
+| `pad` / `mar` | padding / margin |
+| side | `a` all · `t` top · `r` right · `b` bottom · `l` left · `v` vertical (top+bottom) · `h` horizontal (left+right) |
+| size | `0` `1` `2` `3` `4` `5` `6` `8` — maps to `--ld-space-{size}` (same scale used everywhere else in ldcss, so it stays in sync with `ld-scale-compact` / `ld-scale-spacious`) |
+
+```html
+<div class="ld-pad-a-4">padding on all sides, --ld-space-4</div>
+<div class="ld-mar-v-6">margin-top + margin-bottom, --ld-space-6</div>
+<div class="ld-pad-h-3 ld-mar-t-2">horizontal padding + top margin</div>
+```
+
+Negative margins follow the same pattern with an `n` before the size (skip `0`, there's no such thing as `-0`):
+
+```html
+<div class="ld-mar-t-n3">pulls the element up by --ld-space-3</div>
+```
+
+Gap, for flex/grid containers, uses the same size scale:
+
+```html
+<div class="ld-d-flex ld-gap-3">…</div>       <!-- gap on both axes -->
+<div class="ld-d-grid ld-gap-x-4 ld-gap-y-2">…</div>
+```
+
+## Display & flex utilities
+
+```html
+<div class="ld-d-flex ld-flex-row ld-items-center ld-justify-between ld-gap-3">
+  <span>Left</span>
+  <span>Right</span>
+</div>
+```
+
+- `ld-d-{block, inline, inline-block, flex, inline-flex, grid, none}`
+- `ld-flex-{row, row-rev, col, col-rev}`, `ld-flex-{wrap, nowrap}`, `ld-flex-{1, auto, none}`
+- `ld-items-{start, center, end, stretch, baseline}` (`align-items`)
+- `ld-justify-{start, center, end, between, around, evenly}` (`justify-content`)
+- `ld-text-{left, center, right}`
+- `ld-w-{25, 50, 75, 100}` (percentage width)
+- `ld-max-w-{sm, md, lg, xl, full}` (480 / 640 / 800 / 1000px / 100%)
+
+These live in `ldcss.css` §3b–3c and are plain generated CSS — inspect the source if you want to extend the pattern (e.g. add a `9` size, or a `ld-pad-t-7`) yourself; there's no build tool involved, just find-and-extend the block.
 
 ## Code blocks
 

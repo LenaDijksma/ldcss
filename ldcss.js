@@ -430,6 +430,68 @@
     if (nextBtn) nextBtn.disabled = index >= pages.length - 1;
   }
 
+  function getPaginatedItems(target) {
+    if (!target) return [];
+    if (target.tagName === 'TABLE') {
+      var tbody = target.querySelector('tbody');
+      return tbody ? Array.prototype.slice.call(tbody.children) : [];
+    }
+    return Array.prototype.slice.call(target.children);
+  }
+
+  function showPaginationPage(target, items, pageSize, pageIndex) {
+    items.forEach(function (item, i) {
+      item.style.display = Math.floor(i / pageSize) === pageIndex ? '' : 'none';
+    });
+    if (target) target.setAttribute('data-ld-page-index', String(pageIndex));
+  }
+
+  function buildPaginationButtons(pagination, totalPages) {
+    pagination.innerHTML = '';
+
+    var prevLi = document.createElement('li');
+    prevLi.setAttribute('data-ld-page', 'prev');
+    var prevBtn = document.createElement('button');
+    prevBtn.type = 'button';
+    prevBtn.textContent = '‹';
+    prevBtn.setAttribute('aria-label', 'Previous page');
+    prevLi.appendChild(prevBtn);
+    pagination.appendChild(prevLi);
+
+    for (var i = 0; i < totalPages; i++) {
+      var li = document.createElement('li');
+      if (i === 0) li.setAttribute('data-ld-active', 'true');
+      var btn = document.createElement('button');
+      btn.type = 'button';
+      btn.textContent = String(i + 1);
+      li.appendChild(btn);
+      pagination.appendChild(li);
+    }
+
+    var nextLi = document.createElement('li');
+    nextLi.setAttribute('data-ld-page', 'next');
+    var nextBtn = document.createElement('button');
+    nextBtn.type = 'button';
+    nextBtn.textContent = '›';
+    nextBtn.setAttribute('aria-label', 'Next page');
+    nextLi.appendChild(nextBtn);
+    pagination.appendChild(nextLi);
+  }
+
+  function renderAutoPagination(pagination) {
+    var targetSel = pagination.getAttribute('data-ld-paginate');
+    var target = document.querySelector(targetSel);
+    if (!target) return;
+
+    var pageSize = parseInt(pagination.getAttribute('data-ld-page-size'), 10) || 10;
+    var items = getPaginatedItems(target);
+    var totalPages = Math.max(1, Math.ceil(items.length / pageSize));
+
+    buildPaginationButtons(pagination, totalPages);
+    showPaginationPage(target, items, pageSize, 0);
+    updatePaginationBounds(pagination, getPaginationPages(pagination), 0);
+  }
+
   function handlePaginationClick(button) {
     if (button.disabled) return;
     var li = button.closest('li');
@@ -449,10 +511,21 @@
 
     pages.forEach(function (p, i) { p.setAttribute('data-ld-active', i === targetIndex ? 'true' : 'false'); });
     updatePaginationBounds(pagination, pages, targetIndex);
+
+    var targetSel = pagination.getAttribute('data-ld-paginate');
+    if (targetSel) {
+      var target = document.querySelector(targetSel);
+      var pageSize = parseInt(pagination.getAttribute('data-ld-page-size'), 10) || 10;
+      if (target) showPaginationPage(target, getPaginatedItems(target), pageSize, targetIndex);
+    }
   }
 
   function initPagination(root) {
     (root || document).querySelectorAll('.ld-pagination').forEach(function (pagination) {
+      if (pagination.getAttribute('data-ld-paginate')) {
+        renderAutoPagination(pagination);
+        return;
+      }
       var pages = getPaginationPages(pagination);
       var currentIndex = pages.findIndex(function (p) { return p.getAttribute('data-ld-active') === 'true'; });
       if (currentIndex === -1 && pages.length) {
