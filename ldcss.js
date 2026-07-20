@@ -364,6 +364,23 @@
     document.querySelectorAll('.ld-command-backdrop.ld-show').forEach(closeCommand);
   }
 
+  function runCommandAction(item) {
+    var action = item.getAttribute('data-ld-command-action');
+    if (!action) return;
+    var sep = action.indexOf(':');
+    var type = sep === -1 ? action : action.slice(0, sep);
+    var arg = sep === -1 ? '' : action.slice(sep + 1);
+    if (type === 'theme') {
+      toggleTheme();
+    } else if (type === 'toast') {
+      showToast(arg || 'Done', 'success');
+    } else if (type === 'offcanvas') {
+      openOffcanvas(arg);
+    } else if (type === 'modal') {
+      openModal(arg);
+    }
+  }
+
   function handleCommandKeydown(e) {
     var backdrop = e.target.closest('.ld-command-backdrop');
     if (!backdrop) return;
@@ -383,6 +400,67 @@
       var chosen = items[currentIndex] || items[0];
       if (chosen) chosen.click();
     }
+  }
+
+  /* ---------------------------------------------------------------------
+     List group — clicking an interactive item selects it
+     ------------------------------------------------------------------- */
+
+  function handleListItemClick(item) {
+    var list = item.closest('.ld-list');
+    if (!list) return;
+    list.querySelectorAll('.ld-list-item').forEach(function (li) {
+      li.removeAttribute('data-ld-active');
+    });
+    item.setAttribute('data-ld-active', 'true');
+  }
+
+  /* ---------------------------------------------------------------------
+     Pagination
+     ------------------------------------------------------------------- */
+
+  function getPaginationPages(pagination) {
+    return Array.prototype.slice.call(pagination.querySelectorAll('li:not([data-ld-page])'));
+  }
+
+  function updatePaginationBounds(pagination, pages, index) {
+    var prevBtn = pagination.querySelector('li[data-ld-page="prev"] button');
+    var nextBtn = pagination.querySelector('li[data-ld-page="next"] button');
+    if (prevBtn) prevBtn.disabled = index <= 0;
+    if (nextBtn) nextBtn.disabled = index >= pages.length - 1;
+  }
+
+  function handlePaginationClick(button) {
+    if (button.disabled) return;
+    var li = button.closest('li');
+    var pagination = li ? li.closest('.ld-pagination') : null;
+    if (!li || !pagination) return;
+
+    var pages = getPaginationPages(pagination);
+    var currentIndex = pages.findIndex(function (p) { return p.getAttribute('data-ld-active') === 'true'; });
+    var role = li.getAttribute('data-ld-page');
+    var targetIndex = currentIndex;
+
+    if (role === 'prev') targetIndex = currentIndex - 1;
+    else if (role === 'next') targetIndex = currentIndex + 1;
+    else targetIndex = pages.indexOf(li);
+
+    if (targetIndex < 0 || targetIndex >= pages.length) return;
+
+    pages.forEach(function (p, i) { p.setAttribute('data-ld-active', i === targetIndex ? 'true' : 'false'); });
+    updatePaginationBounds(pagination, pages, targetIndex);
+  }
+
+  function initPagination(root) {
+    (root || document).querySelectorAll('.ld-pagination').forEach(function (pagination) {
+      var pages = getPaginationPages(pagination);
+      var currentIndex = pages.findIndex(function (p) { return p.getAttribute('data-ld-active') === 'true'; });
+      if (currentIndex === -1 && pages.length) {
+        currentIndex = 0;
+        pages[0].setAttribute('data-ld-active', 'true');
+      }
+      updatePaginationBounds(pagination, pages, currentIndex);
+    });
   }
 
   /* ---------------------------------------------------------------------
@@ -545,6 +623,19 @@
     if (commandItemEl) {
       var cmdBackdrop = commandItemEl.closest('.ld-command-backdrop');
       if (cmdBackdrop) closeCommand(cmdBackdrop);
+      runCommandAction(commandItemEl);
+      return;
+    }
+
+    var pageBtn = e.target.closest('.ld-pagination button');
+    if (pageBtn) {
+      handlePaginationClick(pageBtn);
+      return;
+    }
+
+    var listItemEl = e.target.closest('.ld-list-item[data-ld-interactive="true"]');
+    if (listItemEl) {
+      handleListItemClick(listItemEl);
       return;
     }
 
@@ -652,4 +743,5 @@
   initTheme();
   initProgressBars();
   initRatings();
+  initPagination();
 })();

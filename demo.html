@@ -36,7 +36,7 @@
 <div class="ld-container">
 
   <header class="ld-hero">
-    <span class="ld-badge" data-ld-variant="primary">v0.5.1</span>
+    <span class="ld-badge" data-ld-variant="primary">v0.5.2</span>
     <h1>ldcss</h1>
     <p class="ld-text-muted">A small framework built on two ideas: <span class="ld-text-accent">ld-*</span> classes for structure, <span class="ld-text-accent">data-ld-*</span> attributes for state and variants. No build step. No dependencies.</p>
     <pre class="ld-code">&lt;button class="ld-btn" data-ld-variant="primary" data-ld-size="lg"&gt;
@@ -146,6 +146,7 @@
         <p class="ld-text-muted">Include ldcss.css and ldcss.js. Everything else is attributes on plain HTML — no build step.</p>
       </div>
       <div id="tab-3" data-ld-tab-panel>
+        <p class="ld-text-muted"><strong>v0.5.2</strong> — bugfix: three components had markup but no wiring. Command palette items now do nothing by default unless given <code class="ld-code-inline">data-ld-command-action</code> — added real actions to the demo. List group items are now clickable and select themselves (<code class="ld-code-inline">data-ld-active</code>) among siblings. Pagination buttons now actually update the active page and disable prev/next at the ends (mark them with <code class="ld-code-inline">data-ld-page="prev"/"next"</code>).</p>
         <p class="ld-text-muted"><strong>v0.5.1</strong> — bugfix: <code class="ld-code-inline">[data-ld-dropzone]</code> defaulted to inline layout when used on a <code class="ld-code-inline">&lt;label&gt;</code>, so its border only wrapped the first line and the filename text spilled outside the box. Now explicitly <code class="ld-code-inline">display: flex</code>.</p>
         <p class="ld-text-muted"><strong>v0.5.0</strong> — added offcanvas, stepper, command palette (⌘K), range slider, dropzone, rating, tag input. Added <code class="ld-code-inline">ld-scale-*</code> density presets, <code class="ld-code-inline">ld-accent-*</code> per-element color swap, <code class="ld-code-inline">ld-glass</code>/<code class="ld-code-inline">ld-flat</code> surfaces. ARIA wiring (aria-expanded/aria-hidden/aria-selected, dialog roles, focus trap + focus return, live-region toasts) and a <code class="ld-code-inline">prefers-contrast: more</code> pass.</p>
         <p class="ld-text-muted"><strong>v0.4.0</strong> — added escape-hatch utilities: <code class="ld-code-inline">ld-round*</code>, <code class="ld-code-inline">ld-border-{width}px-{style}</code>, <code class="ld-code-inline">ld-shadow-soft*</code>, <code class="ld-code-inline">ld-font-sans</code> / <code class="ld-code-inline">ld-font-serif</code> — for opting out of the sharp/hard-shadow/monospace defaults per element.</p>
@@ -260,11 +261,11 @@ $ echo "linked ldcss.css and ldcss.js"</div>
       </tbody>
     </table>
     <ul class="ld-pagination" style="margin-top: var(--ld-space-4);">
-      <li><button disabled>‹</button></li>
+      <li data-ld-page="prev"><button disabled>‹</button></li>
       <li data-ld-active="true"><button>1</button></li>
       <li><button>2</button></li>
       <li><button>3</button></li>
-      <li><button>›</button></li>
+      <li data-ld-page="next"><button>›</button></li>
     </ul>
   </section>
 
@@ -450,11 +451,11 @@ $ echo "linked ldcss.css and ldcss.js"</div>
   <div class="ld-command">
     <input class="ld-command-input" type="text" placeholder="Type a command or search…" data-ld-autofocus>
     <ul class="ld-command-list" data-ld-command-list>
-      <li class="ld-command-item" data-ld-command-item data-ld-highlighted="true">Open dashboard</li>
-      <li class="ld-command-item" data-ld-command-item>Create new file</li>
-      <li class="ld-command-item" data-ld-command-item>Toggle theme</li>
-      <li class="ld-command-item" data-ld-command-item>Open settings</li>
-      <li class="ld-command-item" data-ld-command-item>Invite a teammate</li>
+      <li class="ld-command-item" data-ld-command-item data-ld-highlighted="true" data-ld-command-action="offcanvas:#side-left">Open dashboard</li>
+      <li class="ld-command-item" data-ld-command-item data-ld-command-action="toast:Created new-file.txt">Create new file</li>
+      <li class="ld-command-item" data-ld-command-item data-ld-command-action="theme">Toggle theme</li>
+      <li class="ld-command-item" data-ld-command-item data-ld-command-action="offcanvas:#side-right">Open settings</li>
+      <li class="ld-command-item" data-ld-command-item data-ld-command-action="toast:Invite link copied to clipboard">Invite a teammate</li>
     </ul>
     <div class="ld-command-empty">No matching commands.</div>
     <div class="ld-command-hint"><span class="ld-kbd">↑↓</span> navigate <span class="ld-kbd">↵</span> select <span class="ld-kbd">esc</span> close</div>

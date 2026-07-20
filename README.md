@@ -225,11 +225,13 @@ Or call it from your own JS: `showToast(message, variant, durationMs)`.
 ### Pagination — `ld-pagination`
 ```html
 <ul class="ld-pagination">
-  <li><button disabled>‹</button></li>
+  <li data-ld-page="prev"><button disabled>‹</button></li>
   <li data-ld-active="true"><button>1</button></li>
   <li><button>2</button></li>
+  <li data-ld-page="next"><button>›</button></li>
 </ul>
 ```
+Mark the previous/next `<li>` with `data-ld-page="prev"` / `data-ld-page="next"` — everything else is treated as a page number. Clicking updates `data-ld-active` and auto-disables prev/next at the ends. This only handles the *interaction state*; wire your own logic to actually swap page content on click.
 
 ### List group — `ld-list`
 ```html
@@ -238,6 +240,7 @@ Or call it from your own JS: `showToast(message, variant, durationMs)`.
   <li class="ld-list-item" data-ld-active="true">Selected row</li>
 </ul>
 ```
+Clicking any `.ld-list-item[data-ld-interactive="true"]` selects it (`data-ld-active="true"`) and deselects its siblings within the same `.ld-list`.
 
 ### Switch — `ld-switch`
 ```html
@@ -309,7 +312,16 @@ Add `data-ld-pos="right"` on the `.ld-offcanvas-backdrop` to slide in from the r
   </div>
 </div>
 ```
-Opens with the trigger button *or* <kbd>⌘/Ctrl</kbd>+<kbd>K</kbd> from anywhere on the page (as long as one `.ld-command-backdrop` exists). Type to filter, arrow keys to move the highlight, Enter to "select" (fires a click on the highlighted item — hook your own click handler on `[data-ld-command-item]` for real actions).
+Opens with the trigger button *or* <kbd>⌘/Ctrl</kbd>+<kbd>K</kbd> from anywhere on the page (as long as one `.ld-command-backdrop` exists). Type to filter, arrow keys to move the highlight, Enter to select.
+
+Give an item something to actually do with `data-ld-command-action="type:arg"`:
+```html
+<li data-ld-command-item data-ld-command-action="theme">Toggle theme</li>
+<li data-ld-command-item data-ld-command-action="toast:Created new-file.txt">Create new file</li>
+<li data-ld-command-item data-ld-command-action="offcanvas:#side-left">Open dashboard</li>
+<li data-ld-command-item data-ld-command-action="modal:#some-modal">Open settings</li>
+```
+Supported types: `theme` · `toast:message` · `offcanvas:#id` · `modal:#id`. For anything else, listen for clicks on `[data-ld-command-item]` yourself.
 
 ### Range slider — `ld-range`
 ```html
