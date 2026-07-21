@@ -400,12 +400,20 @@ Pattern is `ld-border-{1,2,3,4}px-{solid,dashed,dotted,double}`. Color defaults 
 <div class="ld-card ld-shadow-soft-lg">…</div>
 <div class="ld-card ld-shadow-none">…</div>
 ```
+These also win on `:hover`/`:active`/`:disabled`/`:focus` — a `ld-shadow-soft` button, card, or input stays soft through every interaction state instead of snapping back to the hard offset shadow mid-click.
 
 **Type**
 ```html
-<p class="ld-font-sans">Long-form copy that doesn't need to be monospace.</p>
+<body class="ld-font-sans">…</body>
 <p class="ld-font-serif">…or serif, for a different register.</p>
 ```
+`ld-font-sans`/`ld-font-serif` set an inheritable `--ld-font-family` token, so applying it once to `<body>` (or any wrapper) cascades to every component underneath — buttons, inputs, headings, tabs, everything that reads the token. You don't need to repeat it per element. `code`, `pre`, and `ld-kbd` stay monospace regardless, since that's semantic rather than thematic.
+
+**Nav brand mark**
+```html
+<a href="#" class="ld-nav-brand" data-ld-mark="none">brand</a> <!-- no "$" prefix -->
+```
+`.ld-nav-brand` normally prefixes a `$` (terminal-style branding); `data-ld-mark="none"` removes it while keeping the rest of the component's styling (weight, size, no-underline). For a bare link with none of `.ld-nav-brand`'s styling at all, use `ld-link-reset` (`text-decoration: none; color: inherit;`) instead.
 
 **Density scale** — override spacing tokens for a whole subtree
 ```html
@@ -495,8 +503,10 @@ Gap, for flex/grid containers, uses the same size scale:
 - `ld-text-{left, center, right}`
 - `ld-w-{25, 50, 75, 100}` (percentage width)
 - `ld-max-w-{sm, md, lg, xl, full}` (480 / 640 / 800 / 1000px / 100%)
+- `ld-aspect-{square, video, 4-3, 3-2}` (1/1, 16/9, 4/3, 3/2)
+- `ld-mx-auto` / `ld-my-auto` — auto-margin centering
 
-These live in `ldcss.css` §3b–3c and are plain generated CSS — inspect the source if you want to extend the pattern (e.g. add a `9` size, or a `ld-pad-t-7`) yourself; there's no build tool involved, just find-and-extend the block.
+These live in `ldcss.css` §38a–38b and are plain generated CSS — inspect the source if you want to extend the pattern (e.g. add a `9` size, or a `ld-pad-t-7`) yourself; there's no build tool involved, just find-and-extend the block.
 
 ## Typography utilities
 
@@ -504,11 +514,13 @@ These live in `ldcss.css` §3b–3c and are plain generated CSS — inspect the 
 <h3 class="ld-text-xl ld-font-bold ld-uppercase ld-tracking-wide">Section title</h3>
 <p class="ld-truncate" style="max-width: 200px;">This will get cut off with an ellipsis…</p>
 <p class="ld-line-clamp-2">Clamped to 2 lines, overflow hidden, works in every evergreen browser.</p>
+<p class="ld-italic">Emphasis without reaching for &lt;em&gt;.</p>
 ```
 
 - `ld-text-{xs, sm, base, lg, xl, 2xl}` — font-size, maps to the same `--ld-text-*` tokens used throughout the file
 - `ld-font-{normal, medium, bold}` — font-weight
 - `ld-uppercase` / `ld-lowercase` / `ld-capitalize`
+- `ld-italic` / `ld-not-italic`
 - `ld-tracking-wide` — `letter-spacing: 0.05em`
 - `ld-truncate` — single-line ellipsis (needs a constrained width)
 - `ld-line-clamp-{2, 3}` — multi-line ellipsis
@@ -577,7 +589,7 @@ A small set of breakpoint-prefixed utilities, using the same breakpoints `.ld-gr
 - `ld-sm:d-*`, `ld-md:d-*` — responsive display
 - `ld-sm:grid-cols-{1..6}`, `ld-md:grid-cols-{1..6}` — responsive grid columns
 
-Only `display` and `grid-cols` got responsive variants for now — those are the two utilities layout most often needs to flip at a breakpoint. If you need e.g. `ld-md:pad-a-6`, copy the pattern in `ldcss.css` §3i; it's a mechanical extension (wrap the class in the relevant `@media (min-width: …)` block and escape the colon with `\:`).
+Only `display` and `grid-cols` got responsive variants for now — those are the two utilities layout most often needs to flip at a breakpoint. If you need e.g. `ld-md:pad-a-6`, copy the pattern in `ldcss.css` §38h; it's a mechanical extension (wrap the class in the relevant `@media (min-width: …)` block and escape the colon with `\:`).
 
 ## Code blocks
 

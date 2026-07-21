@@ -2,6 +2,15 @@
  * ldcss — Lena Dijksma CSS
  * A small, opinionated framework: classes (ld-*) + custom attributes (data-ld-*)
  * License: MIT
+ *
+ * File order matters: §38 (Utility classes) and §39 (Escape hatches) are
+ * deliberately the LAST two sections. Every rule in them is a single class
+ * selector (specificity 0,1,0) — the same specificity most component rules
+ * use — so with a tie, whichever rule is LATER in the file wins, regardless
+ * of which one looks like "the override." If you add a new component,
+ * insert it before §38, not after, or its own padding/color/shadow/etc.
+ * rules can silently defeat these utilities exactly the way §3b–3i and old
+ * §29 used to before this was fixed.
  */
 
 @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap');
@@ -31,6 +40,7 @@
 
   /* Scale */
   --ld-font-mono: 'JetBrains Mono', ui-monospace, 'SFMono-Regular', Menlo, Consolas, monospace;
+  --ld-font-family: var(--ld-font-mono); /* what body text/components use — override via ld-font-sans/ld-font-serif */
   --ld-radius: 0px;
   --ld-border-width: 2px;
   --ld-shadow-offset: 4px;
@@ -117,13 +127,13 @@ body {
   margin: 0;
   background: var(--ld-bg);
   color: var(--ld-text);
-  font-family: var(--ld-font-mono);
+  font-family: var(--ld-font-family);
   font-size: var(--ld-text-base);
   line-height: 1.6;
   transition: background var(--ld-transition), color var(--ld-transition);
 }
 
-h1, h2, h3, h4, h5, h6 { font-family: var(--ld-font-mono); font-weight: 700; line-height: 1.25; margin: 0 0 var(--ld-space-3); }
+h1, h2, h3, h4, h5, h6 { font-family: var(--ld-font-family); font-weight: 700; line-height: 1.25; margin: 0 0 var(--ld-space-3); }
 p { margin: 0 0 var(--ld-space-3); color: var(--ld-text); }
 a { color: inherit; }
 code, pre { font-family: var(--ld-font-mono); }
@@ -189,429 +199,6 @@ code.ld-code-inline {
 .ld-stack > * + * { margin-top: var(--ld-space-4); }
 
 /* ==========================================================================
-   3b. Spacing utilities: ld-pad-*, ld-mar-*, ld-gap-*
-   Pattern:  ld-{pad|mar}-{side}-{size}
-   side: a (all) · t (top) · r (right) · b (bottom) · l (left)
-         · v (vertical: top+bottom) · h (horizontal: left+right)
-   size: 0,1,2,3,4,5,6,8 — maps to --ld-space-{size} (0 = 0)
-   Negative margins: ld-mar-{side}-n{size}, e.g. ld-mar-t-n3
-   ========================================================================== */
-
-/* -- Padding --------------------------------------------------------------- */
-.ld-pad-a-0 { padding: 0; }
-.ld-pad-a-1 { padding: var(--ld-space-1); }
-.ld-pad-a-2 { padding: var(--ld-space-2); }
-.ld-pad-a-3 { padding: var(--ld-space-3); }
-.ld-pad-a-4 { padding: var(--ld-space-4); }
-.ld-pad-a-5 { padding: var(--ld-space-5); }
-.ld-pad-a-6 { padding: var(--ld-space-6); }
-.ld-pad-a-8 { padding: var(--ld-space-8); }
-.ld-pad-t-0 { padding-top: 0; }
-.ld-pad-t-1 { padding-top: var(--ld-space-1); }
-.ld-pad-t-2 { padding-top: var(--ld-space-2); }
-.ld-pad-t-3 { padding-top: var(--ld-space-3); }
-.ld-pad-t-4 { padding-top: var(--ld-space-4); }
-.ld-pad-t-5 { padding-top: var(--ld-space-5); }
-.ld-pad-t-6 { padding-top: var(--ld-space-6); }
-.ld-pad-t-8 { padding-top: var(--ld-space-8); }
-.ld-pad-r-0 { padding-right: 0; }
-.ld-pad-r-1 { padding-right: var(--ld-space-1); }
-.ld-pad-r-2 { padding-right: var(--ld-space-2); }
-.ld-pad-r-3 { padding-right: var(--ld-space-3); }
-.ld-pad-r-4 { padding-right: var(--ld-space-4); }
-.ld-pad-r-5 { padding-right: var(--ld-space-5); }
-.ld-pad-r-6 { padding-right: var(--ld-space-6); }
-.ld-pad-r-8 { padding-right: var(--ld-space-8); }
-.ld-pad-b-0 { padding-bottom: 0; }
-.ld-pad-b-1 { padding-bottom: var(--ld-space-1); }
-.ld-pad-b-2 { padding-bottom: var(--ld-space-2); }
-.ld-pad-b-3 { padding-bottom: var(--ld-space-3); }
-.ld-pad-b-4 { padding-bottom: var(--ld-space-4); }
-.ld-pad-b-5 { padding-bottom: var(--ld-space-5); }
-.ld-pad-b-6 { padding-bottom: var(--ld-space-6); }
-.ld-pad-b-8 { padding-bottom: var(--ld-space-8); }
-.ld-pad-l-0 { padding-left: 0; }
-.ld-pad-l-1 { padding-left: var(--ld-space-1); }
-.ld-pad-l-2 { padding-left: var(--ld-space-2); }
-.ld-pad-l-3 { padding-left: var(--ld-space-3); }
-.ld-pad-l-4 { padding-left: var(--ld-space-4); }
-.ld-pad-l-5 { padding-left: var(--ld-space-5); }
-.ld-pad-l-6 { padding-left: var(--ld-space-6); }
-.ld-pad-l-8 { padding-left: var(--ld-space-8); }
-.ld-pad-v-0 { padding-top: 0; padding-bottom: 0; }
-.ld-pad-v-1 { padding-top: var(--ld-space-1); padding-bottom: var(--ld-space-1); }
-.ld-pad-v-2 { padding-top: var(--ld-space-2); padding-bottom: var(--ld-space-2); }
-.ld-pad-v-3 { padding-top: var(--ld-space-3); padding-bottom: var(--ld-space-3); }
-.ld-pad-v-4 { padding-top: var(--ld-space-4); padding-bottom: var(--ld-space-4); }
-.ld-pad-v-5 { padding-top: var(--ld-space-5); padding-bottom: var(--ld-space-5); }
-.ld-pad-v-6 { padding-top: var(--ld-space-6); padding-bottom: var(--ld-space-6); }
-.ld-pad-v-8 { padding-top: var(--ld-space-8); padding-bottom: var(--ld-space-8); }
-.ld-pad-h-0 { padding-left: 0; padding-right: 0; }
-.ld-pad-h-1 { padding-left: var(--ld-space-1); padding-right: var(--ld-space-1); }
-.ld-pad-h-2 { padding-left: var(--ld-space-2); padding-right: var(--ld-space-2); }
-.ld-pad-h-3 { padding-left: var(--ld-space-3); padding-right: var(--ld-space-3); }
-.ld-pad-h-4 { padding-left: var(--ld-space-4); padding-right: var(--ld-space-4); }
-.ld-pad-h-5 { padding-left: var(--ld-space-5); padding-right: var(--ld-space-5); }
-.ld-pad-h-6 { padding-left: var(--ld-space-6); padding-right: var(--ld-space-6); }
-.ld-pad-h-8 { padding-left: var(--ld-space-8); padding-right: var(--ld-space-8); }
-
-/* -- Margin ------------------------------------------------------------------ */
-.ld-mar-a-0 { margin: 0; }
-.ld-mar-a-1 { margin: var(--ld-space-1); }
-.ld-mar-a-2 { margin: var(--ld-space-2); }
-.ld-mar-a-3 { margin: var(--ld-space-3); }
-.ld-mar-a-4 { margin: var(--ld-space-4); }
-.ld-mar-a-5 { margin: var(--ld-space-5); }
-.ld-mar-a-6 { margin: var(--ld-space-6); }
-.ld-mar-a-8 { margin: var(--ld-space-8); }
-.ld-mar-t-0 { margin-top: 0; }
-.ld-mar-t-1 { margin-top: var(--ld-space-1); }
-.ld-mar-t-2 { margin-top: var(--ld-space-2); }
-.ld-mar-t-3 { margin-top: var(--ld-space-3); }
-.ld-mar-t-4 { margin-top: var(--ld-space-4); }
-.ld-mar-t-5 { margin-top: var(--ld-space-5); }
-.ld-mar-t-6 { margin-top: var(--ld-space-6); }
-.ld-mar-t-8 { margin-top: var(--ld-space-8); }
-.ld-mar-r-0 { margin-right: 0; }
-.ld-mar-r-1 { margin-right: var(--ld-space-1); }
-.ld-mar-r-2 { margin-right: var(--ld-space-2); }
-.ld-mar-r-3 { margin-right: var(--ld-space-3); }
-.ld-mar-r-4 { margin-right: var(--ld-space-4); }
-.ld-mar-r-5 { margin-right: var(--ld-space-5); }
-.ld-mar-r-6 { margin-right: var(--ld-space-6); }
-.ld-mar-r-8 { margin-right: var(--ld-space-8); }
-.ld-mar-b-0 { margin-bottom: 0; }
-.ld-mar-b-1 { margin-bottom: var(--ld-space-1); }
-.ld-mar-b-2 { margin-bottom: var(--ld-space-2); }
-.ld-mar-b-3 { margin-bottom: var(--ld-space-3); }
-.ld-mar-b-4 { margin-bottom: var(--ld-space-4); }
-.ld-mar-b-5 { margin-bottom: var(--ld-space-5); }
-.ld-mar-b-6 { margin-bottom: var(--ld-space-6); }
-.ld-mar-b-8 { margin-bottom: var(--ld-space-8); }
-.ld-mar-l-0 { margin-left: 0; }
-.ld-mar-l-1 { margin-left: var(--ld-space-1); }
-.ld-mar-l-2 { margin-left: var(--ld-space-2); }
-.ld-mar-l-3 { margin-left: var(--ld-space-3); }
-.ld-mar-l-4 { margin-left: var(--ld-space-4); }
-.ld-mar-l-5 { margin-left: var(--ld-space-5); }
-.ld-mar-l-6 { margin-left: var(--ld-space-6); }
-.ld-mar-l-8 { margin-left: var(--ld-space-8); }
-.ld-mar-v-0 { margin-top: 0; margin-bottom: 0; }
-.ld-mar-v-1 { margin-top: var(--ld-space-1); margin-bottom: var(--ld-space-1); }
-.ld-mar-v-2 { margin-top: var(--ld-space-2); margin-bottom: var(--ld-space-2); }
-.ld-mar-v-3 { margin-top: var(--ld-space-3); margin-bottom: var(--ld-space-3); }
-.ld-mar-v-4 { margin-top: var(--ld-space-4); margin-bottom: var(--ld-space-4); }
-.ld-mar-v-5 { margin-top: var(--ld-space-5); margin-bottom: var(--ld-space-5); }
-.ld-mar-v-6 { margin-top: var(--ld-space-6); margin-bottom: var(--ld-space-6); }
-.ld-mar-v-8 { margin-top: var(--ld-space-8); margin-bottom: var(--ld-space-8); }
-.ld-mar-h-0 { margin-left: 0; margin-right: 0; }
-.ld-mar-h-1 { margin-left: var(--ld-space-1); margin-right: var(--ld-space-1); }
-.ld-mar-h-2 { margin-left: var(--ld-space-2); margin-right: var(--ld-space-2); }
-.ld-mar-h-3 { margin-left: var(--ld-space-3); margin-right: var(--ld-space-3); }
-.ld-mar-h-4 { margin-left: var(--ld-space-4); margin-right: var(--ld-space-4); }
-.ld-mar-h-5 { margin-left: var(--ld-space-5); margin-right: var(--ld-space-5); }
-.ld-mar-h-6 { margin-left: var(--ld-space-6); margin-right: var(--ld-space-6); }
-.ld-mar-h-8 { margin-left: var(--ld-space-8); margin-right: var(--ld-space-8); }
-
-/* -- Negative margins (skip 0) ---------------------------------------------- */
-.ld-mar-t-n1 { margin-top: calc(var(--ld-space-1) * -1); }
-.ld-mar-t-n2 { margin-top: calc(var(--ld-space-2) * -1); }
-.ld-mar-t-n3 { margin-top: calc(var(--ld-space-3) * -1); }
-.ld-mar-t-n4 { margin-top: calc(var(--ld-space-4) * -1); }
-.ld-mar-t-n5 { margin-top: calc(var(--ld-space-5) * -1); }
-.ld-mar-t-n6 { margin-top: calc(var(--ld-space-6) * -1); }
-.ld-mar-t-n8 { margin-top: calc(var(--ld-space-8) * -1); }
-.ld-mar-r-n1 { margin-right: calc(var(--ld-space-1) * -1); }
-.ld-mar-r-n2 { margin-right: calc(var(--ld-space-2) * -1); }
-.ld-mar-r-n3 { margin-right: calc(var(--ld-space-3) * -1); }
-.ld-mar-r-n4 { margin-right: calc(var(--ld-space-4) * -1); }
-.ld-mar-r-n5 { margin-right: calc(var(--ld-space-5) * -1); }
-.ld-mar-r-n6 { margin-right: calc(var(--ld-space-6) * -1); }
-.ld-mar-r-n8 { margin-right: calc(var(--ld-space-8) * -1); }
-.ld-mar-b-n1 { margin-bottom: calc(var(--ld-space-1) * -1); }
-.ld-mar-b-n2 { margin-bottom: calc(var(--ld-space-2) * -1); }
-.ld-mar-b-n3 { margin-bottom: calc(var(--ld-space-3) * -1); }
-.ld-mar-b-n4 { margin-bottom: calc(var(--ld-space-4) * -1); }
-.ld-mar-b-n5 { margin-bottom: calc(var(--ld-space-5) * -1); }
-.ld-mar-b-n6 { margin-bottom: calc(var(--ld-space-6) * -1); }
-.ld-mar-b-n8 { margin-bottom: calc(var(--ld-space-8) * -1); }
-.ld-mar-l-n1 { margin-left: calc(var(--ld-space-1) * -1); }
-.ld-mar-l-n2 { margin-left: calc(var(--ld-space-2) * -1); }
-.ld-mar-l-n3 { margin-left: calc(var(--ld-space-3) * -1); }
-.ld-mar-l-n4 { margin-left: calc(var(--ld-space-4) * -1); }
-.ld-mar-l-n5 { margin-left: calc(var(--ld-space-5) * -1); }
-.ld-mar-l-n6 { margin-left: calc(var(--ld-space-6) * -1); }
-.ld-mar-l-n8 { margin-left: calc(var(--ld-space-8) * -1); }
-.ld-mar-v-n1 { margin-top: calc(var(--ld-space-1) * -1); margin-bottom: calc(var(--ld-space-1) * -1); }
-.ld-mar-v-n2 { margin-top: calc(var(--ld-space-2) * -1); margin-bottom: calc(var(--ld-space-2) * -1); }
-.ld-mar-v-n3 { margin-top: calc(var(--ld-space-3) * -1); margin-bottom: calc(var(--ld-space-3) * -1); }
-.ld-mar-v-n4 { margin-top: calc(var(--ld-space-4) * -1); margin-bottom: calc(var(--ld-space-4) * -1); }
-.ld-mar-v-n5 { margin-top: calc(var(--ld-space-5) * -1); margin-bottom: calc(var(--ld-space-5) * -1); }
-.ld-mar-v-n6 { margin-top: calc(var(--ld-space-6) * -1); margin-bottom: calc(var(--ld-space-6) * -1); }
-.ld-mar-v-n8 { margin-top: calc(var(--ld-space-8) * -1); margin-bottom: calc(var(--ld-space-8) * -1); }
-.ld-mar-h-n1 { margin-left: calc(var(--ld-space-1) * -1); margin-right: calc(var(--ld-space-1) * -1); }
-.ld-mar-h-n2 { margin-left: calc(var(--ld-space-2) * -1); margin-right: calc(var(--ld-space-2) * -1); }
-.ld-mar-h-n3 { margin-left: calc(var(--ld-space-3) * -1); margin-right: calc(var(--ld-space-3) * -1); }
-.ld-mar-h-n4 { margin-left: calc(var(--ld-space-4) * -1); margin-right: calc(var(--ld-space-4) * -1); }
-.ld-mar-h-n5 { margin-left: calc(var(--ld-space-5) * -1); margin-right: calc(var(--ld-space-5) * -1); }
-.ld-mar-h-n6 { margin-left: calc(var(--ld-space-6) * -1); margin-right: calc(var(--ld-space-6) * -1); }
-.ld-mar-h-n8 { margin-left: calc(var(--ld-space-8) * -1); margin-right: calc(var(--ld-space-8) * -1); }
-.ld-mar-a-n1 { margin: calc(var(--ld-space-1) * -1); }
-.ld-mar-a-n2 { margin: calc(var(--ld-space-2) * -1); }
-.ld-mar-a-n3 { margin: calc(var(--ld-space-3) * -1); }
-.ld-mar-a-n4 { margin: calc(var(--ld-space-4) * -1); }
-.ld-mar-a-n5 { margin: calc(var(--ld-space-5) * -1); }
-.ld-mar-a-n6 { margin: calc(var(--ld-space-6) * -1); }
-.ld-mar-a-n8 { margin: calc(var(--ld-space-8) * -1); }
-
-/* -- Gap (flex/grid containers) ---------------------------------------------- */
-.ld-gap-0 { gap: 0; }
-.ld-gap-1 { gap: var(--ld-space-1); }
-.ld-gap-2 { gap: var(--ld-space-2); }
-.ld-gap-3 { gap: var(--ld-space-3); }
-.ld-gap-4 { gap: var(--ld-space-4); }
-.ld-gap-5 { gap: var(--ld-space-5); }
-.ld-gap-6 { gap: var(--ld-space-6); }
-.ld-gap-8 { gap: var(--ld-space-8); }
-.ld-gap-x-0 { column-gap: 0; }
-.ld-gap-x-1 { column-gap: var(--ld-space-1); }
-.ld-gap-x-2 { column-gap: var(--ld-space-2); }
-.ld-gap-x-3 { column-gap: var(--ld-space-3); }
-.ld-gap-x-4 { column-gap: var(--ld-space-4); }
-.ld-gap-x-5 { column-gap: var(--ld-space-5); }
-.ld-gap-x-6 { column-gap: var(--ld-space-6); }
-.ld-gap-x-8 { column-gap: var(--ld-space-8); }
-.ld-gap-y-0 { row-gap: 0; }
-.ld-gap-y-1 { row-gap: var(--ld-space-1); }
-.ld-gap-y-2 { row-gap: var(--ld-space-2); }
-.ld-gap-y-3 { row-gap: var(--ld-space-3); }
-.ld-gap-y-4 { row-gap: var(--ld-space-4); }
-.ld-gap-y-5 { row-gap: var(--ld-space-5); }
-.ld-gap-y-6 { row-gap: var(--ld-space-6); }
-.ld-gap-y-8 { row-gap: var(--ld-space-8); }
-
-/* ==========================================================================
-   3c. Display & flex utilities: ld-d-*, ld-flex-*, ld-items-*, ld-justify-*
-   ========================================================================== */
-
-/* -- Display ------------------------------------------------------------------ */
-.ld-d-block { display: block; }
-.ld-d-inline { display: inline; }
-.ld-d-inline-block { display: inline-block; }
-.ld-d-flex { display: flex; }
-.ld-d-inline-flex { display: inline-flex; }
-.ld-d-grid { display: grid; }
-.ld-d-none { display: none; }
-
-/* -- Flex direction / wrap ----------------------------------------------------- */
-.ld-flex-row { flex-direction: row; }
-.ld-flex-row-rev { flex-direction: row-reverse; }
-.ld-flex-col { flex-direction: column; }
-.ld-flex-col-rev { flex-direction: column-reverse; }
-.ld-flex-wrap { flex-wrap: wrap; }
-.ld-flex-nowrap { flex-wrap: nowrap; }
-.ld-flex-1 { flex: 1 1 0%; }
-.ld-flex-auto { flex: 1 1 auto; }
-.ld-flex-none { flex: none; }
-
-/* -- Align / justify ------------------------------------------------------------ */
-.ld-items-start { align-items: flex-start; }
-.ld-items-center { align-items: center; }
-.ld-items-end { align-items: flex-end; }
-.ld-items-stretch { align-items: stretch; }
-.ld-items-baseline { align-items: baseline; }
-.ld-justify-start { justify-content: flex-start; }
-.ld-justify-center { justify-content: center; }
-.ld-justify-end { justify-content: flex-end; }
-.ld-justify-between { justify-content: space-between; }
-.ld-justify-around { justify-content: space-around; }
-.ld-justify-evenly { justify-content: space-evenly; }
-
-/* -- Text align ------------------------------------------------------------------ */
-.ld-text-left { text-align: left; }
-.ld-text-center { text-align: center; }
-.ld-text-right { text-align: right; }
-
-/* -- Width / max-width ------------------------------------------------------------ */
-.ld-w-25 { width: 25%; }
-.ld-w-50 { width: 50%; }
-.ld-w-75 { width: 75%; }
-.ld-w-100 { width: 100%; }
-.ld-max-w-sm { max-width: 480px; }
-.ld-max-w-md { max-width: 640px; }
-.ld-max-w-lg { max-width: 800px; }
-.ld-max-w-xl { max-width: 1000px; }
-.ld-max-w-full { max-width: 100%; }
-
-/* ==========================================================================
-   3d. Typography utilities: ld-text-{size}, ld-font-*, ld-truncate, ld-line-clamp-*
-   ========================================================================== */
-
-/* -- Font size (maps to --ld-text-*) ------------------------------------------ */
-.ld-text-xs { font-size: var(--ld-text-xs); }
-.ld-text-sm { font-size: var(--ld-text-sm); }
-.ld-text-base { font-size: var(--ld-text-base); }
-.ld-text-lg { font-size: var(--ld-text-lg); }
-.ld-text-xl { font-size: var(--ld-text-xl); }
-.ld-text-2xl { font-size: var(--ld-text-2xl); }
-
-/* -- Font weight --------------------------------------------------------------- */
-.ld-font-normal { font-weight: 400; }
-.ld-font-medium { font-weight: 500; }
-.ld-font-bold { font-weight: 700; }
-
-/* -- Text transform -------------------------------------------------------------- */
-.ld-uppercase { text-transform: uppercase; }
-.ld-lowercase { text-transform: lowercase; }
-.ld-capitalize { text-transform: capitalize; }
-
-/* -- Letter spacing -------------------------------------------------------------- */
-.ld-tracking-wide { letter-spacing: 0.05em; }
-
-/* -- Truncation -------------------------------------------------------------------- */
-.ld-truncate { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.ld-line-clamp-2 { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
-.ld-line-clamp-3 { display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
-
-/* ==========================================================================
-   3e. Color utilities: ld-text-*, ld-bg-*
-   ========================================================================== */
-
-/* -- Text color (ld-text-muted and ld-text-accent already exist in §37 Misc) ------ */
-.ld-text-danger { color: var(--ld-danger); }
-
-/* -- Background ------------------------------------------------------------------- */
-.ld-bg-surface { background: var(--ld-surface); }
-.ld-bg-raised { background: var(--ld-surface-raised); }
-.ld-bg-transparent { background: transparent; }
-
-/* ==========================================================================
-   3f. Position & z-index utilities: ld-{relative,absolute,fixed,sticky},
-   ld-inset-0, ld-{top,right,bottom,left}-0, ld-z-*
-   ========================================================================== */
-
-/* -- Position ------------------------------------------------------------------------ */
-.ld-static { position: static; }
-.ld-relative { position: relative; }
-.ld-absolute { position: absolute; }
-.ld-fixed { position: fixed; }
-.ld-sticky { position: sticky; }
-
-/* -- Inset / edges (use with an already-positioned element) -------------------------- */
-.ld-inset-0 { top: 0; right: 0; bottom: 0; left: 0; }
-.ld-top-0 { top: 0; }
-.ld-right-0 { right: 0; }
-.ld-bottom-0 { bottom: 0; }
-.ld-left-0 { left: 0; }
-
-/* -- Z-index: numeric scale + named aliases matching this file's own components ----- */
-.ld-z-0 { z-index: 0; }
-.ld-z-10 { z-index: 10; }
-.ld-z-20 { z-index: 20; }
-.ld-z-30 { z-index: 30; }
-.ld-z-40 { z-index: 40; }
-.ld-z-50 { z-index: 50; }
-/* named aliases — match the exact stacking order already used by ldcss components */
-.ld-z-dropdown { z-index: 20; }
-.ld-z-popover { z-index: 25; }
-.ld-z-tooltip { z-index: 30; }
-.ld-z-modal { z-index: 50; }
-.ld-z-offcanvas { z-index: 55; }
-.ld-z-toast { z-index: 60; }
-.ld-z-command { z-index: 70; }
-
-/* ==========================================================================
-   3g. Flex extras & grid columns: ld-self-*, ld-order-*, ld-grid-cols-*
-   ========================================================================== */
-
-/* -- Align self (per-item override of ld-items-*) ------------------------------------- */
-.ld-self-start { align-self: flex-start; }
-.ld-self-center { align-self: center; }
-.ld-self-end { align-self: flex-end; }
-.ld-self-stretch { align-self: stretch; }
-
-/* -- Order --------------------------------------------------------------------------- */
-.ld-order-1 { order: 1; }
-.ld-order-2 { order: 2; }
-.ld-order-3 { order: 3; }
-.ld-order-4 { order: 4; }
-.ld-order-5 { order: 5; }
-.ld-order-first { order: -1; }
-.ld-order-last { order: 999; }
-
-/* -- Generic grid columns (independent of .ld-grid / data-ld-cols) -------------------- */
-.ld-grid-cols-1 { grid-template-columns: repeat(1, 1fr); }
-.ld-grid-cols-2 { grid-template-columns: repeat(2, 1fr); }
-.ld-grid-cols-3 { grid-template-columns: repeat(3, 1fr); }
-.ld-grid-cols-4 { grid-template-columns: repeat(4, 1fr); }
-.ld-grid-cols-5 { grid-template-columns: repeat(5, 1fr); }
-.ld-grid-cols-6 { grid-template-columns: repeat(6, 1fr); }
-
-/* ==========================================================================
-   3h. Visibility & interaction: ld-sr-only, ld-cursor-*, ld-select-none, ld-overflow-*
-   ========================================================================== */
-
-.ld-sr-only {
-  position: absolute;
-  width: 1px; height: 1px;
-  padding: 0; margin: -1px;
-  overflow: hidden;
-  clip: rect(0, 0, 0, 0);
-  white-space: nowrap;
-  border: 0;
-}
-
-.ld-cursor-pointer { cursor: pointer; }
-.ld-cursor-not-allowed { cursor: not-allowed; }
-.ld-cursor-default { cursor: default; }
-
-.ld-select-none { user-select: none; }
-
-.ld-overflow-hidden { overflow: hidden; }
-.ld-overflow-auto { overflow: auto; }
-.ld-overflow-scroll { overflow: scroll; }
-.ld-overflow-visible { overflow: visible; }
-
-/* ==========================================================================
-   3i. Responsive variants: ld-sm\:*, ld-md\:*
-   sm = min-width 640px, md = min-width 960px (same breakpoints .ld-grid uses)
-   Covers display + grid-cols, the two utilities layout most often needs
-   to flip at a breakpoint. Extend the same way for other prefixes if needed.
-   ========================================================================== */
-
-@media (min-width: 640px) {
-  .ld-sm\:d-block { display: block; }
-  .ld-sm\:d-inline { display: inline; }
-  .ld-sm\:d-inline-block { display: inline-block; }
-  .ld-sm\:d-flex { display: flex; }
-  .ld-sm\:d-inline-flex { display: inline-flex; }
-  .ld-sm\:d-grid { display: grid; }
-  .ld-sm\:d-none { display: none; }
-  .ld-sm\:grid-cols-1 { grid-template-columns: repeat(1, 1fr); }
-  .ld-sm\:grid-cols-2 { grid-template-columns: repeat(2, 1fr); }
-  .ld-sm\:grid-cols-3 { grid-template-columns: repeat(3, 1fr); }
-  .ld-sm\:grid-cols-4 { grid-template-columns: repeat(4, 1fr); }
-  .ld-sm\:grid-cols-5 { grid-template-columns: repeat(5, 1fr); }
-  .ld-sm\:grid-cols-6 { grid-template-columns: repeat(6, 1fr); }
-}
-
-@media (min-width: 960px) {
-  .ld-md\:d-block { display: block; }
-  .ld-md\:d-inline { display: inline; }
-  .ld-md\:d-inline-block { display: inline-block; }
-  .ld-md\:d-flex { display: flex; }
-  .ld-md\:d-inline-flex { display: inline-flex; }
-  .ld-md\:d-grid { display: grid; }
-  .ld-md\:d-none { display: none; }
-  .ld-md\:grid-cols-1 { grid-template-columns: repeat(1, 1fr); }
-  .ld-md\:grid-cols-2 { grid-template-columns: repeat(2, 1fr); }
-  .ld-md\:grid-cols-3 { grid-template-columns: repeat(3, 1fr); }
-  .ld-md\:grid-cols-4 { grid-template-columns: repeat(4, 1fr); }
-  .ld-md\:grid-cols-5 { grid-template-columns: repeat(5, 1fr); }
-  .ld-md\:grid-cols-6 { grid-template-columns: repeat(6, 1fr); }
-}
-
-/* ==========================================================================
    4. Utility attributes: shadow + border
    ========================================================================== */
 
@@ -633,7 +220,7 @@ code.ld-code-inline {
   display: inline-flex;
   align-items: center;
   gap: var(--ld-space-2);
-  font-family: var(--ld-font-mono);
+  font-family: var(--ld-font-family);
   font-weight: 700;
   font-size: var(--ld-text-sm);
   letter-spacing: 0.02em;
@@ -750,6 +337,7 @@ code.ld-code-inline {
 
 .ld-nav-brand { font-weight: 700; font-size: var(--ld-text-lg); text-decoration: none; color: var(--ld-text); display: flex; align-items: center; gap: var(--ld-space-2); }
 .ld-nav-brand::before { content: '$'; color: var(--ld-accent); }
+.ld-nav-brand[data-ld-mark='none']::before { content: none; }
 
 .ld-nav-links { display: flex; gap: var(--ld-space-5); list-style: none; margin: 0; padding: 0; }
 
@@ -784,7 +372,7 @@ code.ld-code-inline {
 .ld-textarea,
 .ld-select {
   width: 100%;
-  font-family: var(--ld-font-mono);
+  font-family: var(--ld-font-family);
   font-size: var(--ld-text-sm);
   padding: var(--ld-space-2) var(--ld-space-3);
   background: var(--ld-surface);
@@ -840,7 +428,7 @@ code.ld-code-inline {
   padding: var(--ld-space-2);
   background: none;
   border: none;
-  font-family: var(--ld-font-mono);
+  font-family: var(--ld-font-family);
   font-size: var(--ld-text-sm);
   color: var(--ld-text);
   cursor: pointer;
@@ -853,7 +441,7 @@ code.ld-code-inline {
   background: none;
   border: none;
   border-bottom: 2px solid transparent;
-  font-family: var(--ld-font-mono);
+  font-family: var(--ld-font-family);
   font-size: var(--ld-text-sm);
   padding: var(--ld-space-2) var(--ld-space-3);
   color: var(--ld-text-muted);
@@ -883,7 +471,7 @@ code.ld-code-inline {
   padding: var(--ld-space-5);
 }
 .ld-modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--ld-space-4); }
-.ld-modal-close { background: none; border: none; font-family: var(--ld-font-mono); font-size: var(--ld-text-lg); cursor: pointer; color: var(--ld-text-muted); line-height: 1; }
+.ld-modal-close { background: none; border: none; font-family: var(--ld-font-family); font-size: var(--ld-text-lg); cursor: pointer; color: var(--ld-text-muted); line-height: 1; }
 .ld-modal-close:hover { color: var(--ld-text); }
 
 /* ==========================================================================
@@ -930,7 +518,7 @@ code.ld-code-inline {
   padding: var(--ld-space-3) var(--ld-space-4);
   background: var(--ld-surface);
   border: none;
-  font-family: var(--ld-font-mono);
+  font-family: var(--ld-font-family);
   font-size: var(--ld-text-sm);
   font-weight: 700;
   color: var(--ld-text);
@@ -1193,7 +781,7 @@ code.ld-code-inline {
   border: 1px solid var(--ld-border-soft);
   background: var(--ld-surface);
   color: var(--ld-text);
-  font-family: var(--ld-font-mono);
+  font-family: var(--ld-font-family);
   font-size: var(--ld-text-sm);
   text-decoration: none;
   cursor: pointer;
@@ -1310,117 +898,6 @@ code.ld-code-inline {
 .ld-skeleton[data-ld-shape='text'] { height: 12px; }
 
 /* ==========================================================================
-   29. Escape hatches
-   ------------------------------------------------------------------------
-   ldcss defaults to sharp edges, hard offset shadows, and monospace type.
-   These utilities let you opt individual elements out of that look without
-   fighting the framework — mix and match as needed.
-   ========================================================================== */
-
-/* -- Rounded corners ------------------------------------------------------ */
-
-.ld-round-none { border-radius: 0; }
-.ld-round-sm   { border-radius: 4px; }
-.ld-round      { border-radius: 8px; }
-.ld-round-lg   { border-radius: 16px; }
-.ld-round-xl   { border-radius: 24px; }
-.ld-round-full { border-radius: 9999px; }
-
-/* -- Border width x style grid -------------------------------------------
-   ld-border-{width}px-{style}. Color defaults to the standard border
-   token; override with an inline `border-color` or `style` if needed. */
-
-.ld-border-0 { border-width: 0; }
-
-.ld-border-1px-solid,  .ld-border-2px-solid,  .ld-border-3px-solid,  .ld-border-4px-solid,
-.ld-border-1px-dashed, .ld-border-2px-dashed, .ld-border-3px-dashed, .ld-border-4px-dashed,
-.ld-border-1px-dotted, .ld-border-2px-dotted, .ld-border-3px-dotted, .ld-border-4px-dotted,
-.ld-border-1px-double, .ld-border-2px-double, .ld-border-3px-double, .ld-border-4px-double {
-  border-color: var(--ld-border-soft);
-}
-
-.ld-border-1px-solid  { border-width: 1px; border-style: solid; }
-.ld-border-2px-solid  { border-width: 2px; border-style: solid; }
-.ld-border-3px-solid  { border-width: 3px; border-style: solid; }
-.ld-border-4px-solid  { border-width: 4px; border-style: solid; }
-
-.ld-border-1px-dashed { border-width: 1px; border-style: dashed; }
-.ld-border-2px-dashed { border-width: 2px; border-style: dashed; }
-.ld-border-3px-dashed { border-width: 3px; border-style: dashed; }
-.ld-border-4px-dashed { border-width: 4px; border-style: dashed; }
-
-.ld-border-1px-dotted { border-width: 1px; border-style: dotted; }
-.ld-border-2px-dotted { border-width: 2px; border-style: dotted; }
-.ld-border-3px-dotted { border-width: 3px; border-style: dotted; }
-.ld-border-4px-dotted { border-width: 4px; border-style: dotted; }
-
-.ld-border-1px-double { border-width: 3px; border-style: double; }
-.ld-border-2px-double { border-width: 4px; border-style: double; }
-.ld-border-3px-double { border-width: 5px; border-style: double; }
-.ld-border-4px-double { border-width: 6px; border-style: double; }
-
-/* -- Soft shadows (alternative to the hard-offset default) --------------- */
-
-.ld-shadow-none      { box-shadow: none; }
-.ld-shadow-soft-sm   { box-shadow: 0 1px 4px rgba(0, 0, 0, 0.14); }
-.ld-shadow-soft       { box-shadow: 0 4px 12px rgba(0, 0, 0, 0.16); }
-.ld-shadow-soft-lg   { box-shadow: 0 12px 32px rgba(0, 0, 0, 0.20); }
-
-/* -- Type ------------------------------------------------------------------
-   Opt an element out of monospace, e.g. for long-form body copy. */
-
-.ld-font-sans {
-  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
-}
-.ld-font-serif {
-  font-family: ui-serif, Georgia, "Times New Roman", serif;
-}
-
-/* -- Density scale ---------------------------------------------------------
-   Override the spacing tokens for a whole subtree. Apply to a container;
-   every component inside that reads --ld-space-* picks it up. */
-
-.ld-scale-compact {
-  --ld-space-1: 2px; --ld-space-2: 4px; --ld-space-3: 8px; --ld-space-4: 10px;
-  --ld-space-5: 16px; --ld-space-6: 20px; --ld-space-8: 32px;
-}
-.ld-scale-cozy {
-  --ld-space-1: 4px; --ld-space-2: 8px; --ld-space-3: 12px; --ld-space-4: 16px;
-  --ld-space-5: 24px; --ld-space-6: 32px; --ld-space-8: 48px;
-}
-.ld-scale-spacious {
-  --ld-space-1: 6px; --ld-space-2: 12px; --ld-space-3: 18px; --ld-space-4: 24px;
-  --ld-space-5: 36px; --ld-space-6: 48px; --ld-space-8: 64px;
-}
-
-/* -- Per-element accent swap ------------------------------------------------
-   Override just the brand color for one subtree, without touching theme. */
-
-.ld-accent-mint   { --ld-accent: #46E8B3; --ld-accent-text: #04231A; }
-.ld-accent-blue   { --ld-accent: #4C8EFF; --ld-accent-text: #04122E; }
-.ld-accent-purple { --ld-accent: #B98CFF; --ld-accent-text: #1C0A33; }
-.ld-accent-pink   { --ld-accent: #FF6FA5; --ld-accent-text: #330015; }
-.ld-accent-orange { --ld-accent: #FF9A4C; --ld-accent-text: #331500; }
-.ld-accent-yellow { --ld-accent: #F2D93B; --ld-accent-text: #2E2600; }
-.ld-accent-red    { --ld-accent: #FF6B6B; --ld-accent-text: #330000; }
-
-/* -- Surface registers -------------------------------------------------
-   Alternatives to the default bordered/shadowed surface. */
-
-.ld-glass {
-  background: color-mix(in srgb, var(--ld-surface) 55%, transparent);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  border: 1px solid var(--ld-border-soft);
-}
-.ld-flat {
-  background: none;
-  border: none;
-  box-shadow: none;
-  padding: 0;
-}
-
-/* ==========================================================================
    30. Offcanvas — data-ld-toggle="offcanvas"
    ========================================================================== */
 
@@ -1457,7 +934,7 @@ code.ld-code-inline {
 .ld-offcanvas-backdrop[data-ld-pos='right'].ld-show .ld-offcanvas { transform: translateX(0); }
 
 .ld-offcanvas-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--ld-space-4); }
-.ld-offcanvas-close { background: none; border: none; font-family: var(--ld-font-mono); font-size: var(--ld-text-lg); cursor: pointer; color: var(--ld-text-muted); }
+.ld-offcanvas-close { background: none; border: none; font-family: var(--ld-font-family); font-size: var(--ld-text-lg); cursor: pointer; color: var(--ld-text-muted); }
 .ld-offcanvas-close:hover { color: var(--ld-text); }
 
 /* ==========================================================================
@@ -1522,7 +999,7 @@ code.ld-code-inline {
   border-bottom: 1px solid var(--ld-border-soft);
   background: var(--ld-surface);
   color: var(--ld-text);
-  font-family: var(--ld-font-mono);
+  font-family: var(--ld-font-family);
   font-size: var(--ld-text-base);
 }
 .ld-command-input:focus { outline: none; }
@@ -1614,7 +1091,7 @@ code.ld-code-inline {
 .ld-tag { display: inline-flex; align-items: center; gap: 4px; background: var(--ld-surface-raised); border: 1px solid var(--ld-border-soft); padding: 2px 8px; font-size: var(--ld-text-xs); }
 .ld-tag-remove { background: none; border: none; color: var(--ld-text-muted); cursor: pointer; font-size: var(--ld-text-sm); line-height: 1; padding: 0; }
 .ld-tag-remove:hover { color: var(--ld-danger); }
-[data-ld-tags-input] { flex: 1; min-width: 100px; border: none; background: none; font-family: var(--ld-font-mono); font-size: var(--ld-text-sm); color: var(--ld-text); outline: none; }
+[data-ld-tags-input] { flex: 1; min-width: 100px; border: none; background: none; font-family: var(--ld-font-family); font-size: var(--ld-text-sm); color: var(--ld-text); outline: none; }
 
 /* ==========================================================================
    37. Misc
@@ -1622,3 +1099,622 @@ code.ld-code-inline {
 
 .ld-text-muted { color: var(--ld-text-muted); }
 .ld-text-accent { color: var(--ld-accent); }
+
+/* ==========================================================================
+   38–39. Utility classes & Escape hatches — moved to the end of the file
+   on purpose. Every rule below uses a single class selector (specificity
+   0,1,0), same as almost every component rule above it. CSS breaks same-
+   specificity ties by *source order*, not by "utility vs component" intent
+   — so these have to physically come after every component they're meant
+   to be able to override, or they lose silently. (Previously §3b–3i sat
+   right after Layout, before ~30 component sections that could out-order
+   them; Escape Hatches sat at old §29, before 8 more component sections
+   with the same problem. Both are fixed by living here instead.)
+   ========================================================================== */
+
+/* ==========================================================================
+   38a. Spacing utilities: ld-pad-*, ld-mar-*, ld-gap-*
+   Pattern:  ld-{pad|mar}-{side}-{size}
+   side: a (all) · t (top) · r (right) · b (bottom) · l (left)
+         · v (vertical: top+bottom) · h (horizontal: left+right)
+   size: 0,1,2,3,4,5,6,8 — maps to --ld-space-{size} (0 = 0)
+   Negative margins: ld-mar-{side}-n{size}, e.g. ld-mar-t-n3
+   ========================================================================== */
+
+/* -- Padding --------------------------------------------------------------- */
+.ld-pad-a-0 { padding: 0; }
+.ld-pad-a-1 { padding: var(--ld-space-1); }
+.ld-pad-a-2 { padding: var(--ld-space-2); }
+.ld-pad-a-3 { padding: var(--ld-space-3); }
+.ld-pad-a-4 { padding: var(--ld-space-4); }
+.ld-pad-a-5 { padding: var(--ld-space-5); }
+.ld-pad-a-6 { padding: var(--ld-space-6); }
+.ld-pad-a-8 { padding: var(--ld-space-8); }
+.ld-pad-t-0 { padding-top: 0; }
+.ld-pad-t-1 { padding-top: var(--ld-space-1); }
+.ld-pad-t-2 { padding-top: var(--ld-space-2); }
+.ld-pad-t-3 { padding-top: var(--ld-space-3); }
+.ld-pad-t-4 { padding-top: var(--ld-space-4); }
+.ld-pad-t-5 { padding-top: var(--ld-space-5); }
+.ld-pad-t-6 { padding-top: var(--ld-space-6); }
+.ld-pad-t-8 { padding-top: var(--ld-space-8); }
+.ld-pad-r-0 { padding-right: 0; }
+.ld-pad-r-1 { padding-right: var(--ld-space-1); }
+.ld-pad-r-2 { padding-right: var(--ld-space-2); }
+.ld-pad-r-3 { padding-right: var(--ld-space-3); }
+.ld-pad-r-4 { padding-right: var(--ld-space-4); }
+.ld-pad-r-5 { padding-right: var(--ld-space-5); }
+.ld-pad-r-6 { padding-right: var(--ld-space-6); }
+.ld-pad-r-8 { padding-right: var(--ld-space-8); }
+.ld-pad-b-0 { padding-bottom: 0; }
+.ld-pad-b-1 { padding-bottom: var(--ld-space-1); }
+.ld-pad-b-2 { padding-bottom: var(--ld-space-2); }
+.ld-pad-b-3 { padding-bottom: var(--ld-space-3); }
+.ld-pad-b-4 { padding-bottom: var(--ld-space-4); }
+.ld-pad-b-5 { padding-bottom: var(--ld-space-5); }
+.ld-pad-b-6 { padding-bottom: var(--ld-space-6); }
+.ld-pad-b-8 { padding-bottom: var(--ld-space-8); }
+.ld-pad-l-0 { padding-left: 0; }
+.ld-pad-l-1 { padding-left: var(--ld-space-1); }
+.ld-pad-l-2 { padding-left: var(--ld-space-2); }
+.ld-pad-l-3 { padding-left: var(--ld-space-3); }
+.ld-pad-l-4 { padding-left: var(--ld-space-4); }
+.ld-pad-l-5 { padding-left: var(--ld-space-5); }
+.ld-pad-l-6 { padding-left: var(--ld-space-6); }
+.ld-pad-l-8 { padding-left: var(--ld-space-8); }
+.ld-pad-v-0 { padding-top: 0; padding-bottom: 0; }
+.ld-pad-v-1 { padding-top: var(--ld-space-1); padding-bottom: var(--ld-space-1); }
+.ld-pad-v-2 { padding-top: var(--ld-space-2); padding-bottom: var(--ld-space-2); }
+.ld-pad-v-3 { padding-top: var(--ld-space-3); padding-bottom: var(--ld-space-3); }
+.ld-pad-v-4 { padding-top: var(--ld-space-4); padding-bottom: var(--ld-space-4); }
+.ld-pad-v-5 { padding-top: var(--ld-space-5); padding-bottom: var(--ld-space-5); }
+.ld-pad-v-6 { padding-top: var(--ld-space-6); padding-bottom: var(--ld-space-6); }
+.ld-pad-v-8 { padding-top: var(--ld-space-8); padding-bottom: var(--ld-space-8); }
+.ld-pad-h-0 { padding-left: 0; padding-right: 0; }
+.ld-pad-h-1 { padding-left: var(--ld-space-1); padding-right: var(--ld-space-1); }
+.ld-pad-h-2 { padding-left: var(--ld-space-2); padding-right: var(--ld-space-2); }
+.ld-pad-h-3 { padding-left: var(--ld-space-3); padding-right: var(--ld-space-3); }
+.ld-pad-h-4 { padding-left: var(--ld-space-4); padding-right: var(--ld-space-4); }
+.ld-pad-h-5 { padding-left: var(--ld-space-5); padding-right: var(--ld-space-5); }
+.ld-pad-h-6 { padding-left: var(--ld-space-6); padding-right: var(--ld-space-6); }
+.ld-pad-h-8 { padding-left: var(--ld-space-8); padding-right: var(--ld-space-8); }
+
+/* -- Margin ------------------------------------------------------------------ */
+.ld-mar-a-0 { margin: 0; }
+.ld-mar-a-1 { margin: var(--ld-space-1); }
+.ld-mar-a-2 { margin: var(--ld-space-2); }
+.ld-mar-a-3 { margin: var(--ld-space-3); }
+.ld-mar-a-4 { margin: var(--ld-space-4); }
+.ld-mar-a-5 { margin: var(--ld-space-5); }
+.ld-mar-a-6 { margin: var(--ld-space-6); }
+.ld-mar-a-8 { margin: var(--ld-space-8); }
+.ld-mar-t-0 { margin-top: 0; }
+.ld-mar-t-1 { margin-top: var(--ld-space-1); }
+.ld-mar-t-2 { margin-top: var(--ld-space-2); }
+.ld-mar-t-3 { margin-top: var(--ld-space-3); }
+.ld-mar-t-4 { margin-top: var(--ld-space-4); }
+.ld-mar-t-5 { margin-top: var(--ld-space-5); }
+.ld-mar-t-6 { margin-top: var(--ld-space-6); }
+.ld-mar-t-8 { margin-top: var(--ld-space-8); }
+.ld-mar-r-0 { margin-right: 0; }
+.ld-mar-r-1 { margin-right: var(--ld-space-1); }
+.ld-mar-r-2 { margin-right: var(--ld-space-2); }
+.ld-mar-r-3 { margin-right: var(--ld-space-3); }
+.ld-mar-r-4 { margin-right: var(--ld-space-4); }
+.ld-mar-r-5 { margin-right: var(--ld-space-5); }
+.ld-mar-r-6 { margin-right: var(--ld-space-6); }
+.ld-mar-r-8 { margin-right: var(--ld-space-8); }
+.ld-mar-b-0 { margin-bottom: 0; }
+.ld-mar-b-1 { margin-bottom: var(--ld-space-1); }
+.ld-mar-b-2 { margin-bottom: var(--ld-space-2); }
+.ld-mar-b-3 { margin-bottom: var(--ld-space-3); }
+.ld-mar-b-4 { margin-bottom: var(--ld-space-4); }
+.ld-mar-b-5 { margin-bottom: var(--ld-space-5); }
+.ld-mar-b-6 { margin-bottom: var(--ld-space-6); }
+.ld-mar-b-8 { margin-bottom: var(--ld-space-8); }
+.ld-mar-l-0 { margin-left: 0; }
+.ld-mar-l-1 { margin-left: var(--ld-space-1); }
+.ld-mar-l-2 { margin-left: var(--ld-space-2); }
+.ld-mar-l-3 { margin-left: var(--ld-space-3); }
+.ld-mar-l-4 { margin-left: var(--ld-space-4); }
+.ld-mar-l-5 { margin-left: var(--ld-space-5); }
+.ld-mar-l-6 { margin-left: var(--ld-space-6); }
+.ld-mar-l-8 { margin-left: var(--ld-space-8); }
+.ld-mar-v-0 { margin-top: 0; margin-bottom: 0; }
+.ld-mar-v-1 { margin-top: var(--ld-space-1); margin-bottom: var(--ld-space-1); }
+.ld-mar-v-2 { margin-top: var(--ld-space-2); margin-bottom: var(--ld-space-2); }
+.ld-mar-v-3 { margin-top: var(--ld-space-3); margin-bottom: var(--ld-space-3); }
+.ld-mar-v-4 { margin-top: var(--ld-space-4); margin-bottom: var(--ld-space-4); }
+.ld-mar-v-5 { margin-top: var(--ld-space-5); margin-bottom: var(--ld-space-5); }
+.ld-mar-v-6 { margin-top: var(--ld-space-6); margin-bottom: var(--ld-space-6); }
+.ld-mar-v-8 { margin-top: var(--ld-space-8); margin-bottom: var(--ld-space-8); }
+.ld-mar-h-0 { margin-left: 0; margin-right: 0; }
+.ld-mar-h-1 { margin-left: var(--ld-space-1); margin-right: var(--ld-space-1); }
+.ld-mar-h-2 { margin-left: var(--ld-space-2); margin-right: var(--ld-space-2); }
+.ld-mar-h-3 { margin-left: var(--ld-space-3); margin-right: var(--ld-space-3); }
+.ld-mar-h-4 { margin-left: var(--ld-space-4); margin-right: var(--ld-space-4); }
+.ld-mar-h-5 { margin-left: var(--ld-space-5); margin-right: var(--ld-space-5); }
+.ld-mar-h-6 { margin-left: var(--ld-space-6); margin-right: var(--ld-space-6); }
+.ld-mar-h-8 { margin-left: var(--ld-space-8); margin-right: var(--ld-space-8); }
+
+/* -- Negative margins (skip 0) ---------------------------------------------- */
+.ld-mar-t-n1 { margin-top: calc(var(--ld-space-1) * -1); }
+.ld-mar-t-n2 { margin-top: calc(var(--ld-space-2) * -1); }
+.ld-mar-t-n3 { margin-top: calc(var(--ld-space-3) * -1); }
+.ld-mar-t-n4 { margin-top: calc(var(--ld-space-4) * -1); }
+.ld-mar-t-n5 { margin-top: calc(var(--ld-space-5) * -1); }
+.ld-mar-t-n6 { margin-top: calc(var(--ld-space-6) * -1); }
+.ld-mar-t-n8 { margin-top: calc(var(--ld-space-8) * -1); }
+.ld-mar-r-n1 { margin-right: calc(var(--ld-space-1) * -1); }
+.ld-mar-r-n2 { margin-right: calc(var(--ld-space-2) * -1); }
+.ld-mar-r-n3 { margin-right: calc(var(--ld-space-3) * -1); }
+.ld-mar-r-n4 { margin-right: calc(var(--ld-space-4) * -1); }
+.ld-mar-r-n5 { margin-right: calc(var(--ld-space-5) * -1); }
+.ld-mar-r-n6 { margin-right: calc(var(--ld-space-6) * -1); }
+.ld-mar-r-n8 { margin-right: calc(var(--ld-space-8) * -1); }
+.ld-mar-b-n1 { margin-bottom: calc(var(--ld-space-1) * -1); }
+.ld-mar-b-n2 { margin-bottom: calc(var(--ld-space-2) * -1); }
+.ld-mar-b-n3 { margin-bottom: calc(var(--ld-space-3) * -1); }
+.ld-mar-b-n4 { margin-bottom: calc(var(--ld-space-4) * -1); }
+.ld-mar-b-n5 { margin-bottom: calc(var(--ld-space-5) * -1); }
+.ld-mar-b-n6 { margin-bottom: calc(var(--ld-space-6) * -1); }
+.ld-mar-b-n8 { margin-bottom: calc(var(--ld-space-8) * -1); }
+.ld-mar-l-n1 { margin-left: calc(var(--ld-space-1) * -1); }
+.ld-mar-l-n2 { margin-left: calc(var(--ld-space-2) * -1); }
+.ld-mar-l-n3 { margin-left: calc(var(--ld-space-3) * -1); }
+.ld-mar-l-n4 { margin-left: calc(var(--ld-space-4) * -1); }
+.ld-mar-l-n5 { margin-left: calc(var(--ld-space-5) * -1); }
+.ld-mar-l-n6 { margin-left: calc(var(--ld-space-6) * -1); }
+.ld-mar-l-n8 { margin-left: calc(var(--ld-space-8) * -1); }
+.ld-mar-v-n1 { margin-top: calc(var(--ld-space-1) * -1); margin-bottom: calc(var(--ld-space-1) * -1); }
+.ld-mar-v-n2 { margin-top: calc(var(--ld-space-2) * -1); margin-bottom: calc(var(--ld-space-2) * -1); }
+.ld-mar-v-n3 { margin-top: calc(var(--ld-space-3) * -1); margin-bottom: calc(var(--ld-space-3) * -1); }
+.ld-mar-v-n4 { margin-top: calc(var(--ld-space-4) * -1); margin-bottom: calc(var(--ld-space-4) * -1); }
+.ld-mar-v-n5 { margin-top: calc(var(--ld-space-5) * -1); margin-bottom: calc(var(--ld-space-5) * -1); }
+.ld-mar-v-n6 { margin-top: calc(var(--ld-space-6) * -1); margin-bottom: calc(var(--ld-space-6) * -1); }
+.ld-mar-v-n8 { margin-top: calc(var(--ld-space-8) * -1); margin-bottom: calc(var(--ld-space-8) * -1); }
+.ld-mar-h-n1 { margin-left: calc(var(--ld-space-1) * -1); margin-right: calc(var(--ld-space-1) * -1); }
+.ld-mar-h-n2 { margin-left: calc(var(--ld-space-2) * -1); margin-right: calc(var(--ld-space-2) * -1); }
+.ld-mar-h-n3 { margin-left: calc(var(--ld-space-3) * -1); margin-right: calc(var(--ld-space-3) * -1); }
+.ld-mar-h-n4 { margin-left: calc(var(--ld-space-4) * -1); margin-right: calc(var(--ld-space-4) * -1); }
+.ld-mar-h-n5 { margin-left: calc(var(--ld-space-5) * -1); margin-right: calc(var(--ld-space-5) * -1); }
+.ld-mar-h-n6 { margin-left: calc(var(--ld-space-6) * -1); margin-right: calc(var(--ld-space-6) * -1); }
+.ld-mar-h-n8 { margin-left: calc(var(--ld-space-8) * -1); margin-right: calc(var(--ld-space-8) * -1); }
+.ld-mar-a-n1 { margin: calc(var(--ld-space-1) * -1); }
+.ld-mar-a-n2 { margin: calc(var(--ld-space-2) * -1); }
+.ld-mar-a-n3 { margin: calc(var(--ld-space-3) * -1); }
+.ld-mar-a-n4 { margin: calc(var(--ld-space-4) * -1); }
+.ld-mar-a-n5 { margin: calc(var(--ld-space-5) * -1); }
+.ld-mar-a-n6 { margin: calc(var(--ld-space-6) * -1); }
+.ld-mar-a-n8 { margin: calc(var(--ld-space-8) * -1); }
+
+/* -- Auto-margin centering --------------------------------------------------- */
+.ld-mx-auto { margin-left: auto; margin-right: auto; }
+.ld-my-auto { margin-top: auto; margin-bottom: auto; }
+
+/* -- Gap (flex/grid containers) ---------------------------------------------- */
+.ld-gap-0 { gap: 0; }
+.ld-gap-1 { gap: var(--ld-space-1); }
+.ld-gap-2 { gap: var(--ld-space-2); }
+.ld-gap-3 { gap: var(--ld-space-3); }
+.ld-gap-4 { gap: var(--ld-space-4); }
+.ld-gap-5 { gap: var(--ld-space-5); }
+.ld-gap-6 { gap: var(--ld-space-6); }
+.ld-gap-8 { gap: var(--ld-space-8); }
+.ld-gap-x-0 { column-gap: 0; }
+.ld-gap-x-1 { column-gap: var(--ld-space-1); }
+.ld-gap-x-2 { column-gap: var(--ld-space-2); }
+.ld-gap-x-3 { column-gap: var(--ld-space-3); }
+.ld-gap-x-4 { column-gap: var(--ld-space-4); }
+.ld-gap-x-5 { column-gap: var(--ld-space-5); }
+.ld-gap-x-6 { column-gap: var(--ld-space-6); }
+.ld-gap-x-8 { column-gap: var(--ld-space-8); }
+.ld-gap-y-0 { row-gap: 0; }
+.ld-gap-y-1 { row-gap: var(--ld-space-1); }
+.ld-gap-y-2 { row-gap: var(--ld-space-2); }
+.ld-gap-y-3 { row-gap: var(--ld-space-3); }
+.ld-gap-y-4 { row-gap: var(--ld-space-4); }
+.ld-gap-y-5 { row-gap: var(--ld-space-5); }
+.ld-gap-y-6 { row-gap: var(--ld-space-6); }
+.ld-gap-y-8 { row-gap: var(--ld-space-8); }
+
+/* ==========================================================================
+   38b. Display & flex utilities: ld-d-*, ld-flex-*, ld-items-*, ld-justify-*
+   ========================================================================== */
+
+/* -- Display ------------------------------------------------------------------ */
+.ld-d-block { display: block; }
+.ld-d-inline { display: inline; }
+.ld-d-inline-block { display: inline-block; }
+.ld-d-flex { display: flex; }
+.ld-d-inline-flex { display: inline-flex; }
+.ld-d-grid { display: grid; }
+.ld-d-none { display: none; }
+
+/* -- Flex direction / wrap ----------------------------------------------------- */
+.ld-flex-row { flex-direction: row; }
+.ld-flex-row-rev { flex-direction: row-reverse; }
+.ld-flex-col { flex-direction: column; }
+.ld-flex-col-rev { flex-direction: column-reverse; }
+.ld-flex-wrap { flex-wrap: wrap; }
+.ld-flex-nowrap { flex-wrap: nowrap; }
+.ld-flex-1 { flex: 1 1 0%; }
+.ld-flex-auto { flex: 1 1 auto; }
+.ld-flex-none { flex: none; }
+
+/* -- Align / justify ------------------------------------------------------------ */
+.ld-items-start { align-items: flex-start; }
+.ld-items-center { align-items: center; }
+.ld-items-end { align-items: flex-end; }
+.ld-items-stretch { align-items: stretch; }
+.ld-items-baseline { align-items: baseline; }
+.ld-justify-start { justify-content: flex-start; }
+.ld-justify-center { justify-content: center; }
+.ld-justify-end { justify-content: flex-end; }
+.ld-justify-between { justify-content: space-between; }
+.ld-justify-around { justify-content: space-around; }
+.ld-justify-evenly { justify-content: space-evenly; }
+
+/* -- Text align ------------------------------------------------------------------ */
+.ld-text-left { text-align: left; }
+.ld-text-center { text-align: center; }
+.ld-text-right { text-align: right; }
+
+/* -- Width / max-width ------------------------------------------------------------ */
+.ld-w-25 { width: 25%; }
+.ld-w-50 { width: 50%; }
+.ld-w-75 { width: 75%; }
+.ld-w-100 { width: 100%; }
+.ld-max-w-sm { max-width: 480px; }
+.ld-max-w-md { max-width: 640px; }
+.ld-max-w-lg { max-width: 800px; }
+.ld-max-w-xl { max-width: 1000px; }
+.ld-max-w-full { max-width: 100%; }
+
+/* -- Aspect ratio -------------------------------------------------------------------- */
+.ld-aspect-square { aspect-ratio: 1 / 1; }
+.ld-aspect-video   { aspect-ratio: 16 / 9; }
+.ld-aspect-4-3      { aspect-ratio: 4 / 3; }
+.ld-aspect-3-2      { aspect-ratio: 3 / 2; }
+
+/* -- Link reset -----------------------------------------------------------------------
+   Strip default <a> underline/color for building a custom brand mark, card-as-link,
+   or nav item without pulling in a whole component (e.g. .ld-nav-brand, which bundles
+   this with its own "$" prefix mark). */
+.ld-link-reset { text-decoration: none; color: inherit; }
+
+/* ==========================================================================
+   38c. Typography utilities: ld-text-{size}, ld-font-*, ld-truncate, ld-line-clamp-*
+   ========================================================================== */
+
+/* -- Font size (maps to --ld-text-*) ------------------------------------------ */
+.ld-text-xs { font-size: var(--ld-text-xs); }
+.ld-text-sm { font-size: var(--ld-text-sm); }
+.ld-text-base { font-size: var(--ld-text-base); }
+.ld-text-lg { font-size: var(--ld-text-lg); }
+.ld-text-xl { font-size: var(--ld-text-xl); }
+.ld-text-2xl { font-size: var(--ld-text-2xl); }
+
+/* -- Font weight --------------------------------------------------------------- */
+.ld-font-normal { font-weight: 400; }
+.ld-font-medium { font-weight: 500; }
+.ld-font-bold { font-weight: 700; }
+
+/* -- Text transform -------------------------------------------------------------- */
+.ld-uppercase { text-transform: uppercase; }
+.ld-lowercase { text-transform: lowercase; }
+.ld-capitalize { text-transform: capitalize; }
+
+/* -- Font style ------------------------------------------------------------------- */
+.ld-italic { font-style: italic; }
+.ld-not-italic { font-style: normal; }
+
+/* -- Letter spacing -------------------------------------------------------------- */
+.ld-tracking-wide { letter-spacing: 0.05em; }
+
+/* -- Truncation -------------------------------------------------------------------- */
+.ld-truncate { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.ld-line-clamp-2 { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.ld-line-clamp-3 { display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+
+/* ==========================================================================
+   38d. Color utilities: ld-text-*, ld-bg-*
+   ========================================================================== */
+
+/* -- Text color (ld-text-muted and ld-text-accent already exist in §37 Misc) ------ */
+.ld-text-danger { color: var(--ld-danger); }
+
+/* -- Background ------------------------------------------------------------------- */
+.ld-bg-surface { background: var(--ld-surface); }
+.ld-bg-raised { background: var(--ld-surface-raised); }
+.ld-bg-transparent { background: transparent; }
+
+/* ==========================================================================
+   38e. Position & z-index utilities: ld-{relative,absolute,fixed,sticky},
+   ld-inset-0, ld-{top,right,bottom,left}-0, ld-z-*
+   ========================================================================== */
+
+/* -- Position ------------------------------------------------------------------------ */
+.ld-static { position: static; }
+.ld-relative { position: relative; }
+.ld-absolute { position: absolute; }
+.ld-fixed { position: fixed; }
+.ld-sticky { position: sticky; }
+
+/* -- Inset / edges (use with an already-positioned element) -------------------------- */
+.ld-inset-0 { top: 0; right: 0; bottom: 0; left: 0; }
+.ld-top-0 { top: 0; }
+.ld-right-0 { right: 0; }
+.ld-bottom-0 { bottom: 0; }
+.ld-left-0 { left: 0; }
+
+/* -- Z-index: numeric scale + named aliases matching this file's own components ----- */
+.ld-z-0 { z-index: 0; }
+.ld-z-10 { z-index: 10; }
+.ld-z-20 { z-index: 20; }
+.ld-z-30 { z-index: 30; }
+.ld-z-40 { z-index: 40; }
+.ld-z-50 { z-index: 50; }
+/* named aliases — match the exact stacking order already used by ldcss components */
+.ld-z-dropdown { z-index: 20; }
+.ld-z-popover { z-index: 25; }
+.ld-z-tooltip { z-index: 30; }
+.ld-z-modal { z-index: 50; }
+.ld-z-offcanvas { z-index: 55; }
+.ld-z-toast { z-index: 60; }
+.ld-z-command { z-index: 70; }
+
+/* ==========================================================================
+   38f. Flex extras & grid columns: ld-self-*, ld-order-*, ld-grid-cols-*
+   ========================================================================== */
+
+/* -- Align self (per-item override of ld-items-*) ------------------------------------- */
+.ld-self-start { align-self: flex-start; }
+.ld-self-center { align-self: center; }
+.ld-self-end { align-self: flex-end; }
+.ld-self-stretch { align-self: stretch; }
+
+/* -- Order --------------------------------------------------------------------------- */
+.ld-order-1 { order: 1; }
+.ld-order-2 { order: 2; }
+.ld-order-3 { order: 3; }
+.ld-order-4 { order: 4; }
+.ld-order-5 { order: 5; }
+.ld-order-first { order: -1; }
+.ld-order-last { order: 999; }
+
+/* -- Generic grid columns (independent of .ld-grid / data-ld-cols) -------------------- */
+.ld-grid-cols-1 { grid-template-columns: repeat(1, 1fr); }
+.ld-grid-cols-2 { grid-template-columns: repeat(2, 1fr); }
+.ld-grid-cols-3 { grid-template-columns: repeat(3, 1fr); }
+.ld-grid-cols-4 { grid-template-columns: repeat(4, 1fr); }
+.ld-grid-cols-5 { grid-template-columns: repeat(5, 1fr); }
+.ld-grid-cols-6 { grid-template-columns: repeat(6, 1fr); }
+
+/* ==========================================================================
+   38g. Visibility & interaction: ld-sr-only, ld-cursor-*, ld-select-none, ld-overflow-*
+   ========================================================================== */
+
+.ld-sr-only {
+  position: absolute;
+  width: 1px; height: 1px;
+  padding: 0; margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.ld-cursor-pointer { cursor: pointer; }
+.ld-cursor-not-allowed { cursor: not-allowed; }
+.ld-cursor-default { cursor: default; }
+
+.ld-select-none { user-select: none; }
+
+.ld-overflow-hidden { overflow: hidden; }
+.ld-overflow-auto { overflow: auto; }
+.ld-overflow-scroll { overflow: scroll; }
+.ld-overflow-visible { overflow: visible; }
+
+/* ==========================================================================
+   38h. Responsive variants: ld-sm\:*, ld-md\:*
+   sm = min-width 640px, md = min-width 960px (same breakpoints .ld-grid uses)
+   Covers display + grid-cols, the two utilities layout most often needs
+   to flip at a breakpoint. Extend the same way for other prefixes if needed.
+   ========================================================================== */
+
+@media (min-width: 640px) {
+  .ld-sm\:d-block { display: block; }
+  .ld-sm\:d-inline { display: inline; }
+  .ld-sm\:d-inline-block { display: inline-block; }
+  .ld-sm\:d-flex { display: flex; }
+  .ld-sm\:d-inline-flex { display: inline-flex; }
+  .ld-sm\:d-grid { display: grid; }
+  .ld-sm\:d-none { display: none; }
+  .ld-sm\:grid-cols-1 { grid-template-columns: repeat(1, 1fr); }
+  .ld-sm\:grid-cols-2 { grid-template-columns: repeat(2, 1fr); }
+  .ld-sm\:grid-cols-3 { grid-template-columns: repeat(3, 1fr); }
+  .ld-sm\:grid-cols-4 { grid-template-columns: repeat(4, 1fr); }
+  .ld-sm\:grid-cols-5 { grid-template-columns: repeat(5, 1fr); }
+  .ld-sm\:grid-cols-6 { grid-template-columns: repeat(6, 1fr); }
+}
+
+@media (min-width: 960px) {
+  .ld-md\:d-block { display: block; }
+  .ld-md\:d-inline { display: inline; }
+  .ld-md\:d-inline-block { display: inline-block; }
+  .ld-md\:d-flex { display: flex; }
+  .ld-md\:d-inline-flex { display: inline-flex; }
+  .ld-md\:d-grid { display: grid; }
+  .ld-md\:d-none { display: none; }
+  .ld-md\:grid-cols-1 { grid-template-columns: repeat(1, 1fr); }
+  .ld-md\:grid-cols-2 { grid-template-columns: repeat(2, 1fr); }
+  .ld-md\:grid-cols-3 { grid-template-columns: repeat(3, 1fr); }
+  .ld-md\:grid-cols-4 { grid-template-columns: repeat(4, 1fr); }
+  .ld-md\:grid-cols-5 { grid-template-columns: repeat(5, 1fr); }
+  .ld-md\:grid-cols-6 { grid-template-columns: repeat(6, 1fr); }
+}
+
+/* ==========================================================================
+   39. Escape hatches
+   ------------------------------------------------------------------------
+   ldcss defaults to sharp edges, hard offset shadows, and monospace type.
+   These utilities let you opt individual elements out of that look without
+   fighting the framework — mix and match as needed.
+   ========================================================================== */
+
+/* -- Rounded corners ------------------------------------------------------ */
+
+.ld-round-none { border-radius: 0; }
+.ld-round-sm   { border-radius: 4px; }
+.ld-round      { border-radius: 8px; }
+.ld-round-lg   { border-radius: 16px; }
+.ld-round-xl   { border-radius: 24px; }
+.ld-round-full { border-radius: 9999px; }
+
+/* -- Border width x style grid -------------------------------------------
+   ld-border-{width}px-{style}. Color defaults to the standard border
+   token; override with an inline `border-color` or `style` if needed. */
+
+.ld-border-0 { border-width: 0; }
+
+.ld-border-1px-solid,  .ld-border-2px-solid,  .ld-border-3px-solid,  .ld-border-4px-solid,
+.ld-border-1px-dashed, .ld-border-2px-dashed, .ld-border-3px-dashed, .ld-border-4px-dashed,
+.ld-border-1px-dotted, .ld-border-2px-dotted, .ld-border-3px-dotted, .ld-border-4px-dotted,
+.ld-border-1px-double, .ld-border-2px-double, .ld-border-3px-double, .ld-border-4px-double {
+  border-color: var(--ld-border-soft);
+}
+
+.ld-border-1px-solid  { border-width: 1px; border-style: solid; }
+.ld-border-2px-solid  { border-width: 2px; border-style: solid; }
+.ld-border-3px-solid  { border-width: 3px; border-style: solid; }
+.ld-border-4px-solid  { border-width: 4px; border-style: solid; }
+
+.ld-border-1px-dashed { border-width: 1px; border-style: dashed; }
+.ld-border-2px-dashed { border-width: 2px; border-style: dashed; }
+.ld-border-3px-dashed { border-width: 3px; border-style: dashed; }
+.ld-border-4px-dashed { border-width: 4px; border-style: dashed; }
+
+.ld-border-1px-dotted { border-width: 1px; border-style: dotted; }
+.ld-border-2px-dotted { border-width: 2px; border-style: dotted; }
+.ld-border-3px-dotted { border-width: 3px; border-style: dotted; }
+.ld-border-4px-dotted { border-width: 4px; border-style: dotted; }
+
+.ld-border-1px-double { border-width: 3px; border-style: double; }
+.ld-border-2px-double { border-width: 4px; border-style: double; }
+.ld-border-3px-double { border-width: 5px; border-style: double; }
+.ld-border-4px-double { border-width: 6px; border-style: double; }
+
+/* -- Soft shadows (alternative to the hard-offset default) --------------- */
+
+.ld-shadow-none      { box-shadow: none; }
+.ld-shadow-soft-sm   { box-shadow: 0 1px 4px rgba(0, 0, 0, 0.14); }
+.ld-shadow-soft       { box-shadow: 0 4px 12px rgba(0, 0, 0, 0.16); }
+.ld-shadow-soft-lg   { box-shadow: 0 12px 32px rgba(0, 0, 0, 0.20); }
+
+/* .ld-btn:active, .ld-card[data-ld-interactive]:hover, and .ld-input:focus all set
+   their own box-shadow/transform directly (for the default hard-offset look), at
+   higher specificity than the escape-hatch classes above. Without the overrides
+   below, adding ld-shadow-soft/-sm/-lg/-none to a button/card/input softens its
+   resting state but then snaps back to the hard offset the moment you interact
+   with it. These make the four shadow classes win in every state, too. */
+
+.ld-btn.ld-shadow-none:active,     .ld-btn.ld-shadow-none[data-ld-pressed='true'],
+.ld-btn.ld-shadow-soft-sm:active,  .ld-btn.ld-shadow-soft-sm[data-ld-pressed='true'],
+.ld-btn.ld-shadow-soft:active,     .ld-btn.ld-shadow-soft[data-ld-pressed='true'],
+.ld-btn.ld-shadow-soft-lg:active,  .ld-btn.ld-shadow-soft-lg[data-ld-pressed='true'] {
+  transform: none;
+  box-shadow: none;
+}
+
+.ld-btn.ld-shadow-none:disabled,     .ld-btn.ld-shadow-none[data-ld-disabled='true'],
+.ld-btn.ld-shadow-soft-sm:disabled,  .ld-btn.ld-shadow-soft-sm[data-ld-disabled='true'],
+.ld-btn.ld-shadow-soft:disabled,     .ld-btn.ld-shadow-soft[data-ld-disabled='true'],
+.ld-btn.ld-shadow-soft-lg:disabled,  .ld-btn.ld-shadow-soft-lg[data-ld-disabled='true'] {
+  box-shadow: none;
+}
+
+.ld-card.ld-shadow-none[data-ld-interactive='true']:hover {
+  transform: translateY(-2px);
+  box-shadow: none;
+}
+.ld-card.ld-shadow-soft-sm[data-ld-interactive='true']:hover,
+.ld-card.ld-shadow-soft[data-ld-interactive='true']:hover,
+.ld-card.ld-shadow-soft-lg[data-ld-interactive='true']:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.20);
+}
+
+.ld-input.ld-shadow-none:focus,     .ld-textarea.ld-shadow-none:focus,     .ld-select.ld-shadow-none:focus,
+.ld-input.ld-shadow-soft-sm:focus,  .ld-textarea.ld-shadow-soft-sm:focus,  .ld-select.ld-shadow-soft-sm:focus,
+.ld-input.ld-shadow-soft:focus,     .ld-textarea.ld-shadow-soft:focus,     .ld-select.ld-shadow-soft:focus,
+.ld-input.ld-shadow-soft-lg:focus,  .ld-textarea.ld-shadow-soft-lg:focus,  .ld-select.ld-shadow-soft-lg:focus {
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--ld-accent) 35%, transparent);
+}
+.ld-input.ld-shadow-none[data-ld-error='true']:focus,    .ld-textarea.ld-shadow-none[data-ld-error='true']:focus,
+.ld-input.ld-shadow-soft-sm[data-ld-error='true']:focus, .ld-textarea.ld-shadow-soft-sm[data-ld-error='true']:focus,
+.ld-input.ld-shadow-soft[data-ld-error='true']:focus,    .ld-textarea.ld-shadow-soft[data-ld-error='true']:focus,
+.ld-input.ld-shadow-soft-lg[data-ld-error='true']:focus, .ld-textarea.ld-shadow-soft-lg[data-ld-error='true']:focus {
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--ld-danger) 35%, transparent);
+}
+
+/* -- Type ------------------------------------------------------------------
+   Opt an element (and everything under it — --ld-font-family is a custom
+   property, so unlike font-family it inherits) out of monospace, e.g. for
+   long-form body copy. Apply once to <body> or a section wrapper and every
+   component inside that reads var(--ld-font-family) — buttons, inputs,
+   tabs, headings, etc. — picks it up. code/pre/kbd stay mono deliberately,
+   they read --ld-font-mono directly, not this token. */
+
+.ld-font-sans {
+  --ld-font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-family: var(--ld-font-family);
+}
+.ld-font-serif {
+  --ld-font-family: ui-serif, Georgia, "Times New Roman", serif;
+  font-family: var(--ld-font-family);
+}
+
+/* -- Density scale ---------------------------------------------------------
+   Override the spacing tokens for a whole subtree. Apply to a container;
+   every component inside that reads --ld-space-* picks it up. */
+
+.ld-scale-compact {
+  --ld-space-1: 2px; --ld-space-2: 4px; --ld-space-3: 8px; --ld-space-4: 10px;
+  --ld-space-5: 16px; --ld-space-6: 20px; --ld-space-8: 32px;
+}
+.ld-scale-cozy {
+  --ld-space-1: 4px; --ld-space-2: 8px; --ld-space-3: 12px; --ld-space-4: 16px;
+  --ld-space-5: 24px; --ld-space-6: 32px; --ld-space-8: 48px;
+}
+.ld-scale-spacious {
+  --ld-space-1: 6px; --ld-space-2: 12px; --ld-space-3: 18px; --ld-space-4: 24px;
+  --ld-space-5: 36px; --ld-space-6: 48px; --ld-space-8: 64px;
+}
+
+/* -- Per-element accent swap ------------------------------------------------
+   Override just the brand color for one subtree, without touching theme. */
+
+.ld-accent-mint   { --ld-accent: #46E8B3; --ld-accent-text: #04231A; }
+.ld-accent-blue   { --ld-accent: #4C8EFF; --ld-accent-text: #04122E; }
+.ld-accent-purple { --ld-accent: #B98CFF; --ld-accent-text: #1C0A33; }
+.ld-accent-pink   { --ld-accent: #FF6FA5; --ld-accent-text: #330015; }
+.ld-accent-orange { --ld-accent: #FF9A4C; --ld-accent-text: #331500; }
+.ld-accent-yellow { --ld-accent: #F2D93B; --ld-accent-text: #2E2600; }
+.ld-accent-red    { --ld-accent: #FF6B6B; --ld-accent-text: #330000; }
+
+/* -- Surface registers -------------------------------------------------
+   Alternatives to the default bordered/shadowed surface. */
+
+.ld-glass {
+  background: color-mix(in srgb, var(--ld-surface) 55%, transparent);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid var(--ld-border-soft);
+}
+.ld-flat {
+  background: none;
+  border: none;
+  box-shadow: none;
+  padding: 0;
+}
