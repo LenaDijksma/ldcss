@@ -498,6 +498,87 @@ Gap, for flex/grid containers, uses the same size scale:
 
 These live in `ldcss.css` §3b–3c and are plain generated CSS — inspect the source if you want to extend the pattern (e.g. add a `9` size, or a `ld-pad-t-7`) yourself; there's no build tool involved, just find-and-extend the block.
 
+## Typography utilities
+
+```html
+<h3 class="ld-text-xl ld-font-bold ld-uppercase ld-tracking-wide">Section title</h3>
+<p class="ld-truncate" style="max-width: 200px;">This will get cut off with an ellipsis…</p>
+<p class="ld-line-clamp-2">Clamped to 2 lines, overflow hidden, works in every evergreen browser.</p>
+```
+
+- `ld-text-{xs, sm, base, lg, xl, 2xl}` — font-size, maps to the same `--ld-text-*` tokens used throughout the file
+- `ld-font-{normal, medium, bold}` — font-weight
+- `ld-uppercase` / `ld-lowercase` / `ld-capitalize`
+- `ld-tracking-wide` — `letter-spacing: 0.05em`
+- `ld-truncate` — single-line ellipsis (needs a constrained width)
+- `ld-line-clamp-{2, 3}` — multi-line ellipsis
+
+Note: `ld-text-*` is reused for three different jobs across the file (alignment `left/center/right`, size `xs…2xl`, color `muted/accent/danger`) — same convention Tailwind uses. The value vocabularies don't overlap, so there's no collision, but don't expect `ld-text-lg` to also center anything.
+
+## Color utilities
+
+```html
+<span class="ld-text-danger">Something went wrong</span>
+<div class="ld-bg-raised ld-pad-a-4">Card-like surface without the .ld-card component</div>
+```
+
+- `ld-text-{muted, accent, danger}` — `ld-text-muted` and `ld-text-accent` already existed in §37 (Misc); `ld-text-danger` is new
+- `ld-bg-{surface, raised, transparent}`
+
+## Position & z-index utilities
+
+```html
+<div class="ld-relative">
+  <span class="ld-absolute ld-top-0 ld-right-0 ld-z-tooltip">badge</span>
+</div>
+```
+
+- `ld-{static, relative, absolute, fixed, sticky}`
+- `ld-inset-0`, `ld-top-0`, `ld-right-0`, `ld-bottom-0`, `ld-left-0`
+- `ld-z-{0, 10, 20, 30, 40, 50}` — generic numeric scale
+- `ld-z-{dropdown, popover, tooltip, modal, offcanvas, toast, command}` — named aliases that match the *exact* stacking order ldcss's own components already use (20 / 25 / 30 / 50 / 55 / 60 / 70), so custom overlays can slot in between them predictably
+
+## Flex extras & grid columns
+
+```html
+<div class="ld-d-flex">
+  <div class="ld-self-center ld-order-last">moved to the end, centered on cross axis</div>
+</div>
+<div class="ld-d-grid ld-grid-cols-3 ld-gap-3">…</div>
+```
+
+- `ld-self-{start, center, end, stretch}` — per-item `align-self`, overrides `ld-items-*`
+- `ld-order-{1..5}`, `ld-order-first`, `ld-order-last`
+- `ld-grid-cols-{1..6}` — general-purpose grid columns, independent of `.ld-grid`/`data-ld-cols` (which is capped at 2/3/4). Pair with `ld-d-grid`.
+
+## Visibility & interaction utilities
+
+```html
+<button class="ld-cursor-pointer">
+  <span class="ld-sr-only">Close</span>
+  ✕
+</button>
+```
+
+- `ld-sr-only` — visually hidden but readable by screen readers; good for icon-only buttons
+- `ld-cursor-{pointer, not-allowed, default}`
+- `ld-select-none` — disables text selection (drag handles, steppers, tabs)
+- `ld-overflow-{hidden, auto, scroll, visible}`
+
+## Responsive variants
+
+A small set of breakpoint-prefixed utilities, using the same breakpoints `.ld-grid` already uses internally (`sm` = 640px, `md` = 960px):
+
+```html
+<div class="ld-d-none ld-md:d-flex">Hidden until 960px, then flex</div>
+<div class="ld-grid-cols-1 ld-sm:grid-cols-2 ld-md:grid-cols-3">…</div>
+```
+
+- `ld-sm:d-*`, `ld-md:d-*` — responsive display
+- `ld-sm:grid-cols-{1..6}`, `ld-md:grid-cols-{1..6}` — responsive grid columns
+
+Only `display` and `grid-cols` got responsive variants for now — those are the two utilities layout most often needs to flip at a breakpoint. If you need e.g. `ld-md:pad-a-6`, copy the pattern in `ldcss.css` §3i; it's a mechanical extension (wrap the class in the relevant `@media (min-width: …)` block and escape the colon with `\:`).
+
 ## Code blocks
 
 ```html

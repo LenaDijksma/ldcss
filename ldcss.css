@@ -444,6 +444,174 @@ code.ld-code-inline {
 .ld-max-w-full { max-width: 100%; }
 
 /* ==========================================================================
+   3d. Typography utilities: ld-text-{size}, ld-font-*, ld-truncate, ld-line-clamp-*
+   ========================================================================== */
+
+/* -- Font size (maps to --ld-text-*) ------------------------------------------ */
+.ld-text-xs { font-size: var(--ld-text-xs); }
+.ld-text-sm { font-size: var(--ld-text-sm); }
+.ld-text-base { font-size: var(--ld-text-base); }
+.ld-text-lg { font-size: var(--ld-text-lg); }
+.ld-text-xl { font-size: var(--ld-text-xl); }
+.ld-text-2xl { font-size: var(--ld-text-2xl); }
+
+/* -- Font weight --------------------------------------------------------------- */
+.ld-font-normal { font-weight: 400; }
+.ld-font-medium { font-weight: 500; }
+.ld-font-bold { font-weight: 700; }
+
+/* -- Text transform -------------------------------------------------------------- */
+.ld-uppercase { text-transform: uppercase; }
+.ld-lowercase { text-transform: lowercase; }
+.ld-capitalize { text-transform: capitalize; }
+
+/* -- Letter spacing -------------------------------------------------------------- */
+.ld-tracking-wide { letter-spacing: 0.05em; }
+
+/* -- Truncation -------------------------------------------------------------------- */
+.ld-truncate { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.ld-line-clamp-2 { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.ld-line-clamp-3 { display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+
+/* ==========================================================================
+   3e. Color utilities: ld-text-*, ld-bg-*
+   ========================================================================== */
+
+/* -- Text color (ld-text-muted and ld-text-accent already exist in §37 Misc) ------ */
+.ld-text-danger { color: var(--ld-danger); }
+
+/* -- Background ------------------------------------------------------------------- */
+.ld-bg-surface { background: var(--ld-surface); }
+.ld-bg-raised { background: var(--ld-surface-raised); }
+.ld-bg-transparent { background: transparent; }
+
+/* ==========================================================================
+   3f. Position & z-index utilities: ld-{relative,absolute,fixed,sticky},
+   ld-inset-0, ld-{top,right,bottom,left}-0, ld-z-*
+   ========================================================================== */
+
+/* -- Position ------------------------------------------------------------------------ */
+.ld-static { position: static; }
+.ld-relative { position: relative; }
+.ld-absolute { position: absolute; }
+.ld-fixed { position: fixed; }
+.ld-sticky { position: sticky; }
+
+/* -- Inset / edges (use with an already-positioned element) -------------------------- */
+.ld-inset-0 { top: 0; right: 0; bottom: 0; left: 0; }
+.ld-top-0 { top: 0; }
+.ld-right-0 { right: 0; }
+.ld-bottom-0 { bottom: 0; }
+.ld-left-0 { left: 0; }
+
+/* -- Z-index: numeric scale + named aliases matching this file's own components ----- */
+.ld-z-0 { z-index: 0; }
+.ld-z-10 { z-index: 10; }
+.ld-z-20 { z-index: 20; }
+.ld-z-30 { z-index: 30; }
+.ld-z-40 { z-index: 40; }
+.ld-z-50 { z-index: 50; }
+/* named aliases — match the exact stacking order already used by ldcss components */
+.ld-z-dropdown { z-index: 20; }
+.ld-z-popover { z-index: 25; }
+.ld-z-tooltip { z-index: 30; }
+.ld-z-modal { z-index: 50; }
+.ld-z-offcanvas { z-index: 55; }
+.ld-z-toast { z-index: 60; }
+.ld-z-command { z-index: 70; }
+
+/* ==========================================================================
+   3g. Flex extras & grid columns: ld-self-*, ld-order-*, ld-grid-cols-*
+   ========================================================================== */
+
+/* -- Align self (per-item override of ld-items-*) ------------------------------------- */
+.ld-self-start { align-self: flex-start; }
+.ld-self-center { align-self: center; }
+.ld-self-end { align-self: flex-end; }
+.ld-self-stretch { align-self: stretch; }
+
+/* -- Order --------------------------------------------------------------------------- */
+.ld-order-1 { order: 1; }
+.ld-order-2 { order: 2; }
+.ld-order-3 { order: 3; }
+.ld-order-4 { order: 4; }
+.ld-order-5 { order: 5; }
+.ld-order-first { order: -1; }
+.ld-order-last { order: 999; }
+
+/* -- Generic grid columns (independent of .ld-grid / data-ld-cols) -------------------- */
+.ld-grid-cols-1 { grid-template-columns: repeat(1, 1fr); }
+.ld-grid-cols-2 { grid-template-columns: repeat(2, 1fr); }
+.ld-grid-cols-3 { grid-template-columns: repeat(3, 1fr); }
+.ld-grid-cols-4 { grid-template-columns: repeat(4, 1fr); }
+.ld-grid-cols-5 { grid-template-columns: repeat(5, 1fr); }
+.ld-grid-cols-6 { grid-template-columns: repeat(6, 1fr); }
+
+/* ==========================================================================
+   3h. Visibility & interaction: ld-sr-only, ld-cursor-*, ld-select-none, ld-overflow-*
+   ========================================================================== */
+
+.ld-sr-only {
+  position: absolute;
+  width: 1px; height: 1px;
+  padding: 0; margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.ld-cursor-pointer { cursor: pointer; }
+.ld-cursor-not-allowed { cursor: not-allowed; }
+.ld-cursor-default { cursor: default; }
+
+.ld-select-none { user-select: none; }
+
+.ld-overflow-hidden { overflow: hidden; }
+.ld-overflow-auto { overflow: auto; }
+.ld-overflow-scroll { overflow: scroll; }
+.ld-overflow-visible { overflow: visible; }
+
+/* ==========================================================================
+   3i. Responsive variants: ld-sm\:*, ld-md\:*
+   sm = min-width 640px, md = min-width 960px (same breakpoints .ld-grid uses)
+   Covers display + grid-cols, the two utilities layout most often needs
+   to flip at a breakpoint. Extend the same way for other prefixes if needed.
+   ========================================================================== */
+
+@media (min-width: 640px) {
+  .ld-sm\:d-block { display: block; }
+  .ld-sm\:d-inline { display: inline; }
+  .ld-sm\:d-inline-block { display: inline-block; }
+  .ld-sm\:d-flex { display: flex; }
+  .ld-sm\:d-inline-flex { display: inline-flex; }
+  .ld-sm\:d-grid { display: grid; }
+  .ld-sm\:d-none { display: none; }
+  .ld-sm\:grid-cols-1 { grid-template-columns: repeat(1, 1fr); }
+  .ld-sm\:grid-cols-2 { grid-template-columns: repeat(2, 1fr); }
+  .ld-sm\:grid-cols-3 { grid-template-columns: repeat(3, 1fr); }
+  .ld-sm\:grid-cols-4 { grid-template-columns: repeat(4, 1fr); }
+  .ld-sm\:grid-cols-5 { grid-template-columns: repeat(5, 1fr); }
+  .ld-sm\:grid-cols-6 { grid-template-columns: repeat(6, 1fr); }
+}
+
+@media (min-width: 960px) {
+  .ld-md\:d-block { display: block; }
+  .ld-md\:d-inline { display: inline; }
+  .ld-md\:d-inline-block { display: inline-block; }
+  .ld-md\:d-flex { display: flex; }
+  .ld-md\:d-inline-flex { display: inline-flex; }
+  .ld-md\:d-grid { display: grid; }
+  .ld-md\:d-none { display: none; }
+  .ld-md\:grid-cols-1 { grid-template-columns: repeat(1, 1fr); }
+  .ld-md\:grid-cols-2 { grid-template-columns: repeat(2, 1fr); }
+  .ld-md\:grid-cols-3 { grid-template-columns: repeat(3, 1fr); }
+  .ld-md\:grid-cols-4 { grid-template-columns: repeat(4, 1fr); }
+  .ld-md\:grid-cols-5 { grid-template-columns: repeat(5, 1fr); }
+  .ld-md\:grid-cols-6 { grid-template-columns: repeat(6, 1fr); }
+}
+
+/* ==========================================================================
    4. Utility attributes: shadow + border
    ========================================================================== */
 

@@ -146,6 +146,7 @@
         <p class="ld-text-muted">Include ldcss.css and ldcss.js. Everything else is attributes on plain HTML — no build step.</p>
       </div>
       <div id="tab-3" data-ld-tab-panel>
+        <p class="ld-text-muted"><strong>v0.8.0</strong> — added typography (<code class="ld-code-inline">ld-text-{xs..2xl}</code>, <code class="ld-code-inline">ld-font-*</code>, <code class="ld-code-inline">ld-truncate</code>, <code class="ld-code-inline">ld-line-clamp-*</code>), color (<code class="ld-code-inline">ld-text-danger</code>, <code class="ld-code-inline">ld-bg-*</code>), position/z-index (<code class="ld-code-inline">ld-relative</code>/<code class="ld-code-inline">absolute</code>/<code class="ld-code-inline">fixed</code>/<code class="ld-code-inline">sticky</code>, <code class="ld-code-inline">ld-inset-0</code>, <code class="ld-code-inline">ld-z-*</code> incl. named aliases matching this file's own dropdown/modal/toast stacking), flex extras + generic grid (<code class="ld-code-inline">ld-self-*</code>, <code class="ld-code-inline">ld-order-*</code>, <code class="ld-code-inline">ld-grid-cols-*</code>), visibility/interaction (<code class="ld-code-inline">ld-sr-only</code>, <code class="ld-code-inline">ld-cursor-*</code>, <code class="ld-code-inline">ld-select-none</code>, <code class="ld-code-inline">ld-overflow-*</code>), and the first responsive variants (<code class="ld-code-inline">ld-sm:d-*</code>, <code class="ld-code-inline">ld-md:d-*</code>, <code class="ld-code-inline">ld-sm:grid-cols-*</code>, <code class="ld-code-inline">ld-md:grid-cols-*</code>). Lives in <code class="ld-code-inline">ldcss.css</code> §3d–3i.</p>
         <p class="ld-text-muted"><strong>v0.7.0</strong> — added generated spacing/layout utility classes: <code class="ld-code-inline">ld-pad-{side}-{size}</code> and <code class="ld-code-inline">ld-mar-{side}-{size}</code> (side: a/t/r/b/l/v/h, size: 0–8 mapped to <code class="ld-code-inline">--ld-space-*</code>), plus negative margins (<code class="ld-code-inline">ld-mar-t-n3</code>), <code class="ld-code-inline">ld-gap-*</code>, and display/flex helpers (<code class="ld-code-inline">ld-d-*</code>, <code class="ld-code-inline">ld-flex-*</code>, <code class="ld-code-inline">ld-items-*</code>, <code class="ld-code-inline">ld-justify-*</code>, <code class="ld-code-inline">ld-text-{left,center,right}</code>, <code class="ld-code-inline">ld-w-*</code>, <code class="ld-code-inline">ld-max-w-*</code>). These are real classes in <code class="ld-code-inline">ldcss.css</code> §3b–3c, not a naming convention to remember.</p>
         <p class="ld-text-muted"><strong>v0.6.0</strong> — pagination is now data-driven: <code class="ld-code-inline">data-ld-paginate="#target"</code> + <code class="ld-code-inline">data-ld-page-size="3"</code> on a <code class="ld-code-inline">.ld-pagination</code> element auto-generates the right number of page buttons from the target's row/item count, and clicking a page actually shows/hides that slice of rows. Manual (hand-written) pagination markup still works as before.</p>
         <p class="ld-text-muted"><strong>v0.5.2</strong> — bugfix: three components had markup but no wiring. Command palette items now do nothing by default unless given <code class="ld-code-inline">data-ld-command-action</code> — added real actions to the demo. List group items are now clickable and select themselves (<code class="ld-code-inline">data-ld-active</code>) among siblings. Pagination buttons now actually update the active page and disable prev/next at the ends (mark them with <code class="ld-code-inline">data-ld-page="prev"/"next"</code>).</p>
@@ -390,6 +391,44 @@ $ echo "linked ldcss.css and ldcss.js"</div>
       <span class="ld-badge">ld-gap-3</span>
     </div>
     <p class="ld-form-hint">Full pattern reference and negative-margin syntax are in the README and cheat sheet.</p>
+  </section>
+
+  <section id="more-utilities">
+    <h2>Typography, color, position &amp; visibility utilities</h2>
+
+    <p class="ld-text-xl ld-font-bold ld-uppercase ld-tracking-wide ld-mar-b-1">ld-text-xl ld-font-bold ld-uppercase</p>
+    <p class="ld-text-sm ld-text-muted ld-mar-b-3">ld-text-sm ld-text-muted — smaller, muted body copy</p>
+    <p class="ld-truncate ld-mar-b-1" style="max-width:260px; border:var(--ld-border-width) dashed var(--ld-border-soft); padding:var(--ld-space-1);">ld-truncate: this sentence is much too long to fit and gets cut off with an ellipsis</p>
+    <p class="ld-line-clamp-2 ld-mar-b-4" style="max-width:320px; border:var(--ld-border-width) dashed var(--ld-border-soft); padding:var(--ld-space-1);">ld-line-clamp-2: this paragraph is long enough to wrap across several lines, but gets clipped after exactly two of them with a clean overflow cut, regardless of how much more text follows.</p>
+
+    <div class="ld-d-flex ld-gap-2 ld-mar-b-4">
+      <span class="ld-text-accent">ld-text-accent</span>
+      <span class="ld-text-danger">ld-text-danger</span>
+      <span class="ld-bg-raised ld-pad-h-2">ld-bg-raised</span>
+    </div>
+
+    <div class="ld-relative ld-bg-raised ld-pad-a-4 ld-mar-b-4" style="height:80px; max-width:260px;">
+      <span class="ld-absolute ld-top-0 ld-right-0 ld-badge ld-z-tooltip" data-ld-variant="primary" style="margin:var(--ld-space-1);">ld-absolute + ld-z-tooltip</span>
+      relatively positioned container
+    </div>
+
+    <div class="ld-d-flex ld-gap-2 ld-mar-b-4">
+      <div class="ld-order-last ld-badge">ld-order-last</div>
+      <div class="ld-self-center ld-badge" style="align-self:flex-start;">ld-self-center</div>
+      <div class="ld-badge">normal order</div>
+    </div>
+
+    <div class="ld-d-grid ld-grid-cols-3 ld-gap-2 ld-mar-b-4">
+      <div class="ld-card" data-ld-shadow="none"><div class="ld-card-body ld-pad-a-2" style="font-size:var(--ld-text-xs);">ld-grid-cols-3</div></div>
+      <div class="ld-card" data-ld-shadow="none"><div class="ld-card-body ld-pad-a-2" style="font-size:var(--ld-text-xs);">cell 2</div></div>
+      <div class="ld-card" data-ld-shadow="none"><div class="ld-card-body ld-pad-a-2" style="font-size:var(--ld-text-xs);">cell 3</div></div>
+    </div>
+
+    <button class="ld-btn ld-cursor-pointer ld-select-none">
+      <span class="ld-sr-only">Close panel</span>
+      ✕ <span aria-hidden="true">ld-sr-only label above, visible ✕ icon</span>
+    </button>
+    <p class="ld-form-hint ld-mar-t-4">Resize the window past 640px/960px to see <code class="ld-code-inline">ld-sm:d-*</code> / <code class="ld-code-inline">ld-md:d-*</code> in the cheat sheet reference — they're documented there rather than demoed live here since this page doesn't have a resizable frame.</p>
   </section>
 
   <section id="v05">

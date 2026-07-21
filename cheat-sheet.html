@@ -88,6 +88,81 @@
     </table>
   </section>
 
+  <section id="ref-typography">
+    <h2>Typography utilities</h2>
+    <table class="ld-table" data-ld-striped="true">
+      <thead><tr><th>Class</th><th>Values</th><th>Notes</th></tr></thead>
+      <tbody>
+        <tr><td><code class="ld-code-inline">ld-text-*</code></td><td>xs·sm·base·lg·xl·2xl</td><td>Font size (maps to <code class="ld-code-inline">--ld-text-*</code>)</td></tr>
+        <tr><td><code class="ld-code-inline">ld-font-*</code></td><td>normal·medium·bold</td><td>Font weight</td></tr>
+        <tr><td><code class="ld-code-inline">ld-uppercase</code> / <code class="ld-code-inline">ld-lowercase</code> / <code class="ld-code-inline">ld-capitalize</code></td><td>—</td><td>Text transform</td></tr>
+        <tr><td><code class="ld-code-inline">ld-tracking-wide</code></td><td>—</td><td>letter-spacing: 0.05em</td></tr>
+        <tr><td><code class="ld-code-inline">ld-truncate</code></td><td>—</td><td>Single-line ellipsis</td></tr>
+        <tr><td><code class="ld-code-inline">ld-line-clamp-*</code></td><td>2·3</td><td>Multi-line ellipsis</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section id="ref-color">
+    <h2>Color utilities</h2>
+    <table class="ld-table" data-ld-striped="true">
+      <thead><tr><th>Class</th><th>Values</th><th>Notes</th></tr></thead>
+      <tbody>
+        <tr><td><code class="ld-code-inline">ld-text-*</code></td><td>muted·accent·danger</td><td>Text color</td></tr>
+        <tr><td><code class="ld-code-inline">ld-bg-*</code></td><td>surface·raised·transparent</td><td>Background color</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section id="ref-position">
+    <h2>Position &amp; z-index utilities</h2>
+    <table class="ld-table" data-ld-striped="true">
+      <thead><tr><th>Class</th><th>Values</th><th>Notes</th></tr></thead>
+      <tbody>
+        <tr><td><code class="ld-code-inline">ld-{static,relative,absolute,fixed,sticky}</code></td><td>—</td><td>Position</td></tr>
+        <tr><td><code class="ld-code-inline">ld-inset-0</code>, <code class="ld-code-inline">ld-{top,right,bottom,left}-0</code></td><td>—</td><td>Edges (pair with a position class)</td></tr>
+        <tr><td><code class="ld-code-inline">ld-z-*</code></td><td>0·10·20·30·40·50</td><td>Numeric z-index scale</td></tr>
+        <tr><td><code class="ld-code-inline">ld-z-*</code></td><td>dropdown·popover·tooltip·modal·offcanvas·toast·command</td><td>Named — matches ldcss's own component stacking (20/25/30/50/55/60/70)</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section id="ref-flex-extras">
+    <h2>Flex extras &amp; grid columns</h2>
+    <table class="ld-table" data-ld-striped="true">
+      <thead><tr><th>Class</th><th>Values</th><th>Notes</th></tr></thead>
+      <tbody>
+        <tr><td><code class="ld-code-inline">ld-self-*</code></td><td>start·center·end·stretch</td><td><code class="ld-code-inline">align-self</code>, per-item override</td></tr>
+        <tr><td><code class="ld-code-inline">ld-order-*</code></td><td>1..5, first, last</td><td><code class="ld-code-inline">order</code></td></tr>
+        <tr><td><code class="ld-code-inline">ld-grid-cols-*</code></td><td>1..6</td><td>General-purpose, pair with <code class="ld-code-inline">ld-d-grid</code></td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section id="ref-visibility">
+    <h2>Visibility &amp; interaction utilities</h2>
+    <table class="ld-table" data-ld-striped="true">
+      <thead><tr><th>Class</th><th>Values</th><th>Notes</th></tr></thead>
+      <tbody>
+        <tr><td><code class="ld-code-inline">ld-sr-only</code></td><td>—</td><td>Visually hidden, screen-reader accessible</td></tr>
+        <tr><td><code class="ld-code-inline">ld-cursor-*</code></td><td>pointer·not-allowed·default</td><td>Cursor</td></tr>
+        <tr><td><code class="ld-code-inline">ld-select-none</code></td><td>—</td><td>Disables text selection</td></tr>
+        <tr><td><code class="ld-code-inline">ld-overflow-*</code></td><td>hidden·auto·scroll·visible</td><td>Overflow</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section id="ref-responsive">
+    <h2>Responsive variants</h2>
+    <table class="ld-table" data-ld-striped="true">
+      <thead><tr><th>Class</th><th>Breakpoint</th><th>Notes</th></tr></thead>
+      <tbody>
+        <tr><td><code class="ld-code-inline">ld-sm:d-*</code>, <code class="ld-code-inline">ld-sm:grid-cols-*</code></td><td>min-width: 640px</td><td>Same <code class="ld-code-inline">sm</code> breakpoint <code class="ld-code-inline">.ld-grid</code> already uses</td></tr>
+        <tr><td><code class="ld-code-inline">ld-md:d-*</code>, <code class="ld-code-inline">ld-md:grid-cols-*</code></td><td>min-width: 960px</td><td>Only display + grid-cols have responsive variants so far</td></tr>
+      </tbody>
+    </table>
+  </section>
+
   <section id="ref-utility">
     <h2>Utility attributes</h2>
     <table class="ld-table" data-ld-striped="true">
