@@ -3,7 +3,7 @@
  * Zero-dependency behavior for data-ld-* interactive components.
  * Components: theme toggle, dropdown, popover, tabs, accordion, modal,
  * offcanvas, command palette, toast, copy-to-clipboard, dropzone, rating,
- * tag input, progress bars.
+ * tag input, progress bars, entrance animations.
  */
 (function () {
   'use strict';
@@ -129,6 +129,35 @@
       bar.style.width = val + '%';
       bar.setAttribute('aria-valuenow', val);
     });
+  }
+
+  /* ---------------------------------------------------------------------
+     Entrance animations — [data-ld-animate]
+     CSS already shows everything immediately under prefers-reduced-motion,
+     so this skips the observer entirely in that case rather than firing it
+     and having the "animation" be an instant no-op transition.
+     ------------------------------------------------------------------- */
+
+  function initAnimations(root) {
+    var els = (root || document).querySelectorAll('[data-ld-animate]');
+    if (!els.length) return;
+
+    var reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (reduceMotion || typeof IntersectionObserver === 'undefined') {
+      els.forEach(function (el) { el.classList.add('ld-in-view'); });
+      return;
+    }
+
+    var observer = new IntersectionObserver(function (entries) {
+      entries.forEach(function (entry) {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('ld-in-view');
+          observer.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.15 });
+
+    els.forEach(function (el) { observer.observe(el); });
   }
 
   /* ---------------------------------------------------------------------
@@ -817,4 +846,5 @@
   initProgressBars();
   initRatings();
   initPagination();
+  initAnimations();
 })();

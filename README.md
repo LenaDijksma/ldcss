@@ -517,7 +517,7 @@ These live in `ldcss.css` §38a–38b and are plain generated CSS — inspect th
 <p class="ld-italic">Emphasis without reaching for &lt;em&gt;.</p>
 ```
 
-- `ld-text-{xs, sm, base, lg, xl, 2xl}` — font-size, maps to the same `--ld-text-*` tokens used throughout the file
+- `ld-text-{xs, sm, base, lg, xl, 2xl, 3xl, 4xl}` — font-size, maps to the same `--ld-text-*` tokens used throughout the file (`3xl`/`4xl` are display sizes for hero headlines — previously `2xl` was the ceiling)
 - `ld-font-{normal, medium, bold}` — font-weight
 - `ld-uppercase` / `ld-lowercase` / `ld-capitalize`
 - `ld-italic` / `ld-not-italic`
@@ -590,6 +590,73 @@ A small set of breakpoint-prefixed utilities, using the same breakpoints `.ld-gr
 - `ld-sm:grid-cols-{1..6}`, `ld-md:grid-cols-{1..6}` — responsive grid columns
 
 Only `display` and `grid-cols` got responsive variants for now — those are the two utilities layout most often needs to flip at a breakpoint. If you need e.g. `ld-md:pad-a-6`, copy the pattern in `ldcss.css` §38h; it's a mechanical extension (wrap the class in the relevant `@media (min-width: …)` block and escape the colon with `\:`).
+
+## More components
+
+**Blockquote / pull-quote**
+```html
+<blockquote class="ld-blockquote">
+  Six months in, the numbers finally caught up with the intuition.
+  <cite class="ld-blockquote-cite">Priya Rao, Head of Growth</cite>
+</blockquote>
+
+<blockquote class="ld-pull-quote">
+  A quieter, centered variant for a standalone editorial callout — no rail, italic, no cite required.
+</blockquote>
+```
+
+**Divider**
+```html
+<hr class="ld-divider">                        <!-- soft, default -->
+<hr class="ld-divider" data-ld-variant="solid">  <!-- full-contrast border -->
+<span class="ld-divider-v"></span>                <!-- vertical, for inside a flex row -->
+```
+
+**Stat**
+```html
+<div class="ld-stat">
+  <span class="ld-stat-value">2,148</span>
+  <span class="ld-stat-label">Active users</span>
+  <span class="ld-stat-delta" data-ld-trend="up">↑ 12% this month</span>  <!-- or data-ld-trend="down" -->
+</div>
+```
+
+**Avatar group**
+```html
+<div class="ld-avatar-group">
+  <span class="ld-avatar ld-round-full" data-ld-variant="accent">LD</span>
+  <span class="ld-avatar ld-round-full">SO</span>
+  <span class="ld-avatar ld-round-full">PR</span>
+  <span class="ld-avatar-group-overflow">+4</span>
+</div>
+```
+Overlapping negative-margin avatars with a border matching the page background, plus an overflow-count chip. Later avatars paint on top of earlier ones (default DOM stacking) — reorder the markup if you need the opposite.
+
+**Container sizes**
+```html
+<div class="ld-container ld-container-sm">…720px, for prose/docs…</div>
+<div class="ld-container ld-container-wide">…1400px, for dashboards…</div>
+```
+Note these are used *together with* `ld-container`, not instead of it — they're built as `.ld-container.ld-container-sm` (two classes on the same rule), which is why they work correctly no matter where they sit in the file.
+
+**Entrance animations**
+```html
+<div data-ld-animate="fade-up">Fades and slides up into place</div>
+<div data-ld-animate="fade-left">…or "fade-down" / "fade-right" / "fade-in"</div>
+```
+Paired with `ldcss.js` — an `IntersectionObserver` adds `.ld-in-view` the first time each element scrolls into view. Under `prefers-reduced-motion: reduce`, the observer never runs and everything is shown immediately instead of doing an instant no-op transition.
+
+**Print**
+```html
+<div class="ld-print-hidden">Hidden when printing (nav, backdrops, etc. are hidden automatically)</div>
+<div class="ld-print-only">Only visible in print — e.g. a "printed from ldcss.example.com" footer</div>
+```
+
+**Input success state**
+```html
+<input class="ld-input" data-ld-success="true">
+```
+Mirrors the existing `data-ld-error="true"`; pairs with the new `.ld-form-success` hint-text class. Uses `--ld-accent` rather than a dedicated success color, matching how `.ld-alert`/`.ld-toast` already represent success — no new color token introduced.
 
 ## Code blocks
 

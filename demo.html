@@ -146,6 +146,7 @@
         <p class="ld-text-muted">Include ldcss.css and ldcss.js. Everything else is attributes on plain HTML — no build step.</p>
       </div>
       <div id="tab-3" data-ld-tab-panel>
+        <p class="ld-text-muted"><strong>v0.11.0</strong> — new components: <code class="ld-code-inline">ld-blockquote</code>/<code class="ld-code-inline">ld-pull-quote</code>, <code class="ld-code-inline">ld-divider</code>/<code class="ld-code-inline">ld-divider-v</code>, <code class="ld-code-inline">ld-stat</code>, <code class="ld-code-inline">ld-avatar-group</code>. New utilities: <code class="ld-code-inline">ld-text-3xl</code>/<code class="ld-code-inline">4xl</code> (display type scale — previously capped at 2xl), <code class="ld-code-inline">ld-container-sm</code>/<code class="ld-code-inline">wide</code> (built as compound selectors so they can't be defeated by source order the way §3b–3i/old §29 were), <code class="ld-code-inline">ld-print-hidden</code>/<code class="ld-code-inline">ld-print-only</code>. Forms: <code class="ld-code-inline">data-ld-success="true"</code> alongside the existing error state. New JS: <code class="ld-code-inline">data-ld-animate="fade-up|fade-down|fade-left|fade-right|fade-in"</code> entrance animations via IntersectionObserver, fully skipped (elements shown immediately) under <code class="ld-code-inline">prefers-reduced-motion</code>.</p>
         <p class="ld-text-muted"><strong>v0.10.0</strong> — structural fix: moved the utility-class system (previously §3b–3i) and Escape Hatches (previously §29) to the true end of the stylesheet (§38–§39). Both were plain single-class selectors sitting <em>before</em> most components, so any later component rule with the same specificity silently won ties and defeated them — e.g. <code class="ld-code-inline">ld-pad-a-8</code> on a <code class="ld-code-inline">.ld-card</code> did nothing, because <code class="ld-code-inline">.ld-card</code>'s own padding rule came later in the file. No class names changed, only file position — but if you'd copied any component's CSS out of context, re-copy it, since order-dependent behavior like this doesn't survive being lifted out of the full file.</p>
         <p class="ld-text-muted"><strong>v0.9.0</strong> — fixes from a real-world readiness test (built a full page with zero custom CSS). <code class="ld-code-inline">--ld-font-family</code> is now a real inheritable token: <code class="ld-code-inline">ld-font-sans</code>/<code class="ld-code-inline">ld-font-serif</code> cascade to every descendant (buttons, inputs, tabs, headings, etc.) instead of needing to be repeated per element — <code class="ld-code-inline">code</code>/<code class="ld-code-inline">pre</code>/<code class="ld-code-inline">ld-kbd</code> stay mono on purpose. <code class="ld-code-inline">.ld-nav-brand</code> can drop its <code class="ld-code-inline">$</code> mark with <code class="ld-code-inline">data-ld-mark="none"</code>. New utilities: <code class="ld-code-inline">ld-italic</code>, <code class="ld-code-inline">ld-aspect-{square,video,4-3,3-2}</code>, <code class="ld-code-inline">ld-mx-auto</code>/<code class="ld-code-inline">ld-my-auto</code>, <code class="ld-code-inline">ld-link-reset</code>. <code class="ld-code-inline">ld-shadow-none</code>/<code class="ld-code-inline">soft-sm</code>/<code class="ld-code-inline">soft</code>/<code class="ld-code-inline">soft-lg</code> now also win on <code class="ld-code-inline">:active</code>/<code class="ld-code-inline">:disabled</code>/<code class="ld-code-inline">:hover</code>/<code class="ld-code-inline">:focus</code>, so a softened button/card/input no longer snaps back to the hard offset shadow mid-interaction.</p>
         <p class="ld-text-muted"><strong>v0.8.0</strong> — added typography (<code class="ld-code-inline">ld-text-{xs..2xl}</code>, <code class="ld-code-inline">ld-font-*</code>, <code class="ld-code-inline">ld-truncate</code>, <code class="ld-code-inline">ld-line-clamp-*</code>), color (<code class="ld-code-inline">ld-text-danger</code>, <code class="ld-code-inline">ld-bg-*</code>), position/z-index (<code class="ld-code-inline">ld-relative</code>/<code class="ld-code-inline">absolute</code>/<code class="ld-code-inline">fixed</code>/<code class="ld-code-inline">sticky</code>, <code class="ld-code-inline">ld-inset-0</code>, <code class="ld-code-inline">ld-z-*</code> incl. named aliases matching this file's own dropdown/modal/toast stacking), flex extras + generic grid (<code class="ld-code-inline">ld-self-*</code>, <code class="ld-code-inline">ld-order-*</code>, <code class="ld-code-inline">ld-grid-cols-*</code>), visibility/interaction (<code class="ld-code-inline">ld-sr-only</code>, <code class="ld-code-inline">ld-cursor-*</code>, <code class="ld-code-inline">ld-select-none</code>, <code class="ld-code-inline">ld-overflow-*</code>), and the first responsive variants (<code class="ld-code-inline">ld-sm:d-*</code>, <code class="ld-code-inline">ld-md:d-*</code>, <code class="ld-code-inline">ld-sm:grid-cols-*</code>, <code class="ld-code-inline">ld-md:grid-cols-*</code>). Lives in <code class="ld-code-inline">ldcss.css</code> §3d–3i.</p>
@@ -431,6 +432,39 @@ $ echo "linked ldcss.css and ldcss.js"</div>
       ✕ <span aria-hidden="true">ld-sr-only label above, visible ✕ icon</span>
     </button>
     <p class="ld-form-hint ld-mar-t-4">Resize the window past 640px/960px to see <code class="ld-code-inline">ld-sm:d-*</code> / <code class="ld-code-inline">ld-md:d-*</code> in the cheat sheet reference — they're documented there rather than demoed live here since this page doesn't have a resizable frame.</p>
+  </section>
+
+  <section id="new-components">
+    <h2>Blockquote, divider, stat, avatar group</h2>
+
+    <blockquote class="ld-blockquote ld-mar-b-4">
+      Six months in, the numbers finally caught up with the intuition.
+      <cite class="ld-blockquote-cite">Priya Rao, Head of Growth</cite>
+    </blockquote>
+
+    <hr class="ld-divider">
+
+    <div class="ld-d-flex ld-gap-6 ld-mar-b-4">
+      <div class="ld-stat">
+        <span class="ld-stat-value">2,148</span>
+        <span class="ld-stat-label">Active users</span>
+        <span class="ld-stat-delta" data-ld-trend="up">↑ 12% this month</span>
+      </div>
+      <div class="ld-stat">
+        <span class="ld-stat-value">98.2%</span>
+        <span class="ld-stat-label">Uptime</span>
+        <span class="ld-stat-delta" data-ld-trend="down">↓ 0.3%</span>
+      </div>
+    </div>
+
+    <div class="ld-avatar-group ld-mar-b-4">
+      <span class="ld-avatar ld-round-full" data-ld-variant="accent">LD</span>
+      <span class="ld-avatar ld-round-full">SO</span>
+      <span class="ld-avatar ld-round-full">PR</span>
+      <span class="ld-avatar-group-overflow">+4</span>
+    </div>
+
+    <p class="ld-form-hint">Also new: <code class="ld-code-inline">ld-container-sm</code>/<code class="ld-code-inline">ld-container-wide</code> (max-width variants, safe against source order — see §37e), <code class="ld-code-inline">data-ld-animate</code> entrance animations (paired with <code class="ld-code-inline">ldcss.js</code>, respects reduced-motion), <code class="ld-code-inline">ld-print-hidden</code>/<code class="ld-code-inline">ld-print-only</code>, and <code class="ld-code-inline">data-ld-success="true"</code> on inputs alongside the existing error state.</p>
   </section>
 
   <section id="v05">

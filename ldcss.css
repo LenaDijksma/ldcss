@@ -59,6 +59,8 @@
   --ld-text-lg: 1.15rem;
   --ld-text-xl: 1.5rem;
   --ld-text-2xl: 2rem;
+  --ld-text-3xl: 2.5rem;
+  --ld-text-4xl: 3.25rem;
 
   --ld-transition: 120ms ease;
 }
@@ -396,8 +398,14 @@ code.ld-code-inline {
 }
 .ld-input[data-ld-error='true']:focus { box-shadow: 3px 3px 0 var(--ld-danger); }
 
+.ld-input[data-ld-success='true'],
+.ld-textarea[data-ld-success='true'] {
+  border-color: var(--ld-accent);
+}
+
 .ld-form-hint { font-size: var(--ld-text-xs); color: var(--ld-text-muted); margin-top: var(--ld-space-1); }
 .ld-form-error { font-size: var(--ld-text-xs); color: var(--ld-danger); margin-top: var(--ld-space-1); }
+.ld-form-success { font-size: var(--ld-text-xs); color: var(--ld-accent); margin-top: var(--ld-space-1); }
 
 .ld-checkbox { display: inline-flex; align-items: center; gap: var(--ld-space-2); font-size: var(--ld-text-sm); cursor: pointer; }
 .ld-checkbox input { accent-color: var(--ld-accent); width: 16px; height: 16px; }
@@ -1101,6 +1109,144 @@ code.ld-code-inline {
 .ld-text-accent { color: var(--ld-accent); }
 
 /* ==========================================================================
+   37a. Blockquote / pull-quote — ld-blockquote
+   ========================================================================== */
+
+.ld-blockquote {
+  margin: 0;
+  padding-left: var(--ld-space-4);
+  border-left: 3px solid var(--ld-accent);
+  font-size: var(--ld-text-lg);
+  color: var(--ld-text);
+}
+.ld-blockquote-cite {
+  display: block;
+  margin-top: var(--ld-space-2);
+  font-size: var(--ld-text-sm);
+  color: var(--ld-text-muted);
+}
+.ld-blockquote-cite::before { content: '— '; }
+
+/* Pull-quote: centered, no rail, for a standalone editorial callout
+   (the register the fragrance-demo readiness test hand-rolled twice) */
+.ld-pull-quote {
+  margin: 0;
+  padding: 0;
+  border: none;
+  text-align: center;
+  font-size: var(--ld-text-xl);
+  font-style: italic;
+}
+.ld-pull-quote .ld-blockquote-cite { text-align: center; font-style: normal; }
+
+/* ==========================================================================
+   37b. Divider — ld-divider
+   ========================================================================== */
+
+.ld-divider {
+  border: none;
+  border-top: var(--ld-border-width) solid var(--ld-border-soft);
+  margin: var(--ld-space-5) 0;
+}
+.ld-divider[data-ld-variant='solid'] { border-top-color: var(--ld-border); }
+
+/* Vertical divider — for use inside a flex row, e.g. between nav items */
+.ld-divider-v {
+  display: inline-block;
+  width: var(--ld-border-width);
+  align-self: stretch;
+  background: var(--ld-border-soft);
+  border: none;
+}
+
+/* ==========================================================================
+   37c. Stat — ld-stat
+   ========================================================================== */
+
+.ld-stat { display: flex; flex-direction: column; gap: var(--ld-space-1); }
+.ld-stat-value {
+  font-size: var(--ld-text-2xl);
+  font-weight: 700;
+  line-height: 1.1;
+  color: var(--ld-text);
+}
+.ld-stat-label {
+  font-size: var(--ld-text-xs);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--ld-text-muted);
+}
+.ld-stat-delta { font-size: var(--ld-text-sm); font-weight: 500; }
+.ld-stat-delta[data-ld-trend='up'] { color: var(--ld-accent); }
+.ld-stat-delta[data-ld-trend='down'] { color: var(--ld-danger); }
+
+/* ==========================================================================
+   37d. Avatar group — ld-avatar-group
+   ========================================================================== */
+
+.ld-avatar-group { display: flex; align-items: center; }
+.ld-avatar-group .ld-avatar {
+  border: 2px solid var(--ld-bg);
+  margin-left: -10px;
+}
+.ld-avatar-group .ld-avatar:first-child { margin-left: 0; }
+.ld-avatar-group-overflow {
+  display: flex; align-items: center; justify-content: center;
+  width: 32px; height: 32px;
+  border-radius: var(--ld-radius);
+  background: var(--ld-surface-raised);
+  border: 2px solid var(--ld-bg);
+  margin-left: -10px;
+  font-size: var(--ld-text-xs);
+  color: var(--ld-text-muted);
+}
+
+/* ==========================================================================
+   37e. Container sizes — ld-container-{sm,wide}
+   Combined with .ld-container (specificity 0,2,0 vs 0,1,0) so these are
+   guaranteed to win over the base rule regardless of file position —
+   safer than relying on section order the way §38/39 have to.
+   ========================================================================== */
+
+.ld-container.ld-container-sm { max-width: 720px; }
+.ld-container.ld-container-wide { max-width: 1400px; }
+
+/* ==========================================================================
+   37f. Entrance animations — data-ld-animate (paired with ldcss.js)
+   ========================================================================== */
+
+[data-ld-animate] {
+  opacity: 0;
+  transition: opacity 0.5s ease, transform 0.5s ease;
+}
+[data-ld-animate='fade-up']    { transform: translateY(16px); }
+[data-ld-animate='fade-down']  { transform: translateY(-16px); }
+[data-ld-animate='fade-left']  { transform: translateX(16px); }
+[data-ld-animate='fade-right'] { transform: translateX(-16px); }
+[data-ld-animate='fade-in']    { transform: none; }
+[data-ld-animate].ld-in-view {
+  opacity: 1;
+  transform: none;
+}
+@media (prefers-reduced-motion: reduce) {
+  [data-ld-animate] { opacity: 1; transform: none; transition: none; }
+}
+
+/* ==========================================================================
+   37g. Print — ld-print-hidden, ld-print-only
+   ========================================================================== */
+
+@media print {
+  .ld-print-hidden { display: none !important; }
+  .ld-print-only { display: block !important; }
+  .ld-nav, .ld-offcanvas-backdrop, [data-ld-command-backdrop] { display: none !important; }
+  body { background: #fff; color: #000; }
+}
+@media not print {
+  .ld-print-only { display: none; }
+}
+
+/* ==========================================================================
    38–39. Utility classes & Escape hatches — moved to the end of the file
    on purpose. Every rule below uses a single class selector (specificity
    0,1,0), same as almost every component rule above it. CSS breaks same-
@@ -1394,6 +1540,8 @@ code.ld-code-inline {
 .ld-text-lg { font-size: var(--ld-text-lg); }
 .ld-text-xl { font-size: var(--ld-text-xl); }
 .ld-text-2xl { font-size: var(--ld-text-2xl); }
+.ld-text-3xl { font-size: var(--ld-text-3xl); }
+.ld-text-4xl { font-size: var(--ld-text-4xl); }
 
 /* -- Font weight --------------------------------------------------------------- */
 .ld-font-normal { font-weight: 400; }
