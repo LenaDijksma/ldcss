@@ -23,6 +23,7 @@
   /* Brand */
   --ld-accent: #46E8B3;
   --ld-accent-text: #04231A;
+  --ld-accent-fill: var(--ld-accent); /* override to a gradient for brand fills */
 
   /* Light theme (default) */
   --ld-bg: #FAFAF7;
@@ -30,20 +31,23 @@
   --ld-surface-raised: #F1F3F0;
   --ld-text: #14171A;
   --ld-text-muted: #5B6560;
-  --ld-border: #14171A;
-  --ld-border-soft: #D8DCD9;
+  --ld-border: #DADFDB; /* structural component outline — soft by default, not high-contrast */
+  --ld-border-soft: #E7EAE7; /* hairline dividers: table rows, card footers, list separators */
   --ld-danger: #E8465C;
   --ld-danger-text: #FFFFFF;
-  --ld-shadow-color: #14171A;
+  --ld-shadow-color: #14171A; /* only used by data-ld-shadow='hard', defined just below */
   --ld-focus-ring: #14171A;
   --ld-code-text: #0C7A54; /* darker mint — readable on light surfaces */
 
   /* Scale */
+  --ld-font-sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', Inter, Roboto, 'Helvetica Neue', Arial, sans-serif;
   --ld-font-mono: 'JetBrains Mono', ui-monospace, 'SFMono-Regular', Menlo, Consolas, monospace;
-  --ld-font-family: var(--ld-font-mono); /* what body text/components use — override via ld-font-sans/ld-font-serif */
-  --ld-radius: 0px;
-  --ld-border-width: 2px;
-  --ld-shadow-offset: 4px;
+  --ld-font-family: var(--ld-font-sans); /* what body text/components use — override via ld-font-mono/ld-font-serif */
+  --ld-radius: 10px;
+  --ld-border-width: 1px;
+  --ld-shadow-offset: 4px; /* only used by data-ld-shadow='hard', defined just below */
+  --ld-shadow: 0 1px 2px rgba(20, 23, 26, 0.06), 0 6px 16px rgba(20, 23, 26, 0.08);
+  --ld-shadow-lg: 0 4px 12px rgba(20, 23, 26, 0.10), 0 16px 40px rgba(20, 23, 26, 0.16);
 
   --ld-space-1: 4px;
   --ld-space-2: 8px;
@@ -72,12 +76,58 @@
   --ld-text: #EDEFEC;
   --ld-text-muted: #8A928D;
   --ld-border: #2A302C;
-  --ld-border-soft: #2A302C;
+  --ld-border-soft: #222623;
   --ld-danger: #FF6B7A;
   --ld-danger-text: #1A0508;
   --ld-shadow-color: var(--ld-accent);
   --ld-focus-ring: var(--ld-accent);
   --ld-code-text: var(--ld-accent); /* full brightness reads fine on dark surfaces */
+  --ld-shadow: 0 1px 2px rgba(0, 0, 0, 0.4), 0 6px 20px rgba(0, 0, 0, 0.45);
+  --ld-shadow-lg: 0 4px 16px rgba(0, 0, 0, 0.5), 0 20px 48px rgba(0, 0, 0, 0.55);
+}
+
+/*
+ * data-ld-unstyled — the escape hatch for teams who want to do their own
+ * styling entirely. Resets the *shape* opinions (radius, shadow, border
+ * weight/color, accent fill) to neutral values that get out of the way of a
+ * stylesheet loaded after ldcss.css, without touching layout, spacing,
+ * behavior, or accessibility wiring — those still come from ldcss. This is
+ * not a full reset of every color in the framework (surfaces, text, and
+ * variant colors like primary/danger still render); it targets the specific
+ * tokens that make ldcss look like "a design system" rather than "plain
+ * elements." Apply to <html> for the whole page, or to a container to scope
+ * it to one part of the UI.
+ */
+[data-ld-unstyled] {
+  --ld-radius: 0px;
+  --ld-shadow: none;
+  --ld-shadow-lg: none;
+  --ld-border-width: 1px;
+  --ld-border: var(--ld-border-soft);
+  --ld-accent-fill: var(--ld-accent);
+}
+
+/*
+ * data-ld-shadow='hard' — brings back the original hard offset shadow
+ * (and its --ld-shadow-color, which the dark theme brightens to the accent
+ * color for a glow effect) for teams who want that look. Apply to <html> or
+ * any ancestor, the same way data-ld-theme='dark' re-skins color; 'soft' is
+ * kept as an explicit way to re-affirm the default inside a 'hard' subtree.
+ * (Hover/active states on buttons/cards use their own modern lift/press
+ * transitions regardless of this switch — hard mode only changes the resting
+ * shadow's shape, not the interaction model.)
+ */
+[data-ld-shadow='hard'] {
+  --ld-shadow: var(--ld-shadow-offset) var(--ld-shadow-offset) 0 var(--ld-shadow-color);
+  --ld-shadow-lg: calc(var(--ld-shadow-offset) * 2) calc(var(--ld-shadow-offset) * 2) 0 var(--ld-shadow-color);
+}
+[data-ld-shadow='soft'] {
+  --ld-shadow: 0 1px 2px rgba(20, 23, 26, 0.06), 0 6px 16px rgba(20, 23, 26, 0.08);
+  --ld-shadow-lg: 0 4px 12px rgba(20, 23, 26, 0.10), 0 16px 40px rgba(20, 23, 26, 0.16);
+}
+[data-ld-theme='dark'] [data-ld-shadow='soft'] {
+  --ld-shadow: 0 1px 2px rgba(0, 0, 0, 0.4), 0 6px 20px rgba(0, 0, 0, 0.45);
+  --ld-shadow-lg: 0 4px 16px rgba(0, 0, 0, 0.5), 0 20px 48px rgba(0, 0, 0, 0.55);
 }
 
 /*
@@ -91,13 +141,15 @@
   --ld-surface-raised: #F1F3F0;
   --ld-text: #14171A;
   --ld-text-muted: #5B6560;
-  --ld-border: #14171A;
-  --ld-border-soft: #D8DCD9;
+  --ld-border: #DADFDB;
+  --ld-border-soft: #E7EAE7;
   --ld-danger: #E8465C;
   --ld-danger-text: #FFFFFF;
   --ld-shadow-color: #14171A;
   --ld-focus-ring: #14171A;
   --ld-code-text: #0C7A54;
+  --ld-shadow: 0 1px 2px rgba(20, 23, 26, 0.06), 0 6px 16px rgba(20, 23, 26, 0.08);
+  --ld-shadow-lg: 0 4px 12px rgba(20, 23, 26, 0.10), 0 16px 40px rgba(20, 23, 26, 0.16);
   background: var(--ld-bg);
   color: var(--ld-text);
 }
@@ -143,7 +195,8 @@ code, pre { font-family: var(--ld-font-mono); }
 pre.ld-code {
   background: var(--ld-surface);
   border: var(--ld-border-width) solid var(--ld-border);
-  box-shadow: 4px 4px 0 var(--ld-shadow-color);
+  border-radius: var(--ld-radius);
+  box-shadow: var(--ld-shadow);
   color: var(--ld-code-text);
   padding: var(--ld-space-4);
   overflow-x: auto;
@@ -154,6 +207,7 @@ code.ld-code-inline {
   color: var(--ld-code-text);
   padding: 1px 6px;
   border: 1px solid var(--ld-border-soft);
+  border-radius: calc(var(--ld-radius) / 2);
   font-size: 0.9em;
 }
 
@@ -204,13 +258,17 @@ code.ld-code-inline {
    4. Utility attributes: shadow + border
    ========================================================================== */
 
-[data-ld-shadow='sm'] { box-shadow: 2px 2px 0 var(--ld-shadow-color); }
-[data-ld-shadow='md'] { box-shadow: 4px 4px 0 var(--ld-shadow-color); }
-[data-ld-shadow='lg'] { box-shadow: 8px 8px 0 var(--ld-shadow-color); }
+[data-ld-shadow='sm'] { box-shadow: 0 1px 3px rgba(20, 23, 26, 0.10); }
+[data-ld-shadow='md'] { box-shadow: 0 4px 12px rgba(20, 23, 26, 0.14); }
+[data-ld-shadow='lg'] { box-shadow: 0 12px 32px rgba(20, 23, 26, 0.20); }
 [data-ld-shadow='none'] { box-shadow: none; }
 
+[data-ld-theme='dark'] [data-ld-shadow='sm'] { box-shadow: 0 1px 3px rgba(0, 0, 0, 0.4); }
+[data-ld-theme='dark'] [data-ld-shadow='md'] { box-shadow: 0 4px 12px rgba(0, 0, 0, 0.45); }
+[data-ld-theme='dark'] [data-ld-shadow='lg'] { box-shadow: 0 12px 32px rgba(0, 0, 0, 0.5); }
+
 [data-ld-border='thin'] { border: 1px solid var(--ld-border-soft); }
-[data-ld-border='thick'] { border: var(--ld-border-width) solid var(--ld-border); }
+[data-ld-border='thick'] { border: 2px solid var(--ld-border); }
 [data-ld-border='accent'] { border: var(--ld-border-width) solid var(--ld-accent); }
 [data-ld-border='none'] { border: none; }
 
@@ -233,7 +291,7 @@ code.ld-code-inline {
   color: var(--ld-text);
   cursor: pointer;
   text-decoration: none;
-  box-shadow: var(--ld-shadow-offset) var(--ld-shadow-offset) 0 var(--ld-shadow-color);
+  box-shadow: var(--ld-shadow);
   transition: transform var(--ld-transition), box-shadow var(--ld-transition), background var(--ld-transition);
 }
 
@@ -241,22 +299,22 @@ code.ld-code-inline {
 
 .ld-btn:active,
 .ld-btn[data-ld-pressed='true'] {
-  transform: translate(var(--ld-shadow-offset), var(--ld-shadow-offset));
-  box-shadow: 0 0 0 var(--ld-shadow-color);
+  transform: translateY(1px);
+  box-shadow: none;
 }
 
 .ld-btn:disabled,
 .ld-btn[data-ld-disabled='true'] {
   opacity: 0.45;
   cursor: not-allowed;
-  box-shadow: 2px 2px 0 var(--ld-shadow-color);
+  box-shadow: none;
 }
 
 .ld-btn[data-ld-prompt='true']::before { content: '>'; opacity: 0.6; }
 
 /* variants */
 .ld-btn[data-ld-variant='primary'] {
-  background: var(--ld-accent);
+  background: var(--ld-accent-fill);
   border-color: var(--ld-accent);
   color: var(--ld-accent-text);
 }
@@ -273,7 +331,6 @@ code.ld-code-inline {
   border-color: transparent;
   box-shadow: none;
 }
-.ld-btn[data-ld-variant='ghost']:active { transform: none; }
 
 .ld-btn[data-ld-variant='danger'] {
   background: var(--ld-danger);
@@ -294,10 +351,11 @@ code.ld-code-inline {
   font-size: var(--ld-text-xs);
   font-weight: 700;
   padding: 2px var(--ld-space-2);
-  border: 1px solid var(--ld-border-soft);
+  border: var(--ld-border-width) solid var(--ld-border-soft);
+  border-radius: calc(var(--ld-radius) / 2);
   color: var(--ld-text-muted);
 }
-.ld-badge[data-ld-variant='primary'] { background: var(--ld-accent); color: var(--ld-accent-text); border-color: var(--ld-accent); }
+.ld-badge[data-ld-variant='primary'] { background: var(--ld-accent-fill); color: var(--ld-accent-text); border-color: var(--ld-accent); }
 .ld-badge[data-ld-variant='danger'] { background: var(--ld-danger); color: var(--ld-danger-text); border-color: var(--ld-danger); }
 
 /* ==========================================================================
@@ -308,15 +366,15 @@ code.ld-code-inline {
   background: var(--ld-surface);
   border: var(--ld-border-width) solid var(--ld-border);
   border-radius: var(--ld-radius);
-  box-shadow: var(--ld-shadow-offset) var(--ld-shadow-offset) 0 var(--ld-shadow-color);
+  box-shadow: var(--ld-shadow);
   padding: var(--ld-space-5);
   transition: transform var(--ld-transition), box-shadow var(--ld-transition);
 }
 
 .ld-card[data-ld-interactive='true'] { cursor: pointer; }
 .ld-card[data-ld-interactive='true']:hover {
-  transform: translate(-2px, -2px);
-  box-shadow: calc(var(--ld-shadow-offset) + 2px) calc(var(--ld-shadow-offset) + 2px) 0 var(--ld-shadow-color);
+  transform: translateY(-2px);
+  box-shadow: var(--ld-shadow-lg);
 }
 
 .ld-card-eyebrow { font-size: var(--ld-text-xs); color: var(--ld-accent); font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: var(--ld-space-2); }
@@ -389,14 +447,14 @@ code.ld-code-inline {
 .ld-select:focus {
   outline: none;
   border-color: var(--ld-accent);
-  box-shadow: 3px 3px 0 var(--ld-accent);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--ld-accent) 30%, transparent);
 }
 
 .ld-input[data-ld-error='true'],
 .ld-textarea[data-ld-error='true'] {
   border-color: var(--ld-danger);
 }
-.ld-input[data-ld-error='true']:focus { box-shadow: 3px 3px 0 var(--ld-danger); }
+.ld-input[data-ld-error='true']:focus { box-shadow: 0 0 0 3px color-mix(in srgb, var(--ld-danger) 30%, transparent); }
 
 .ld-input[data-ld-success='true'],
 .ld-textarea[data-ld-success='true'] {
@@ -422,7 +480,8 @@ code.ld-code-inline {
   min-width: 180px;
   background: var(--ld-surface);
   border: var(--ld-border-width) solid var(--ld-border);
-  box-shadow: 4px 4px 0 var(--ld-shadow-color);
+  border-radius: var(--ld-radius);
+  box-shadow: var(--ld-shadow);
   padding: var(--ld-space-2);
   display: none;
   z-index: 20;
@@ -436,6 +495,7 @@ code.ld-code-inline {
   padding: var(--ld-space-2);
   background: none;
   border: none;
+  border-radius: calc(var(--ld-radius) / 2);
   font-family: var(--ld-font-family);
   font-size: var(--ld-text-sm);
   color: var(--ld-text);
@@ -473,7 +533,8 @@ code.ld-code-inline {
 .ld-modal {
   background: var(--ld-surface);
   border: var(--ld-border-width) solid var(--ld-border);
-  box-shadow: 8px 8px 0 var(--ld-shadow-color);
+  border-radius: var(--ld-radius);
+  box-shadow: var(--ld-shadow-lg);
   max-width: 480px;
   width: 100%;
   padding: var(--ld-space-5);
@@ -492,8 +553,9 @@ code.ld-code-inline {
   gap: var(--ld-space-3);
   padding: var(--ld-space-3) var(--ld-space-4);
   background: var(--ld-surface);
-  border: 1px solid var(--ld-border-soft);
+  border: var(--ld-border-width) solid var(--ld-border-soft);
   border-left: var(--ld-border-width) solid var(--ld-text-muted);
+  border-radius: var(--ld-radius);
   font-size: var(--ld-text-sm);
 }
 
@@ -514,8 +576,8 @@ code.ld-code-inline {
    12. Accordion — data-ld-accordion
    ========================================================================== */
 
-.ld-accordion-item { border: 1px solid var(--ld-border-soft); border-top: none; }
-.ld-accordion-item:first-child { border-top: 1px solid var(--ld-border-soft); }
+.ld-accordion-item { border: var(--ld-border-width) solid var(--ld-border-soft); border-top: none; }
+.ld-accordion-item:first-child { border-top: var(--ld-border-width) solid var(--ld-border-soft); }
 
 .ld-accordion-trigger {
   width: 100%;
@@ -589,6 +651,7 @@ code.ld-code-inline {
   font-size: var(--ld-text-xs);
   white-space: nowrap;
   padding: var(--ld-space-1) var(--ld-space-2);
+  border-radius: calc(var(--ld-radius) / 2);
   opacity: 0;
   pointer-events: none;
   transition: opacity var(--ld-transition);
@@ -610,12 +673,14 @@ code.ld-code-inline {
   height: 10px;
   background: var(--ld-surface-raised);
   border: 1px solid var(--ld-border-soft);
+  border-radius: 9999px;
   overflow: hidden;
 }
 .ld-progress-bar {
   height: 100%;
   width: 0%;
   background: var(--ld-accent);
+  border-radius: 9999px;
   transition: width 240ms ease;
 }
 .ld-progress-bar[data-ld-variant='danger'] { background: var(--ld-danger); }
@@ -633,6 +698,7 @@ code.ld-code-inline {
   color: var(--ld-text);
   border: 1px solid var(--ld-border-soft);
   border-bottom-width: 2px;
+  border-radius: 4px;
 }
 
 /* ==========================================================================
@@ -650,7 +716,8 @@ code.ld-code-inline {
 
 .ld-terminal {
   border: var(--ld-border-width) solid var(--ld-border);
-  box-shadow: 4px 4px 0 var(--ld-shadow-color);
+  border-radius: var(--ld-radius);
+  box-shadow: var(--ld-shadow);
   background: var(--ld-surface);
   overflow: hidden;
 }
@@ -670,6 +737,7 @@ code.ld-code-inline {
 .ld-terminal-body {
   padding: var(--ld-space-4);
   color: var(--ld-code-text);
+  font-family: var(--ld-font-mono);
   font-size: var(--ld-text-sm);
   overflow-x: auto;
   white-space: pre;
@@ -730,7 +798,8 @@ code.ld-code-inline {
   gap: var(--ld-space-2);
   background: var(--ld-surface);
   border: var(--ld-border-width) solid var(--ld-border);
-  box-shadow: 4px 4px 0 var(--ld-shadow-color);
+  border-radius: var(--ld-radius);
+  box-shadow: var(--ld-shadow);
   padding: var(--ld-space-3) var(--ld-space-4);
   font-size: var(--ld-text-sm);
   animation: ld-toast-in 160ms ease;
@@ -787,6 +856,7 @@ code.ld-code-inline {
   height: 32px;
   padding: 0 var(--ld-space-2);
   border: 1px solid var(--ld-border-soft);
+  border-radius: calc(var(--ld-radius) / 2);
   background: var(--ld-surface);
   color: var(--ld-text);
   font-family: var(--ld-font-family);
@@ -802,7 +872,7 @@ code.ld-code-inline {
    24. List group
    ========================================================================== */
 
-.ld-list { list-style: none; margin: 0; padding: 0; border: 1px solid var(--ld-border-soft); }
+.ld-list { list-style: none; margin: 0; padding: 0; border: 1px solid var(--ld-border-soft); border-radius: var(--ld-radius); overflow: hidden; }
 .ld-list-item {
   padding: var(--ld-space-3) var(--ld-space-4);
   border-bottom: 1px solid var(--ld-border-soft);
@@ -830,6 +900,7 @@ code.ld-code-inline {
   height: 20px;
   background: var(--ld-surface-raised);
   border: var(--ld-border-width) solid var(--ld-border-soft);
+  border-radius: 9999px;
   cursor: pointer;
   transition: background var(--ld-transition), border-color var(--ld-transition);
   flex-shrink: 0;
@@ -841,6 +912,7 @@ code.ld-code-inline {
   left: 1px;
   width: 12px;
   height: 12px;
+  border-radius: 50%;
   background: var(--ld-text-muted);
   transition: transform var(--ld-transition), background var(--ld-transition);
 }
@@ -859,6 +931,7 @@ code.ld-code-inline {
   justify-content: center;
   background: var(--ld-surface-raised);
   border: 1px solid var(--ld-border-soft);
+  border-radius: calc(var(--ld-radius) / 1.5);
   color: var(--ld-text);
   font-weight: 700;
   font-size: var(--ld-text-sm);
@@ -882,7 +955,8 @@ code.ld-code-inline {
   min-width: 220px;
   background: var(--ld-surface);
   border: var(--ld-border-width) solid var(--ld-border);
-  box-shadow: 4px 4px 0 var(--ld-shadow-color);
+  border-radius: var(--ld-radius);
+  box-shadow: var(--ld-shadow);
   padding: var(--ld-space-4);
   display: none;
   z-index: 25;
@@ -899,6 +973,7 @@ code.ld-code-inline {
   background: linear-gradient(90deg, var(--ld-surface-raised) 25%, var(--ld-border-soft) 37%, var(--ld-surface-raised) 63%);
   background-size: 400% 100%;
   animation: ld-skeleton 1.4s ease infinite;
+  border-radius: calc(var(--ld-radius) / 2);
   height: 14px;
 }
 @keyframes ld-skeleton { 0% { background-position: 100% 50%; } 100% { background-position: 0 50%; } }
@@ -924,7 +999,7 @@ code.ld-code-inline {
   max-width: 85vw;
   background: var(--ld-surface);
   border-right: var(--ld-border-width) solid var(--ld-border);
-  box-shadow: 8px 0 0 var(--ld-shadow-color);
+  box-shadow: 16px 0 32px rgba(20, 23, 26, 0.12);
   transform: translateX(-100%);
   transition: transform 220ms ease;
   padding: var(--ld-space-5);
@@ -936,10 +1011,13 @@ code.ld-code-inline {
   left: auto; right: 0;
   border-right: none;
   border-left: var(--ld-border-width) solid var(--ld-border);
-  box-shadow: -8px 0 0 var(--ld-shadow-color);
+  box-shadow: -16px 0 32px rgba(20, 23, 26, 0.12);
   transform: translateX(100%);
 }
 .ld-offcanvas-backdrop[data-ld-pos='right'].ld-show .ld-offcanvas { transform: translateX(0); }
+
+[data-ld-theme='dark'] .ld-offcanvas { box-shadow: 16px 0 32px rgba(0, 0, 0, 0.45); }
+[data-ld-theme='dark'] .ld-offcanvas-backdrop[data-ld-pos='right'] .ld-offcanvas { box-shadow: -16px 0 32px rgba(0, 0, 0, 0.45); }
 
 .ld-offcanvas-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--ld-space-4); }
 .ld-offcanvas-close { background: none; border: none; font-family: var(--ld-font-family); font-size: var(--ld-text-lg); cursor: pointer; color: var(--ld-text-muted); }
@@ -961,6 +1039,7 @@ code.ld-code-inline {
 .ld-step-index {
   width: 24px; height: 24px;
   border: var(--ld-border-width) solid var(--ld-border-soft);
+  border-radius: 50%;
   display: flex; align-items: center; justify-content: center;
   font-weight: 700;
   flex-shrink: 0;
@@ -997,7 +1076,8 @@ code.ld-code-inline {
   max-width: 480px;
   background: var(--ld-surface);
   border: var(--ld-border-width) solid var(--ld-border);
-  box-shadow: 8px 8px 0 var(--ld-shadow-color);
+  border-radius: var(--ld-radius);
+  box-shadow: var(--ld-shadow-lg);
   overflow: hidden;
 }
 .ld-command-input {
@@ -1029,6 +1109,7 @@ code.ld-code-inline {
   width: 100%;
   height: 4px;
   background: var(--ld-border-soft);
+  border-radius: 9999px;
   outline: none;
 }
 .ld-range::-webkit-slider-thumb {
@@ -1036,13 +1117,14 @@ code.ld-code-inline {
   width: 16px; height: 16px;
   background: var(--ld-accent);
   border: 2px solid var(--ld-border);
+  border-radius: 50%;
   cursor: pointer;
 }
 .ld-range::-moz-range-thumb {
   width: 16px; height: 16px;
   background: var(--ld-accent);
   border: 2px solid var(--ld-border);
-  border-radius: 0;
+  border-radius: 50%;
   cursor: pointer;
 }
 .ld-range::-moz-range-track { background: var(--ld-border-soft); height: 4px; }
@@ -1058,6 +1140,7 @@ code.ld-code-inline {
   justify-content: center;
   gap: var(--ld-space-1);
   border: var(--ld-border-width) dashed var(--ld-border-soft);
+  border-radius: var(--ld-radius);
   padding: var(--ld-space-6);
   text-align: center;
   font-size: var(--ld-text-sm);
@@ -1093,10 +1176,11 @@ code.ld-code-inline {
   align-items: center;
   padding: var(--ld-space-2);
   border: var(--ld-border-width) solid var(--ld-border-soft);
+  border-radius: var(--ld-radius);
   background: var(--ld-surface);
 }
 [data-ld-tags]:focus-within { border-color: var(--ld-accent); }
-.ld-tag { display: inline-flex; align-items: center; gap: 4px; background: var(--ld-surface-raised); border: 1px solid var(--ld-border-soft); padding: 2px 8px; font-size: var(--ld-text-xs); }
+.ld-tag { display: inline-flex; align-items: center; gap: 4px; background: var(--ld-surface-raised); border: 1px solid var(--ld-border-soft); border-radius: 9999px; padding: 2px 8px; font-size: var(--ld-text-xs); }
 .ld-tag-remove { background: none; border: none; color: var(--ld-text-muted); cursor: pointer; font-size: var(--ld-text-sm); line-height: 1; padding: 0; }
 .ld-tag-remove:hover { color: var(--ld-danger); }
 [data-ld-tags-input] { flex: 1; min-width: 100px; border: none; background: none; font-family: var(--ld-font-family); font-size: var(--ld-text-sm); color: var(--ld-text); outline: none; }
@@ -1193,7 +1277,7 @@ code.ld-code-inline {
 .ld-avatar-group-overflow {
   display: flex; align-items: center; justify-content: center;
   width: 32px; height: 32px;
-  border-radius: var(--ld-radius);
+  border-radius: calc(var(--ld-radius) / 1.5);
   background: var(--ld-surface-raised);
   border: 2px solid var(--ld-bg);
   margin-left: -10px;
@@ -1706,9 +1790,12 @@ code.ld-code-inline {
 /* ==========================================================================
    39. Escape hatches
    ------------------------------------------------------------------------
-   ldcss defaults to sharp edges, hard offset shadows, and monospace type.
-   These utilities let you opt individual elements out of that look without
-   fighting the framework — mix and match as needed.
+   ldcss now defaults to rounded corners, soft shadows, and a sans-serif
+   font. These utilities let individual elements opt into something else —
+   sharper corners, a different shadow depth, or monospace — without
+   fighting the framework. See also data-ld-shadow='hard' (§1/§4) and
+   data-ld-unstyled (§1) for retheming a whole subtree at once instead of
+   one element at a time.
    ========================================================================== */
 
 /* -- Rounded corners ------------------------------------------------------ */
@@ -1753,73 +1840,44 @@ code.ld-code-inline {
 .ld-border-3px-double { border-width: 5px; border-style: double; }
 .ld-border-4px-double { border-width: 6px; border-style: double; }
 
-/* -- Soft shadows (alternative to the hard-offset default) --------------- */
+/* -- Shadow depth (independent of the default --ld-shadow token) --------- */
 
 .ld-shadow-none      { box-shadow: none; }
-.ld-shadow-soft-sm   { box-shadow: 0 1px 4px rgba(0, 0, 0, 0.14); }
-.ld-shadow-soft       { box-shadow: 0 4px 12px rgba(0, 0, 0, 0.16); }
-.ld-shadow-soft-lg   { box-shadow: 0 12px 32px rgba(0, 0, 0, 0.20); }
+.ld-shadow-soft-sm   { box-shadow: 0 1px 4px rgba(20, 23, 26, 0.10); }
+.ld-shadow-soft       { box-shadow: 0 4px 12px rgba(20, 23, 26, 0.14); }
+.ld-shadow-soft-lg   { box-shadow: 0 12px 32px rgba(20, 23, 26, 0.18); }
 
-/* .ld-btn:active, .ld-card[data-ld-interactive]:hover, and .ld-input:focus all set
-   their own box-shadow/transform directly (for the default hard-offset look), at
-   higher specificity than the escape-hatch classes above. Without the overrides
-   below, adding ld-shadow-soft/-sm/-lg/-none to a button/card/input softens its
-   resting state but then snaps back to the hard offset the moment you interact
-   with it. These make the four shadow classes win in every state, too. */
+[data-ld-theme='dark'] .ld-shadow-soft-sm { box-shadow: 0 1px 4px rgba(0, 0, 0, 0.4); }
+[data-ld-theme='dark'] .ld-shadow-soft     { box-shadow: 0 4px 12px rgba(0, 0, 0, 0.45); }
+[data-ld-theme='dark'] .ld-shadow-soft-lg { box-shadow: 0 12px 32px rgba(0, 0, 0, 0.5); }
 
-.ld-btn.ld-shadow-none:active,     .ld-btn.ld-shadow-none[data-ld-pressed='true'],
-.ld-btn.ld-shadow-soft-sm:active,  .ld-btn.ld-shadow-soft-sm[data-ld-pressed='true'],
-.ld-btn.ld-shadow-soft:active,     .ld-btn.ld-shadow-soft[data-ld-pressed='true'],
-.ld-btn.ld-shadow-soft-lg:active,  .ld-btn.ld-shadow-soft-lg[data-ld-pressed='true'] {
-  transform: none;
-  box-shadow: none;
-}
-
-.ld-btn.ld-shadow-none:disabled,     .ld-btn.ld-shadow-none[data-ld-disabled='true'],
-.ld-btn.ld-shadow-soft-sm:disabled,  .ld-btn.ld-shadow-soft-sm[data-ld-disabled='true'],
-.ld-btn.ld-shadow-soft:disabled,     .ld-btn.ld-shadow-soft[data-ld-disabled='true'],
-.ld-btn.ld-shadow-soft-lg:disabled,  .ld-btn.ld-shadow-soft-lg[data-ld-disabled='true'] {
-  box-shadow: none;
-}
-
-.ld-card.ld-shadow-none[data-ld-interactive='true']:hover {
-  transform: translateY(-2px);
-  box-shadow: none;
-}
-.ld-card.ld-shadow-soft-sm[data-ld-interactive='true']:hover,
-.ld-card.ld-shadow-soft[data-ld-interactive='true']:hover,
-.ld-card.ld-shadow-soft-lg[data-ld-interactive='true']:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.20);
-}
-
-.ld-input.ld-shadow-none:focus,     .ld-textarea.ld-shadow-none:focus,     .ld-select.ld-shadow-none:focus,
-.ld-input.ld-shadow-soft-sm:focus,  .ld-textarea.ld-shadow-soft-sm:focus,  .ld-select.ld-shadow-soft-sm:focus,
-.ld-input.ld-shadow-soft:focus,     .ld-textarea.ld-shadow-soft:focus,     .ld-select.ld-shadow-soft:focus,
-.ld-input.ld-shadow-soft-lg:focus,  .ld-textarea.ld-shadow-soft-lg:focus,  .ld-select.ld-shadow-soft-lg:focus {
-  box-shadow: 0 0 0 3px color-mix(in srgb, var(--ld-accent) 35%, transparent);
-}
-.ld-input.ld-shadow-none[data-ld-error='true']:focus,    .ld-textarea.ld-shadow-none[data-ld-error='true']:focus,
-.ld-input.ld-shadow-soft-sm[data-ld-error='true']:focus, .ld-textarea.ld-shadow-soft-sm[data-ld-error='true']:focus,
-.ld-input.ld-shadow-soft[data-ld-error='true']:focus,    .ld-textarea.ld-shadow-soft[data-ld-error='true']:focus,
-.ld-input.ld-shadow-soft-lg[data-ld-error='true']:focus, .ld-textarea.ld-shadow-soft-lg[data-ld-error='true']:focus {
-  box-shadow: 0 0 0 3px color-mix(in srgb, var(--ld-danger) 35%, transparent);
-}
+/* .ld-btn:active/:disabled and .ld-input:focus set box-shadow at higher
+   specificity than these utilities, so a pressed/disabled button or a
+   focused input still looks right regardless of which resting depth you
+   picked — no per-state overrides needed. The one exception:
+   .ld-card[data-ld-interactive]:hover always steps up to --ld-shadow-lg,
+   so a card given a custom resting depth still gets a consistent (if not
+   custom) lift on hover rather than losing its shadow entirely. */
 
 /* -- Type ------------------------------------------------------------------
-   Opt an element (and everything under it — --ld-font-family is a custom
-   property, so unlike font-family it inherits) out of monospace, e.g. for
-   long-form body copy. Apply once to <body> or a section wrapper and every
-   component inside that reads var(--ld-font-family) — buttons, inputs,
-   tabs, headings, etc. — picks it up. code/pre/kbd stay mono deliberately,
-   they read --ld-font-mono directly, not this token. */
+   ldcss now defaults to --ld-font-sans. Use ld-font-mono to opt an element
+   (and everything under it — --ld-font-family is a custom property, so
+   unlike font-family it inherits) into monospace, e.g. for a data-dense
+   dashboard section, or ld-font-serif for editorial copy. Apply once to a
+   container and every component inside that reads var(--ld-font-family) —
+   buttons, inputs, tabs, headings, etc. — picks it up. code/pre/kbd stay
+   mono deliberately, they read --ld-font-mono directly, not this token. */
 
 .ld-font-sans {
-  --ld-font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --ld-font-family: var(--ld-font-sans);
   font-family: var(--ld-font-family);
 }
 .ld-font-serif {
   --ld-font-family: ui-serif, Georgia, "Times New Roman", serif;
+  font-family: var(--ld-font-family);
+}
+.ld-font-mono {
+  --ld-font-family: var(--ld-font-mono);
   font-family: var(--ld-font-family);
 }
 

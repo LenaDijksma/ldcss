@@ -40,6 +40,7 @@
       <thead><tr><th>Attribute</th><th>Values</th><th>Notes</th></tr></thead>
       <tbody>
         <tr><td><code class="ld-code-inline">data-ld-theme</code></td><td>light · dark</td><td>On &lt;html&gt; or any container</td></tr>
+        <tr><td><code class="ld-code-inline">data-ld-unstyled</code></td><td>—</td><td>Resets radius/shadow/border-weight/accent-fill to neutral on a container, so your own stylesheet (loaded after ldcss.css) can restyle cleanly without fighting specificity — layout, spacing, and behavior are unaffected</td></tr>
         <tr><td><code class="ld-code-inline">data-ld-notheme</code></td><td>—</td><td>Freezes subtree at light appearance</td></tr>
         <tr><td><code class="ld-code-inline">data-ld-toggle="theme"</code></td><td>—</td><td>Click to flip theme, persists via localStorage</td></tr>
       </tbody>
@@ -168,7 +169,7 @@
     <table class="ld-table" data-ld-striped="true">
       <thead><tr><th>Attribute</th><th>Values</th><th>Notes</th></tr></thead>
       <tbody>
-        <tr><td><code class="ld-code-inline">data-ld-shadow</code></td><td>none · sm · md · lg</td><td>Hard offset shadow depth</td></tr>
+        <tr><td><code class="ld-code-inline">data-ld-shadow</code></td><td>none · sm · md · lg · hard</td><td>Soft blur depth by default; <code class="ld-code-inline">hard</code> switches to the original offset shadow via <code class="ld-code-inline">--ld-shadow</code> — set on &lt;html&gt; for the whole page or on one element</td></tr>
         <tr><td><code class="ld-code-inline">data-ld-border</code></td><td>none · thin · thick · accent</td><td>Border weight/color</td></tr>
       </tbody>
     </table>
@@ -294,8 +295,8 @@
       <tbody>
         <tr><td><code class="ld-code-inline">ld-round*</code></td><td>-none·-sm·(default)·-lg·-xl·-full</td><td>Border radius</td></tr>
         <tr><td><code class="ld-code-inline">ld-border-{1,2,3,4}px-{solid,dashed,dotted,double}</code></td><td>+ <code class="ld-code-inline">ld-border-0</code></td><td>Border width × style grid</td></tr>
-        <tr><td><code class="ld-code-inline">ld-shadow-soft*</code></td><td>-sm·(default)·-lg·-none</td><td>Blurred shadow instead of hard offset</td></tr>
-        <tr><td><code class="ld-code-inline">ld-font-sans</code>, <code class="ld-code-inline">ld-font-serif</code></td><td>—</td><td>Opt out of monospace</td></tr>
+        <tr><td><code class="ld-code-inline">ld-shadow-soft*</code></td><td>-sm·(default)·-lg·-none</td><td>Per-element blurred shadow depth tier, independent of the <code class="ld-code-inline">--ld-shadow</code> token</td></tr>
+        <tr><td><code class="ld-code-inline">ld-font-sans</code>, <code class="ld-code-inline">ld-font-serif</code>, <code class="ld-code-inline">ld-font-mono</code></td><td>—</td><td>Switch subtree type family (sans is default)</td></tr>
         <tr><td><code class="ld-code-inline">ld-scale-{compact,cozy,spacious}</code></td><td>—</td><td>Override spacing tokens for a subtree</td></tr>
         <tr><td><code class="ld-code-inline">ld-accent-{color}</code></td><td>mint·blue·purple·pink·orange·yellow·red</td><td>Swap brand color for a subtree</td></tr>
         <tr><td><code class="ld-code-inline">ld-glass</code>, <code class="ld-code-inline">ld-flat</code></td><td>—</td><td>Alternative surface registers</td></tr>

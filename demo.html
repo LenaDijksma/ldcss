@@ -36,7 +36,7 @@
 <div class="ld-container">
 
   <header class="ld-hero">
-    <span class="ld-badge" data-ld-variant="primary">v0.6.0</span>
+    <span class="ld-badge" data-ld-variant="primary">v1.0.0</span>
     <h1>ldcss</h1>
     <p class="ld-text-muted">A small framework built on two ideas: <span class="ld-text-accent">ld-*</span> classes for structure, <span class="ld-text-accent">data-ld-*</span> attributes for state and variants. No build step. No dependencies.</p>
     <pre class="ld-code">&lt;button class="ld-btn" data-ld-variant="primary" data-ld-size="lg"&gt;
@@ -67,12 +67,12 @@
 
   <section id="cards">
     <h2>Cards</h2>
-    <p class="ld-section-sub">data-ld-shadow: sm · md · lg &nbsp;|&nbsp; data-ld-interactive lifts the card on hover</p>
+    <p class="ld-section-sub">data-ld-shadow: sm · md · lg · hard &nbsp;|&nbsp; data-ld-interactive lifts the card on hover</p>
     <div class="ld-grid" data-ld-cols="3">
       <div class="ld-card" data-ld-interactive="true">
         <div class="ld-card-eyebrow">Component</div>
         <div class="ld-card-title">Cards</div>
-        <div class="ld-card-body">Hard shadow, hard edge. Hover lifts it two pixels off the page.</div>
+        <div class="ld-card-body">Soft shadow, rounded corners by default. Hover lifts it two pixels off the page.</div>
         <div class="ld-card-footer">
           <button class="ld-btn" data-ld-size="sm" data-ld-variant="outline">Open</button>
         </div>
@@ -86,6 +86,11 @@
         <div class="ld-card-eyebrow">Utility</div>
         <div class="ld-card-title">data-ld-border</div>
         <div class="ld-card-body">Thin, thick, accent, or none — same attribute, four states.</div>
+      </div>
+      <div class="ld-card" data-ld-shadow="hard" data-ld-interactive="true">
+        <div class="ld-card-eyebrow">Utility</div>
+        <div class="ld-card-title">data-ld-shadow="hard"</div>
+        <div class="ld-card-body">Brings back ldcss's original hard offset shadow. Works here on a single card, or on &lt;html&gt; for the whole page.</div>
       </div>
     </div>
   </section>
@@ -146,6 +151,8 @@
         <p class="ld-text-muted">Include ldcss.css and ldcss.js. Everything else is attributes on plain HTML — no build step.</p>
       </div>
       <div id="tab-3" data-ld-tab-panel>
+        <p class="ld-text-muted"><strong>v1.0.0 — modern default (breaking visual change).</strong> ldcss no longer defaults to ldcss's original sharp/mono/hard-shadow look. Out of the box it's now: rounded corners (<code class="ld-code-inline">--ld-radius</code> 0px → 10px), a soft layered shadow instead of a hard offset (<code class="ld-code-inline">--ld-shadow</code>/new <code class="ld-code-inline">--ld-shadow-lg</code>), a thinner neutral-gray border (<code class="ld-code-inline">--ld-border-width</code> 2px → 1px, border color no longer near-black), and a system sans-serif font (<code class="ld-code-inline">--ld-font-family</code> now defaults to new token <code class="ld-code-inline">--ld-font-sans</code>; use <code class="ld-code-inline">ld-font-mono</code> to opt back in — code/pre/kbd/terminal are unaffected, they read <code class="ld-code-inline">--ld-font-mono</code> directly and stay mono). Every bordered/shadowed component was touched: buttons, badges, cards, inputs, dropdowns, modals, alerts, toasts, popovers, tooltips, the command palette, and more all pick up the new radius/shadow tokens; progress bars, switches, tags, and the range thumb are now pill/circle-shaped; button press and card hover use a normal soft lift instead of the old shadow-cancel trick; input focus is a soft ring (<code class="ld-code-inline">color-mix()</code>) instead of a hard-offset box. Two new escape hatches for getting the old (or a fully custom) look back: <code class="ld-code-inline">data-ld-shadow="hard"</code> restores the original offset shadow anywhere you set it — on <code class="ld-code-inline">&lt;html&gt;</code> for the whole page or on one element — the same mechanism the old <code class="ld-code-inline">data-ld-shadow="soft"</code> used, just inverted now that soft is the default; <code class="ld-code-inline">data-ld-unstyled</code> resets radius/shadow/border-weight/accent-fill to neutral on a container so a stylesheet loaded after ldcss.css can restyle it cleanly without fighting specificity. The old hard-offset <code class="ld-code-inline">sm</code>/<code class="ld-code-inline">md</code>/<code class="ld-code-inline">lg</code> shadow-depth tiers on <code class="ld-code-inline">data-ld-shadow</code> are now soft blur tiers to match. <strong>Migration:</strong> if you were relying on the old look, add <code class="ld-code-inline">data-ld-shadow="hard"</code> to <code class="ld-code-inline">&lt;html&gt;</code> and <code class="ld-code-inline">ld-font-mono</code> to your body/container for the closest match — corners and border color aren't independently revertible via attribute yet, override <code class="ld-code-inline">--ld-radius</code>/<code class="ld-code-inline">--ld-border</code> directly if you need them back too.</p>
+        <p class="ld-text-muted"><strong>v0.12.0</strong> — token-driven shadows and fills. New <code class="ld-code-inline">--ld-shadow</code> token (composed from the existing offset/color tokens) that <code class="ld-code-inline">ld-btn</code> and <code class="ld-code-inline">ld-card</code> now read for their resting shadow, plus <code class="ld-code-inline">data-ld-shadow="soft"</code> to re-skin it to a blurred look wherever it's set — on <code class="ld-code-inline">&lt;html&gt;</code> for the whole page, or on a single button/card — the same way <code class="ld-code-inline">data-ld-theme="dark"</code> works for color. New <code class="ld-code-inline">--ld-accent-fill</code> token (defaults to <code class="ld-code-inline">--ld-accent</code>) now backs primary button and badge fills, so a brand can drop in a gradient in one place without touching component rules. Consistency fix: <code class="ld-code-inline">ld-badge</code>, the outer border of <code class="ld-code-inline">ld-alert</code>, and <code class="ld-code-inline">ld-accordion-item</code> now read <code class="ld-code-inline">--ld-border-width</code> instead of a hard-coded <code class="ld-code-inline">1px</code>, matching every other structurally-bordered component — hairline dividers (table rows, card footers, list separators) are unchanged on purpose. New utility: <code class="ld-code-inline">ld-font-mono</code>, completing the <code class="ld-code-inline">ld-font-sans</code>/<code class="ld-code-inline">ld-font-serif</code> trio for opting a subtree back into monospace.</p>
         <p class="ld-text-muted"><strong>v0.11.0</strong> — new components: <code class="ld-code-inline">ld-blockquote</code>/<code class="ld-code-inline">ld-pull-quote</code>, <code class="ld-code-inline">ld-divider</code>/<code class="ld-code-inline">ld-divider-v</code>, <code class="ld-code-inline">ld-stat</code>, <code class="ld-code-inline">ld-avatar-group</code>. New utilities: <code class="ld-code-inline">ld-text-3xl</code>/<code class="ld-code-inline">4xl</code> (display type scale — previously capped at 2xl), <code class="ld-code-inline">ld-container-sm</code>/<code class="ld-code-inline">wide</code> (built as compound selectors so they can't be defeated by source order the way §3b–3i/old §29 were), <code class="ld-code-inline">ld-print-hidden</code>/<code class="ld-code-inline">ld-print-only</code>. Forms: <code class="ld-code-inline">data-ld-success="true"</code> alongside the existing error state. New JS: <code class="ld-code-inline">data-ld-animate="fade-up|fade-down|fade-left|fade-right|fade-in"</code> entrance animations via IntersectionObserver, fully skipped (elements shown immediately) under <code class="ld-code-inline">prefers-reduced-motion</code>.</p>
         <p class="ld-text-muted"><strong>v0.10.0</strong> — structural fix: moved the utility-class system (previously §3b–3i) and Escape Hatches (previously §29) to the true end of the stylesheet (§38–§39). Both were plain single-class selectors sitting <em>before</em> most components, so any later component rule with the same specificity silently won ties and defeated them — e.g. <code class="ld-code-inline">ld-pad-a-8</code> on a <code class="ld-code-inline">.ld-card</code> did nothing, because <code class="ld-code-inline">.ld-card</code>'s own padding rule came later in the file. No class names changed, only file position — but if you'd copied any component's CSS out of context, re-copy it, since order-dependent behavior like this doesn't survive being lifted out of the full file.</p>
         <p class="ld-text-muted"><strong>v0.9.0</strong> — fixes from a real-world readiness test (built a full page with zero custom CSS). <code class="ld-code-inline">--ld-font-family</code> is now a real inheritable token: <code class="ld-code-inline">ld-font-sans</code>/<code class="ld-code-inline">ld-font-serif</code> cascade to every descendant (buttons, inputs, tabs, headings, etc.) instead of needing to be repeated per element — <code class="ld-code-inline">code</code>/<code class="ld-code-inline">pre</code>/<code class="ld-code-inline">ld-kbd</code> stay mono on purpose. <code class="ld-code-inline">.ld-nav-brand</code> can drop its <code class="ld-code-inline">$</code> mark with <code class="ld-code-inline">data-ld-mark="none"</code>. New utilities: <code class="ld-code-inline">ld-italic</code>, <code class="ld-code-inline">ld-aspect-{square,video,4-3,3-2}</code>, <code class="ld-code-inline">ld-mx-auto</code>/<code class="ld-code-inline">ld-my-auto</code>, <code class="ld-code-inline">ld-link-reset</code>. <code class="ld-code-inline">ld-shadow-none</code>/<code class="ld-code-inline">soft-sm</code>/<code class="ld-code-inline">soft</code>/<code class="ld-code-inline">soft-lg</code> now also win on <code class="ld-code-inline">:active</code>/<code class="ld-code-inline">:disabled</code>/<code class="ld-code-inline">:hover</code>/<code class="ld-code-inline">:focus</code>, so a softened button/card/input no longer snaps back to the hard offset shadow mid-interaction.</p>
@@ -319,7 +326,7 @@ $ echo "linked ldcss.css and ldcss.js"</div>
       <div data-ld-popover>
         <button class="ld-btn" data-ld-variant="outline" data-ld-toggle="popover">Version info ▾</button>
         <div data-ld-popover-content>
-          <div class="ld-popover-title">ldcss v0.3.0</div>
+          <div class="ld-popover-title">ldcss v1.0.0</div>
           <p class="ld-text-muted" style="margin:0;">Classes for structure, <code class="ld-code-inline">data-ld-*</code> attributes for state. MIT licensed.</p>
         </div>
       </div>
@@ -340,22 +347,22 @@ $ echo "linked ldcss.css and ldcss.js"</div>
 
   <section>
     <h2>Escape hatches</h2>
-    <p class="ld-section-sub">Opt individual elements out of the sharp/hard-shadow/monospace defaults</p>
+    <p class="ld-section-sub">Opt individual elements out of (or back into) the rounded/soft-shadow/sans-serif defaults</p>
     <div class="ld-row" style="margin-bottom: var(--ld-space-4);">
-      <div class="ld-card ld-round" data-ld-shadow="none" style="max-width:160px;">
-        <div class="ld-card-title" style="font-size:var(--ld-text-sm);">ld-round</div>
-        <div class="ld-card-body">8px corners</div>
+      <div class="ld-card ld-round-none" data-ld-shadow="none" style="max-width:160px;">
+        <div class="ld-card-title" style="font-size:var(--ld-text-sm);">ld-round-none</div>
+        <div class="ld-card-body">Sharp corners, opting out of the default 10px radius</div>
       </div>
       <div class="ld-card ld-round-full" data-ld-shadow="none" style="max-width:160px;aspect-ratio:1;display:flex;align-items:center;justify-content:center;text-align:center;">
         <div class="ld-card-body">ld-round-full</div>
       </div>
-      <div class="ld-card ld-shadow-soft" data-ld-border="none" style="max-width:160px;">
-        <div class="ld-card-title" style="font-size:var(--ld-text-sm);">ld-shadow-soft</div>
-        <div class="ld-card-body">Blurred, not offset</div>
+      <div class="ld-card" data-ld-unstyled data-ld-shadow="none" style="max-width:160px;">
+        <div class="ld-card-title" style="font-size:var(--ld-text-sm);">data-ld-unstyled</div>
+        <div class="ld-card-body">Radius, shadow, and border weight reset to neutral — style it yourself from here</div>
       </div>
-      <div class="ld-card ld-font-sans" data-ld-shadow="none" style="max-width:160px;">
-        <div class="ld-card-title" style="font-size:var(--ld-text-sm);">ld-font-sans</div>
-        <div class="ld-card-body">Opts out of monospace</div>
+      <div class="ld-card" data-ld-shadow="none" style="max-width:160px;">
+        <div class="ld-card-title ld-font-mono" style="font-size:var(--ld-text-sm);">ld-font-mono</div>
+        <div class="ld-card-body">Opts one element into monospace, e.g. for a data-dense table</div>
       </div>
     </div>
     <div class="ld-row">
