@@ -16,12 +16,6 @@ Everything is monospace (JetBrains Mono), sharp-edged (zero border-radius), and 
 
 ---
 
-## using ldcss
-
-either download it from here or use the cdn at https://lenadijksma.is-a.dev/cdn/ldcss/latest/ldcss.css and https://lenadijksma.is-a.dev/cdn/ldcss/latest/ldcss.js
-
----
-
 ## Quick start
 
 ```html
