@@ -847,4 +847,21 @@
   initRatings();
   initPagination();
   initAnimations();
+
+  /* ---------------------------------------------------------------------
+     Public re-init API — for content added after DOMContentLoaded
+     (fetch results, tab lazy-load, framework-patched DOM, etc).
+     Delegated listeners (clicks, keydown, dropzone change/drag) already
+     work on new elements automatically — only the one-time attribute/DOM
+     sweeps below need to be re-run, scoped to whatever you just added.
+     ------------------------------------------------------------------- */
+  window.ldcss = window.ldcss || {};
+  window.ldcss.refresh = function (root) {
+    initProgressBars(root);
+    initRatings(root);
+    initPagination(root);
+    initAnimations(root);
+  };
+
+  initTheme();
 })();
