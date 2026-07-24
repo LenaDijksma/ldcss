@@ -20,6 +20,11 @@
     try { saved = localStorage.getItem(STORAGE_KEY); } catch (e) {}
     if (saved) {
       document.documentElement.setAttribute('data-ld-theme', saved);
+    } else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+      // No explicit choice saved yet — match the OS/browser preference.
+      // A saved choice (from toggleTheme) always wins over this on
+      // future visits, this only fires the very first time.
+      document.documentElement.setAttribute('data-ld-theme', 'dark');
     }
   }
 
@@ -214,6 +219,11 @@
       container.className = 'ld-toast-container';
       container.setAttribute('role', 'status');
       container.setAttribute('aria-live', 'polite');
+      // Read the desired corner once, at creation time, from
+      // data-ld-toast-position on <body> (falls back to the default
+      // top-right if unset). Set it before the first toast fires.
+      var position = document.body.getAttribute('data-ld-toast-position');
+      if (position) container.setAttribute('data-ld-position', position);
       document.body.appendChild(container);
     }
     return container;
@@ -675,10 +685,209 @@
   }
 
   /* ---------------------------------------------------------------------
+     Segmented control
+     ------------------------------------------------------------------- */
+
+  function handleSegmentToggle(item) {
+    var group = item.closest('[data-ld-segmented]');
+    if (!group) return;
+    if (item.disabled || item.getAttribute('data-ld-disabled') === 'true') return;
+
+    group.querySelectorAll('[data-ld-segment]').forEach(function (i) {
+      i.setAttribute('data-ld-active', 'false');
+      i.setAttribute('aria-pressed', 'false');
+    });
+    item.setAttribute('data-ld-active', 'true');
+    item.setAttribute('aria-pressed', 'true');
+
+    var targetSel = group.getAttribute('data-ld-target');
+    if (targetSel) {
+      var input = document.querySelector(targetSel);
+      if (input) {
+        input.value = item.getAttribute('data-ld-value') || item.textContent.trim();
+        input.dispatchEvent(new Event('change', { bubbles: true }));
+      }
+    }
+  }
+
+  /* ---------------------------------------------------------------------
+     Filter chips
+     ------------------------------------------------------------------- */
+
+  function handleChipToggle(chip) {
+    var group = chip.closest('[data-ld-chips]');
+    var isActive = chip.getAttribute('data-ld-active') === 'true';
+
+    if (group && group.getAttribute('data-ld-chips') === 'single') {
+      group.querySelectorAll('[data-ld-chip]').forEach(function (c) {
+        c.setAttribute('data-ld-active', 'false');
+      });
+      chip.setAttribute('data-ld-active', 'true');
+    } else {
+      chip.setAttribute('data-ld-active', String(!isActive));
+    }
+  }
+
+  /* ---------------------------------------------------------------------
+     Stepper — programmatic API plus next/prev/clickable-step wiring
+     ------------------------------------------------------------------- */
+
+  function goToStep(stepper, index) {
+    var steps = Array.prototype.slice.call(stepper.querySelectorAll('.ld-step'));
+    if (index < 0 || index >= steps.length) return;
+
+    steps.forEach(function (step, i) {
+      step.setAttribute('data-ld-active', i === index ? 'true' : 'false');
+      step.setAttribute('data-ld-complete', i < index ? 'true' : 'false');
+    });
+    stepper.setAttribute('data-ld-current', String(index));
+
+    var panelsSel = stepper.getAttribute('data-ld-step-panels');
+    var panelGroup = panelsSel ? document.querySelector(panelsSel) : null;
+    if (panelGroup) {
+      panelGroup.querySelectorAll('[data-ld-step-panel]').forEach(function (p, i) {
+        p.classList.toggle('ld-show', i === index);
+        p.setAttribute('aria-hidden', String(i !== index));
+      });
+    }
+  }
+
+  function currentStepIndex(stepper) {
+    var steps = Array.prototype.slice.call(stepper.querySelectorAll('.ld-step'));
+    var active = steps.findIndex(function (s) { return s.getAttribute('data-ld-active') === 'true'; });
+    if (active !== -1) return active;
+    var saved = parseInt(stepper.getAttribute('data-ld-current'), 10);
+    return isNaN(saved) ? 0 : saved;
+  }
+
+  function handleStepClick(step) {
+    var stepper = step.closest('[data-ld-stepper]');
+    if (!stepper || stepper.getAttribute('data-ld-clickable') !== 'true') return;
+    var steps = Array.prototype.slice.call(stepper.querySelectorAll('.ld-step'));
+    goToStep(stepper, steps.indexOf(step));
+  }
+
+  function initSteppers(root) {
+    (root || document).querySelectorAll('[data-ld-stepper]').forEach(function (stepper) {
+      goToStep(stepper, currentStepIndex(stepper));
+    });
+  }
+
+  /* ---------------------------------------------------------------------
+     Combobox / autocomplete
+     ------------------------------------------------------------------- */
+
+  function getComboboxList(box) { return box.querySelector('[data-ld-combobox-list]'); }
+
+  function openCombobox(box) {
+    var list = getComboboxList(box);
+    if (list) list.classList.add('ld-show');
+  }
+
+  function closeCombobox(box) {
+    var list = getComboboxList(box);
+    if (list) {
+      list.classList.remove('ld-show');
+      list.querySelectorAll('[data-ld-combobox-option]').forEach(function (o) {
+        o.removeAttribute('data-ld-highlighted');
+      });
+    }
+  }
+
+  function closeAllComboboxes(except) {
+    document.querySelectorAll('[data-ld-combobox]').forEach(function (box) {
+      if (box !== except) closeCombobox(box);
+    });
+  }
+
+  function filterCombobox(box, query) {
+    var list = getComboboxList(box);
+    var empty = box.querySelector('[data-ld-combobox-empty]');
+    if (!list) return;
+    var q = query.trim().toLowerCase();
+    var visible = 0;
+    list.querySelectorAll('[data-ld-combobox-option]').forEach(function (opt) {
+      var match = !q || opt.textContent.toLowerCase().indexOf(q) !== -1;
+      opt.classList.toggle('ld-hide', !match);
+      if (match) visible++;
+    });
+    if (empty) empty.classList.toggle('ld-show', visible === 0);
+  }
+
+  function highlightComboboxOption(box, index) {
+    var options = Array.prototype.slice.call(box.querySelectorAll('[data-ld-combobox-option]:not(.ld-hide)'));
+    options.forEach(function (o) { o.removeAttribute('data-ld-highlighted'); });
+    if (options[index]) {
+      options[index].setAttribute('data-ld-highlighted', 'true');
+      options[index].scrollIntoView({ block: 'nearest' });
+    }
+    return options;
+  }
+
+  function selectComboboxOption(option) {
+    var box = option.closest('[data-ld-combobox]');
+    if (!box) return;
+    var input = box.querySelector('input');
+    if (input) {
+      input.value = option.getAttribute('data-ld-value') || option.textContent.trim();
+      input.dispatchEvent(new Event('change', { bubbles: true }));
+    }
+    closeCombobox(box);
+  }
+
+  function handleComboboxKeydown(e) {
+    var box = e.target.closest('[data-ld-combobox]');
+    if (!box) return;
+    var list = getComboboxList(box);
+    if (!list || !list.classList.contains('ld-show')) {
+      if (e.key === 'ArrowDown') { e.preventDefault(); openCombobox(box); highlightComboboxOption(box, 0); }
+      return;
+    }
+    var options = Array.prototype.slice.call(box.querySelectorAll('[data-ld-combobox-option]:not(.ld-hide)'));
+    var currentIndex = options.findIndex(function (o) { return o.getAttribute('data-ld-highlighted') === 'true'; });
+
+    if (e.key === 'ArrowDown') {
+      e.preventDefault();
+      highlightComboboxOption(box, Math.min(options.length - 1, currentIndex + 1));
+    } else if (e.key === 'ArrowUp') {
+      e.preventDefault();
+      highlightComboboxOption(box, Math.max(0, currentIndex - 1));
+    } else if (e.key === 'Enter') {
+      var chosen = options[currentIndex];
+      if (chosen) { e.preventDefault(); selectComboboxOption(chosen); }
+    } else if (e.key === 'Escape') {
+      closeCombobox(box);
+    }
+  }
+
+  /* ---------------------------------------------------------------------
      Delegated event wiring
      ------------------------------------------------------------------- */
 
   document.addEventListener('click', function (e) {
+    var segmentEl = e.target.closest('[data-ld-segment]');
+    if (segmentEl) {
+      handleSegmentToggle(segmentEl);
+      return;
+    }
+
+    var chipEl = e.target.closest('[data-ld-chip]');
+    if (chipEl) {
+      handleChipToggle(chipEl);
+      return;
+    }
+
+    var stepEl = e.target.closest('.ld-step');
+    if (stepEl) {
+      handleStepClick(stepEl);
+      return;
+    }
+
+    var comboboxOptionEl = e.target.closest('[data-ld-combobox-option]');
+    if (comboboxOptionEl) {
+      selectComboboxOption(comboboxOptionEl);
+      return;
+    }
     var toggleEl = e.target.closest('[data-ld-toggle]');
     if (toggleEl) {
       var kind = toggleEl.getAttribute('data-ld-toggle');
@@ -711,6 +920,18 @@
       } else if (kind === 'toast') {
         e.preventDefault();
         handleToastTrigger(toggleEl);
+      } else if (kind === 'step-next' || kind === 'step-prev') {
+        e.preventDefault();
+        var stepperEl = toggleEl.closest('[data-ld-stepper]') ||
+          (toggleEl.getAttribute('data-ld-target') ? document.querySelector(toggleEl.getAttribute('data-ld-target')) : null);
+        if (stepperEl) {
+          var delta = kind === 'step-next' ? 1 : -1;
+          goToStep(stepperEl, currentStepIndex(stepperEl) + delta);
+        }
+      } else if (kind === 'combobox') {
+        e.preventDefault();
+        var comboboxEl = toggleEl.closest('[data-ld-combobox]');
+        if (comboboxEl) { openCombobox(comboboxEl); filterCombobox(comboboxEl, ''); }
       }
       return;
     }
@@ -797,6 +1018,8 @@
     if (!e.target.closest('[data-ld-popover]')) {
       closeAllPopovers();
     }
+    var openBox = e.target.closest('[data-ld-combobox]');
+    closeAllComboboxes(openBox);
   });
 
   document.addEventListener('keydown', function (e) {
@@ -806,6 +1029,7 @@
       closeAllModals();
       closeAllOffcanvas();
       closeAllCommands();
+      closeAllComboboxes();
     }
     if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') {
       var paletteExists = document.querySelector('.ld-command-backdrop');
@@ -816,6 +1040,7 @@
     }
     handleCommandKeydown(e);
     handleTagsKeydown(e);
+    handleComboboxKeydown(e);
     trapTab(e);
   });
 
@@ -824,6 +1049,13 @@
     if (commandInput) {
       var backdrop = commandInput.closest('.ld-command-backdrop');
       if (backdrop) filterCommandList(backdrop, commandInput.value);
+    }
+    var comboboxInput = e.target.closest('[data-ld-combobox] input');
+    if (comboboxInput) {
+      var box = comboboxInput.closest('[data-ld-combobox]');
+      openCombobox(box);
+      filterCombobox(box, comboboxInput.value);
+      highlightComboboxOption(box, 0);
     }
   });
 
@@ -847,6 +1079,7 @@
   initRatings();
   initPagination();
   initAnimations();
+  initSteppers();
 
   /* ---------------------------------------------------------------------
      Public re-init API — for content added after DOMContentLoaded
@@ -861,6 +1094,7 @@
     initRatings(root);
     initPagination(root);
     initAnimations(root);
+    initSteppers(root);
   };
 
   initTheme();

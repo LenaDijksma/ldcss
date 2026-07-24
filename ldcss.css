@@ -811,6 +811,19 @@ code.ld-code-inline {
 .ld-toast[data-ld-variant='success'] { border-left: var(--ld-border-width) solid var(--ld-accent); }
 .ld-toast[data-ld-variant='danger'] { border-left: var(--ld-border-width) solid var(--ld-danger); }
 
+/* -- Toast container position ------------------------------------------------
+   Default is top-right (set inline by ldcss.js when it creates the
+   container). Set data-ld-toast-position on <body> to change it before
+   the first toast fires — ldcss.js reads that attribute once, at
+   container-creation time, and applies it here. */
+.ld-toast-container[data-ld-position='top-left'] { top: var(--ld-space-4); left: var(--ld-space-4); right: auto; }
+.ld-toast-container[data-ld-position='top-center'] { top: var(--ld-space-4); left: 50%; right: auto; transform: translateX(-50%); }
+.ld-toast-container[data-ld-position='bottom-right'] { top: auto; bottom: var(--ld-space-4); right: var(--ld-space-4); }
+.ld-toast-container[data-ld-position='bottom-left'] { top: auto; bottom: var(--ld-space-4); left: var(--ld-space-4); right: auto; }
+.ld-toast-container[data-ld-position='bottom-center'] { top: auto; bottom: var(--ld-space-4); left: 50%; right: auto; transform: translateX(-50%); }
+.ld-toast-container[data-ld-position^='bottom'] .ld-toast { animation-name: ld-toast-in-bottom; }
+@keyframes ld-toast-in-bottom { from { transform: translateY(6px); opacity: 0; } to { transform: none; opacity: 1; } }
+
 /* ==========================================================================
    22. Table
    ========================================================================== */
@@ -1056,6 +1069,23 @@ code.ld-code-inline {
 .ld-step[data-ld-active='true'] .ld-step-index { border-color: var(--ld-accent); color: var(--ld-accent); }
 .ld-step[data-ld-complete='true'] .ld-step-index { background: var(--ld-accent); border-color: var(--ld-accent); color: var(--ld-accent-text); }
 .ld-step[data-ld-complete='true']:not(:last-child)::after { background: var(--ld-accent); }
+
+/* -- Interactive stepper (paired with ldcss.js) ------------------------------
+   The base .ld-stepper markup is still just a static row (fully backward
+   compatible — nothing below changes existing pages). To wire it up to
+   ldcss.js, add a bare data-ld-stepper attribute to the same <ol>/<ul>
+   that has the .ld-stepper class. From there:
+     - data-ld-clickable="true" lets people jump to a completed or
+       upcoming step directly, not just advance with next/prev buttons
+       (data-ld-toggle="step-next" / "step-prev" on any button, scoped
+       to the nearest stepper or a data-ld-target selector).
+     - data-ld-step-panels="#selector" points at a container of
+       [data-ld-step-panel] sections that show/hide with the active
+       step, the same way tabs pair with tab panels. */
+.ld-stepper[data-ld-clickable='true'] .ld-step { cursor: pointer; }
+.ld-stepper[data-ld-clickable='true'] .ld-step:hover .ld-step-index { border-color: var(--ld-accent); }
+[data-ld-step-panel] { display: none; padding: var(--ld-space-4) 0; }
+[data-ld-step-panel].ld-show { display: block; }
 
 /* ==========================================================================
    32. Command palette — data-ld-toggle="command", ⌘K / Ctrl+K
@@ -1329,6 +1359,222 @@ code.ld-code-inline {
 @media not print {
   .ld-print-only { display: none; }
 }
+
+/* ==========================================================================
+   37h. Segmented control — data-ld-segmented (paired with ldcss.js)
+   A row of mutually exclusive options, for a value rather than a view
+   (contrast with tabs, which switch a view). Wrap items in a container
+   carrying data-ld-segmented; each option is an element carrying
+   data-ld-segment, with data-ld-active="true" marking the default —
+   the same attribute-only pattern as dropdown/accordion/tabs, no extra
+   class required. Optionally set data-ld-target="#some-input" on the
+   container to sync the active item's data-ld-value into a hidden
+   input for plain form submission.
+   ========================================================================== */
+
+[data-ld-segmented] {
+  display: inline-flex;
+  background: var(--ld-surface-raised);
+  border: var(--ld-border-width) solid var(--ld-border-soft);
+  border-radius: var(--ld-radius);
+  padding: 3px;
+  gap: 2px;
+}
+[data-ld-segment] {
+  font-family: var(--ld-font-family);
+  font-size: var(--ld-text-sm);
+  padding: var(--ld-space-1) var(--ld-space-3);
+  border: none;
+  border-radius: calc(var(--ld-radius) - 3px);
+  background: none;
+  color: var(--ld-text-muted);
+  cursor: pointer;
+  transition: background var(--ld-transition), color var(--ld-transition), box-shadow var(--ld-transition);
+}
+[data-ld-segment]:hover { color: var(--ld-text); }
+[data-ld-segment][data-ld-active='true'] {
+  background: var(--ld-surface);
+  color: var(--ld-text);
+  box-shadow: var(--ld-shadow);
+  font-weight: 700;
+}
+[data-ld-segment]:disabled,
+[data-ld-segment][data-ld-disabled='true'] { opacity: 0.45; cursor: not-allowed; }
+
+/* ==========================================================================
+   37i. Filter chips — data-ld-chip (paired with ldcss.js)
+   Visually related to .ld-tag, but interactive and for selecting rather
+   than displaying: click to toggle a filter on or off. Each option
+   just needs data-ld-chip — no separate class, same attribute-only
+   pattern as data-ld-segment. Group chips in a container carrying
+   data-ld-chips="single" for a single-select set (like radio buttons);
+   a plain list of [data-ld-chip] elements with no such wrapper behaves
+   as independent multi-select toggles.
+   ========================================================================== */
+
+[data-ld-chip] {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: var(--ld-space-1) var(--ld-space-3);
+  border: var(--ld-border-width) solid var(--ld-border-soft);
+  border-radius: 9999px;
+  background: var(--ld-surface);
+  color: var(--ld-text-muted);
+  font-family: var(--ld-font-family);
+  font-size: var(--ld-text-sm);
+  cursor: pointer;
+  transition: background var(--ld-transition), color var(--ld-transition), border-color var(--ld-transition);
+}
+[data-ld-chip]:hover { border-color: var(--ld-border); color: var(--ld-text); }
+.ld-chip-check { display: none; }
+[data-ld-chip][data-ld-active='true'] {
+  background: var(--ld-accent-fill);
+  border-color: var(--ld-accent);
+  color: var(--ld-accent-text);
+  font-weight: 700;
+}
+[data-ld-chip][data-ld-active='true'] .ld-chip-check { display: inline; }
+
+/* ==========================================================================
+   37j. Input affix — ld-input-group
+   An icon, currency symbol, or unit alongside an .ld-input, without a
+   one-off wrapper each time. Wrap the input; add data-ld-affix='right'
+   to move the icon slot to the trailing edge (e.g. units like "kg").
+   ========================================================================== */
+
+.ld-input-group { position: relative; display: flex; align-items: center; }
+.ld-input-group .ld-input { padding-left: 34px; }
+.ld-input-group[data-ld-affix='right'] .ld-input { padding-left: var(--ld-space-3); padding-right: 34px; }
+.ld-input-affix {
+  position: absolute;
+  left: var(--ld-space-3);
+  display: flex;
+  align-items: center;
+  color: var(--ld-text-muted);
+  font-size: var(--ld-text-sm);
+  pointer-events: none;
+}
+.ld-input-group[data-ld-affix='right'] .ld-input-affix { left: auto; right: var(--ld-space-3); }
+
+/* ==========================================================================
+   37k. Combobox / autocomplete — data-ld-combobox (paired with ldcss.js)
+   Filtered, keyboard-navigable search-inline, distinct from the command
+   palette (which is search-in-a-modal) and the dropdown (which doesn't
+   filter). Wrap an .ld-input and a data-ld-combobox-list of
+   data-ld-combobox-option elements; typing filters the list, arrow
+   keys move the highlight, Enter or a click selects.
+   ========================================================================== */
+
+[data-ld-combobox] { position: relative; }
+[data-ld-combobox-list] {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  right: 0;
+  background: var(--ld-surface);
+  border: var(--ld-border-width) solid var(--ld-border);
+  border-radius: var(--ld-radius);
+  box-shadow: var(--ld-shadow);
+  max-height: 240px;
+  overflow-y: auto;
+  padding: var(--ld-space-2);
+  display: none;
+  z-index: 25;
+}
+[data-ld-combobox-list].ld-show { display: block; }
+[data-ld-combobox-option] {
+  padding: var(--ld-space-2);
+  border-radius: calc(var(--ld-radius) / 2);
+  font-size: var(--ld-text-sm);
+  color: var(--ld-text);
+  cursor: pointer;
+}
+[data-ld-combobox-option][data-ld-highlighted='true'] { background: var(--ld-accent); color: var(--ld-accent-text); }
+[data-ld-combobox-option].ld-hide { display: none; }
+[data-ld-combobox-empty] {
+  padding: var(--ld-space-2) var(--ld-space-3);
+  font-size: var(--ld-text-sm);
+  color: var(--ld-text-muted);
+  display: none;
+}
+[data-ld-combobox-empty].ld-show { display: block; }
+
+/* ==========================================================================
+   37l. Empty state — ld-empty
+   The "nothing here" pattern: no results, an empty cart, a fresh
+   account with no history yet. Pure layout/type, no JS — drop it in
+   wherever a list or grid would otherwise render blank.
+   ========================================================================== */
+
+.ld-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  gap: var(--ld-space-1);
+  padding: var(--ld-space-8) var(--ld-space-5);
+  color: var(--ld-text-muted);
+}
+.ld-empty-icon {
+  font-family: var(--ld-font-mono);
+  font-size: var(--ld-text-3xl);
+  color: var(--ld-border);
+  margin-bottom: var(--ld-space-2);
+}
+.ld-empty-title { font-size: var(--ld-text-base); font-weight: 700; color: var(--ld-text); }
+.ld-empty-body { font-size: var(--ld-text-sm); max-width: 40ch; }
+.ld-empty-actions { margin-top: var(--ld-space-3); display: flex; gap: var(--ld-space-2); }
+
+/* ==========================================================================
+   37m. Timeline — ld-timeline
+   A vertical, dated sequence: order history, an activity feed, a
+   changelog. Unlike the stepper (horizontal, a fixed set of stages),
+   the timeline is open-ended and reads top-to-bottom or newest-first.
+   ========================================================================== */
+
+.ld-timeline { list-style: none; margin: 0; padding: 0; border-left: var(--ld-border-width) solid var(--ld-border-soft); }
+.ld-timeline-item { position: relative; padding: 0 0 var(--ld-space-5) var(--ld-space-5); }
+.ld-timeline-item:last-child { padding-bottom: 0; }
+.ld-timeline-item::before {
+  content: '';
+  position: absolute;
+  left: -5px;
+  top: 3px;
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: var(--ld-surface);
+  border: 2px solid var(--ld-border);
+}
+.ld-timeline-item[data-ld-variant='accent']::before { border-color: var(--ld-accent); background: var(--ld-accent); }
+.ld-timeline-item[data-ld-variant='danger']::before { border-color: var(--ld-danger); background: var(--ld-danger); }
+.ld-timeline-time { display: block; font-family: var(--ld-font-mono); font-size: var(--ld-text-xs); color: var(--ld-text-muted); margin-bottom: 2px; }
+.ld-timeline-title { font-weight: 700; font-size: var(--ld-text-sm); }
+.ld-timeline-body { font-size: var(--ld-text-sm); color: var(--ld-text-muted); margin-top: 2px; }
+
+/* ==========================================================================
+   37n. Icons — ld-icon
+   A sizing convention for inline SVGs, not an icon set. Default size
+   tracks the surrounding font-size (1em), so an icon in a button or
+   badge scales with it automatically; ld-icon-sm/lg override that for
+   standalone use. Bring your own SVGs — set stroke="currentColor" (or
+   fill, for solid icons) and no width/height so this class controls
+   sizing.
+   ========================================================================== */
+
+.ld-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1em;
+  height: 1em;
+  flex-shrink: 0;
+}
+.ld-icon svg { width: 100%; height: 100%; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.ld-icon-sm { width: var(--ld-text-sm); height: var(--ld-text-sm); }
+.ld-icon-lg { width: var(--ld-text-xl); height: var(--ld-text-xl); }
 
 /* ==========================================================================
    38–39. Utility classes & Escape hatches — moved to the end of the file
@@ -1749,10 +1995,14 @@ code.ld-code-inline {
 .ld-overflow-visible { overflow: visible; }
 
 /* ==========================================================================
-   38h. Responsive variants: ld-sm\:*, ld-md\:*
-   sm = min-width 640px, md = min-width 960px (same breakpoints .ld-grid uses)
-   Covers display + grid-cols, the two utilities layout most often needs
-   to flip at a breakpoint. Extend the same way for other prefixes if needed.
+   38h. Responsive variants: ld-sm\:*, ld-md\:*, ld-lg\:*, ld-xl\:*
+   sm = min-width 640px, md = 960px, lg = 1200px, xl = 1440px
+   (sm/md match the breakpoints .ld-grid already uses; lg/xl are new).
+   Each breakpoint covers display, grid-cols, flex-direction, text-align,
+   and gap — the utilities layout most often needs to flip at a
+   breakpoint. Extend the same way for other prefixes if needed; the
+   pattern is always .ld-{bp}\:{utility}, one prefixed copy of the base
+   utility's declaration.
    ========================================================================== */
 
 @media (min-width: 640px) {
@@ -1769,6 +2019,15 @@ code.ld-code-inline {
   .ld-sm\:grid-cols-4 { grid-template-columns: repeat(4, 1fr); }
   .ld-sm\:grid-cols-5 { grid-template-columns: repeat(5, 1fr); }
   .ld-sm\:grid-cols-6 { grid-template-columns: repeat(6, 1fr); }
+  .ld-sm\:flex-row { flex-direction: row; }
+  .ld-sm\:flex-col { flex-direction: column; }
+  .ld-sm\:text-left { text-align: left; }
+  .ld-sm\:text-center { text-align: center; }
+  .ld-sm\:text-right { text-align: right; }
+  .ld-sm\:gap-0 { gap: 0; }
+  .ld-sm\:gap-2 { gap: var(--ld-space-2); }
+  .ld-sm\:gap-4 { gap: var(--ld-space-4); }
+  .ld-sm\:gap-6 { gap: var(--ld-space-6); }
 }
 
 @media (min-width: 960px) {
@@ -1785,6 +2044,65 @@ code.ld-code-inline {
   .ld-md\:grid-cols-4 { grid-template-columns: repeat(4, 1fr); }
   .ld-md\:grid-cols-5 { grid-template-columns: repeat(5, 1fr); }
   .ld-md\:grid-cols-6 { grid-template-columns: repeat(6, 1fr); }
+  .ld-md\:flex-row { flex-direction: row; }
+  .ld-md\:flex-col { flex-direction: column; }
+  .ld-md\:text-left { text-align: left; }
+  .ld-md\:text-center { text-align: center; }
+  .ld-md\:text-right { text-align: right; }
+  .ld-md\:gap-0 { gap: 0; }
+  .ld-md\:gap-2 { gap: var(--ld-space-2); }
+  .ld-md\:gap-4 { gap: var(--ld-space-4); }
+  .ld-md\:gap-6 { gap: var(--ld-space-6); }
+}
+
+@media (min-width: 1200px) {
+  .ld-lg\:d-block { display: block; }
+  .ld-lg\:d-inline { display: inline; }
+  .ld-lg\:d-inline-block { display: inline-block; }
+  .ld-lg\:d-flex { display: flex; }
+  .ld-lg\:d-inline-flex { display: inline-flex; }
+  .ld-lg\:d-grid { display: grid; }
+  .ld-lg\:d-none { display: none; }
+  .ld-lg\:grid-cols-1 { grid-template-columns: repeat(1, 1fr); }
+  .ld-lg\:grid-cols-2 { grid-template-columns: repeat(2, 1fr); }
+  .ld-lg\:grid-cols-3 { grid-template-columns: repeat(3, 1fr); }
+  .ld-lg\:grid-cols-4 { grid-template-columns: repeat(4, 1fr); }
+  .ld-lg\:grid-cols-5 { grid-template-columns: repeat(5, 1fr); }
+  .ld-lg\:grid-cols-6 { grid-template-columns: repeat(6, 1fr); }
+  .ld-lg\:flex-row { flex-direction: row; }
+  .ld-lg\:flex-col { flex-direction: column; }
+  .ld-lg\:text-left { text-align: left; }
+  .ld-lg\:text-center { text-align: center; }
+  .ld-lg\:text-right { text-align: right; }
+  .ld-lg\:gap-0 { gap: 0; }
+  .ld-lg\:gap-2 { gap: var(--ld-space-2); }
+  .ld-lg\:gap-4 { gap: var(--ld-space-4); }
+  .ld-lg\:gap-6 { gap: var(--ld-space-6); }
+}
+
+@media (min-width: 1440px) {
+  .ld-xl\:d-block { display: block; }
+  .ld-xl\:d-inline { display: inline; }
+  .ld-xl\:d-inline-block { display: inline-block; }
+  .ld-xl\:d-flex { display: flex; }
+  .ld-xl\:d-inline-flex { display: inline-flex; }
+  .ld-xl\:d-grid { display: grid; }
+  .ld-xl\:d-none { display: none; }
+  .ld-xl\:grid-cols-1 { grid-template-columns: repeat(1, 1fr); }
+  .ld-xl\:grid-cols-2 { grid-template-columns: repeat(2, 1fr); }
+  .ld-xl\:grid-cols-3 { grid-template-columns: repeat(3, 1fr); }
+  .ld-xl\:grid-cols-4 { grid-template-columns: repeat(4, 1fr); }
+  .ld-xl\:grid-cols-5 { grid-template-columns: repeat(5, 1fr); }
+  .ld-xl\:grid-cols-6 { grid-template-columns: repeat(6, 1fr); }
+  .ld-xl\:flex-row { flex-direction: row; }
+  .ld-xl\:flex-col { flex-direction: column; }
+  .ld-xl\:text-left { text-align: left; }
+  .ld-xl\:text-center { text-align: center; }
+  .ld-xl\:text-right { text-align: right; }
+  .ld-xl\:gap-0 { gap: 0; }
+  .ld-xl\:gap-2 { gap: var(--ld-space-2); }
+  .ld-xl\:gap-4 { gap: var(--ld-space-4); }
+  .ld-xl\:gap-6 { gap: var(--ld-space-6); }
 }
 
 /* ==========================================================================
@@ -1908,6 +2226,17 @@ code.ld-code-inline {
 .ld-accent-orange { --ld-accent: #FF9A4C; --ld-accent-text: #331500; }
 .ld-accent-yellow { --ld-accent: #F2D93B; --ld-accent-text: #2E2600; }
 .ld-accent-red    { --ld-accent: #FF6B6B; --ld-accent-text: #330000; }
+
+/* Need a brand color that isn't one of the seven presets above? There's
+   no separate mechanism for this — --ld-accent and --ld-accent-text are
+   plain custom properties, so set them directly wherever you'd apply
+   one of the .ld-accent-* classes:
+     <div style="--ld-accent:#2F6F4E; --ld-accent-text:#EAF6EF;">
+   Everything that reads var(--ld-accent) — buttons, badges, focus
+   states inside data-ld-shadow="hard" subtrees, etc. — picks it up the
+   same way it would pick up a preset, scoped to that element and its
+   descendants. Pick --ld-accent-text for contrast against --ld-accent,
+   not against the page background. */
 
 /* -- Surface registers -------------------------------------------------
    Alternatives to the default bordered/shadowed surface. */

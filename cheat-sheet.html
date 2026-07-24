@@ -42,7 +42,7 @@
         <tr><td><code class="ld-code-inline">data-ld-theme</code></td><td>light · dark</td><td>On &lt;html&gt; or any container</td></tr>
         <tr><td><code class="ld-code-inline">data-ld-unstyled</code></td><td>—</td><td>Resets radius/shadow/border-weight/accent-fill to neutral on a container, so your own stylesheet (loaded after ldcss.css) can restyle cleanly without fighting specificity — layout, spacing, and behavior are unaffected</td></tr>
         <tr><td><code class="ld-code-inline">data-ld-notheme</code></td><td>—</td><td>Freezes subtree at light appearance</td></tr>
-        <tr><td><code class="ld-code-inline">data-ld-toggle="theme"</code></td><td>—</td><td>Click to flip theme, persists via localStorage</td></tr>
+        <tr><td><code class="ld-code-inline">data-ld-toggle="theme"</code></td><td>—</td><td>Click to flip theme, persists via localStorage; on a first visit with nothing saved yet, falls back to the OS/browser's <code class="ld-code-inline">prefers-color-scheme</code></td></tr>
       </tbody>
     </table>
   </section>
@@ -158,8 +158,11 @@
     <table class="ld-table" data-ld-striped="true">
       <thead><tr><th>Class</th><th>Breakpoint</th><th>Notes</th></tr></thead>
       <tbody>
-        <tr><td><code class="ld-code-inline">ld-sm:d-*</code>, <code class="ld-code-inline">ld-sm:grid-cols-*</code></td><td>min-width: 640px</td><td>Same <code class="ld-code-inline">sm</code> breakpoint <code class="ld-code-inline">.ld-grid</code> already uses</td></tr>
-        <tr><td><code class="ld-code-inline">ld-md:d-*</code>, <code class="ld-code-inline">ld-md:grid-cols-*</code></td><td>min-width: 960px</td><td>Only display + grid-cols have responsive variants so far</td></tr>
+        <tr><td><code class="ld-code-inline">ld-sm:*</code></td><td>min-width: 640px</td><td>Same <code class="ld-code-inline">sm</code> breakpoint <code class="ld-code-inline">.ld-grid</code> already uses</td></tr>
+        <tr><td><code class="ld-code-inline">ld-md:*</code></td><td>min-width: 960px</td><td>Same <code class="ld-code-inline">md</code> breakpoint <code class="ld-code-inline">.ld-grid</code> already uses</td></tr>
+        <tr><td><code class="ld-code-inline">ld-lg:*</code></td><td>min-width: 1200px</td><td>New in v1.1.0</td></tr>
+        <tr><td><code class="ld-code-inline">ld-xl:*</code></td><td>min-width: 1440px</td><td>New in v1.1.0</td></tr>
+        <tr><td colspan="3">Each of the four prefixes above covers: <code class="ld-code-inline">d-*</code> (display), <code class="ld-code-inline">grid-cols-*</code> (1–6), <code class="ld-code-inline">flex-row</code>/<code class="ld-code-inline">flex-col</code>, <code class="ld-code-inline">text-left</code>/<code class="ld-code-inline">center</code>/<code class="ld-code-inline">right</code>, and <code class="ld-code-inline">gap-0</code>/<code class="ld-code-inline">2</code>/<code class="ld-code-inline">4</code>/<code class="ld-code-inline">6</code> — e.g. <code class="ld-code-inline">ld-md:flex-row</code>, <code class="ld-code-inline">ld-lg:text-center</code>.</td></tr>
       </tbody>
     </table>
   </section>
@@ -250,6 +253,7 @@
       <tbody>
         <tr><td><code class="ld-code-inline">ld-alert</code></td><td><code class="ld-code-inline">data-ld-variant</code></td><td>info · success · warning · danger</td></tr>
         <tr><td><code class="ld-code-inline">data-ld-toggle="toast"</code></td><td><code class="ld-code-inline">data-ld-toast-message/-variant/-duration</code></td><td>variant: success · danger</td></tr>
+        <tr><td>—</td><td><code class="ld-code-inline">data-ld-toast-position</code> (on &lt;body&gt;)</td><td>top-left · top-center · top-right (default) · bottom-left · bottom-center · bottom-right — read once, at container-creation time</td></tr>
         <tr><td><code class="ld-code-inline">ld-progress-bar</code></td><td><code class="ld-code-inline">data-ld-progress</code>, <code class="ld-code-inline">data-ld-value</code></td><td>0–100</td></tr>
         <tr><td><code class="ld-code-inline">ld-skeleton</code></td><td><code class="ld-code-inline">data-ld-shape</code></td><td>circle · text</td></tr>
         <tr><td><code class="ld-code-inline">ld-spinner</code></td><td><code class="ld-code-inline">data-ld-variant</code></td><td>dots</td></tr>
@@ -266,7 +270,7 @@
         <tr><td><code class="ld-code-inline">ld-list</code>, <code class="ld-code-inline">ld-list-item</code></td><td><code class="ld-code-inline">data-ld-interactive</code>, <code class="ld-code-inline">data-ld-active</code></td><td>true</td></tr>
         <tr><td><code class="ld-code-inline">ld-pagination</code></td><td><code class="ld-code-inline">data-ld-paginate</code>, <code class="ld-code-inline">data-ld-page-size</code></td><td>Auto-builds page buttons from a target's row/item count; or write <code class="ld-code-inline">data-ld-active</code>/<code class="ld-code-inline">data-ld-page="prev/next"</code> manually</td></tr>
         <tr><td><code class="ld-code-inline">ld-breadcrumbs</code></td><td><code class="ld-code-inline">data-ld-active</code></td><td>true, on &lt;li&gt;</td></tr>
-        <tr><td><code class="ld-code-inline">ld-stepper</code>, <code class="ld-code-inline">ld-step</code></td><td><code class="ld-code-inline">data-ld-active</code>, <code class="ld-code-inline">data-ld-complete</code></td><td>true</td></tr>
+        <tr><td><code class="ld-code-inline">ld-stepper</code>, <code class="ld-code-inline">ld-step</code></td><td><code class="ld-code-inline">data-ld-active</code>, <code class="ld-code-inline">data-ld-complete</code></td><td>true — static by default; add <code class="ld-code-inline">data-ld-stepper</code> for JS wiring (see below)</td></tr>
         <tr><td><code class="ld-code-inline">ld-avatar</code></td><td><code class="ld-code-inline">data-ld-size</code>, <code class="ld-code-inline">data-ld-variant</code></td><td>size: sm·lg; variant: accent</td></tr>
       </tbody>
     </table>
@@ -288,6 +292,23 @@
     </table>
   </section>
 
+  <section id="ref-v11">
+    <h2>Segmented, chips, input affix, combobox, empty state, timeline, icons</h2>
+    <table class="ld-table" data-ld-striped="true">
+      <thead><tr><th>Class / attribute</th><th>Notes</th></tr></thead>
+      <tbody>
+        <tr><td><code class="ld-code-inline">data-ld-segmented</code>, <code class="ld-code-inline">data-ld-segment</code></td><td>Container + option, attribute-only (no class needed). <code class="ld-code-inline">data-ld-active="true"</code> marks the current option; optional <code class="ld-code-inline">data-ld-target="#input"</code> on the container syncs the value into a hidden input</td></tr>
+        <tr><td><code class="ld-code-inline">data-ld-chip</code></td><td>Interactive filter chip (contrast with the display-only <code class="ld-code-inline">ld-tag</code>). Wrap in a container with <code class="ld-code-inline">data-ld-chips="single"</code> for radio-style selection; omit the wrapper for independent multi-select toggles</td></tr>
+        <tr><td><code class="ld-code-inline">ld-input-group</code>, <code class="ld-code-inline">ld-input-affix</code></td><td>Icon/unit alongside an <code class="ld-code-inline">ld-input</code>; add <code class="ld-code-inline">data-ld-affix="right"</code> on the group to move it to the trailing edge</td></tr>
+        <tr><td><code class="ld-code-inline">data-ld-combobox</code></td><td>Wraps an input + <code class="ld-code-inline">data-ld-combobox-list</code> of <code class="ld-code-inline">data-ld-combobox-option</code> items. Typing filters, ↑/↓ highlights, Enter/click selects, Escape closes. Add a <code class="ld-code-inline">data-ld-combobox-empty</code> element for the no-matches state</td></tr>
+        <tr><td><code class="ld-code-inline">ld-empty</code>, <code class="ld-code-inline">ld-empty-icon/-title/-body/-actions</code></td><td>The "no results" pattern — pure layout/type, no JS</td></tr>
+        <tr><td><code class="ld-code-inline">ld-timeline</code>, <code class="ld-code-inline">ld-timeline-item</code></td><td><code class="ld-code-inline">data-ld-variant</code>: accent · danger. Vertical, open-ended (contrast with the fixed-stage <code class="ld-code-inline">ld-stepper</code>); subparts <code class="ld-code-inline">ld-timeline-time/-title/-body</code></td></tr>
+        <tr><td><code class="ld-code-inline">ld-icon</code>, <code class="ld-code-inline">ld-icon-sm</code>, <code class="ld-code-inline">ld-icon-lg</code></td><td>Sizing convention for inline SVGs (1em by default, tracks surrounding font-size) — not an icon set; bring your own SVG with <code class="ld-code-inline">stroke="currentColor"</code></td></tr>
+        <tr><td><code class="ld-code-inline">data-ld-stepper</code>, <code class="ld-code-inline">data-ld-clickable</code>, <code class="ld-code-inline">data-ld-step-panels</code></td><td>Makes an existing <code class="ld-code-inline">ld-stepper</code> interactive — see the Table/list/pagination/stepper row above for the static attributes. Pair with <code class="ld-code-inline">data-ld-toggle="step-next"</code>/<code class="ld-code-inline">"step-prev"</code> buttons</td></tr>
+      </tbody>
+    </table>
+  </section>
+
   <section id="ref-escape">
     <h2>Escape hatches</h2>
     <table class="ld-table" data-ld-striped="true">
@@ -298,7 +319,7 @@
         <tr><td><code class="ld-code-inline">ld-shadow-soft*</code></td><td>-sm·(default)·-lg·-none</td><td>Per-element blurred shadow depth tier, independent of the <code class="ld-code-inline">--ld-shadow</code> token</td></tr>
         <tr><td><code class="ld-code-inline">ld-font-sans</code>, <code class="ld-code-inline">ld-font-serif</code>, <code class="ld-code-inline">ld-font-mono</code></td><td>—</td><td>Switch subtree type family (sans is default)</td></tr>
         <tr><td><code class="ld-code-inline">ld-scale-{compact,cozy,spacious}</code></td><td>—</td><td>Override spacing tokens for a subtree</td></tr>
-        <tr><td><code class="ld-code-inline">ld-accent-{color}</code></td><td>mint·blue·purple·pink·orange·yellow·red</td><td>Swap brand color for a subtree</td></tr>
+        <tr><td><code class="ld-code-inline">ld-accent-{color}</code></td><td>mint·blue·purple·pink·orange·yellow·red</td><td>Swap brand color for a subtree; for a color outside this list, set <code class="ld-code-inline">--ld-accent</code>/<code class="ld-code-inline">--ld-accent-text</code> inline instead — same mechanism, no preset needed</td></tr>
         <tr><td><code class="ld-code-inline">ld-glass</code>, <code class="ld-code-inline">ld-flat</code></td><td>—</td><td>Alternative surface registers</td></tr>
       </tbody>
     </table>
