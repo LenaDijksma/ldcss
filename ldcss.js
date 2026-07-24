@@ -3,13 +3,29 @@
  * Zero-dependency behavior for data-ld-* interactive components.
  * Components: theme toggle, dropdown, popover, tabs, accordion, modal,
  * offcanvas, command palette, toast, copy-to-clipboard, dropzone, rating,
- * tag input, progress bars, entrance animations.
+ * tag input, progress bars, entrance animations, segmented control,
+ * filter chips, stepper, combobox, scrollspy, carousel, navbar collapse.
+ *
+ * Events: modal/offcanvas/command/dropdown/popover/accordion/tab/carousel
+ * dispatch CustomEvents on the element itself — ld:{component}:show and
+ * ld:{component}:hide — bubbling, so a single listener higher up the
+ * DOM can react to any instance:
+ *   document.addEventListener('ld:modal:show', function (e) {
+ *     console.log('opened', e.target, e.detail.trigger);
+ *   });
+ * detail.trigger is the element that caused the change (the clicked
+ * button, or null for programmatic calls) where applicable.
  */
 (function () {
   'use strict';
 
   var STORAGE_KEY = 'ld-theme';
   var lastFocusedEl = null;
+
+  function emit(el, name, detail) {
+    if (!el) return;
+    el.dispatchEvent(new CustomEvent(name, { bubbles: true, detail: detail || {} }));
+  }
 
   /* ---------------------------------------------------------------------
      Theme
@@ -41,8 +57,15 @@
 
   function closeAllFloating(panelAttr, except) {
     document.querySelectorAll('[' + panelAttr + '].ld-show').forEach(function (el) {
-      if (el !== except) el.classList.remove('ld-show');
+      if (el !== except) {
+        el.classList.remove('ld-show');
+        emit(el, floatingEventName(panelAttr, 'hide'), {});
+      }
     });
+  }
+
+  function floatingEventName(panelAttr, phase) {
+    return panelAttr === 'data-ld-dropdown-menu' ? 'ld:dropdown:' + phase : 'ld:popover:' + phase;
   }
 
   function toggleFloating(trigger, panelAttr, toggleKind) {
@@ -57,6 +80,7 @@
     if (!isOpen) {
       panel.classList.add('ld-show');
       trigger.setAttribute('aria-expanded', 'true');
+      emit(panel, floatingEventName(panelAttr, 'show'), { trigger: trigger });
     }
   }
 
@@ -91,6 +115,7 @@
     }
     panel.classList.add('ld-show');
     panel.setAttribute('aria-hidden', 'false');
+    emit(panel, 'ld:tab:show', { trigger: trigger });
   }
 
   /* ---------------------------------------------------------------------
@@ -120,6 +145,7 @@
     panel.setAttribute('aria-hidden', String(isOpen));
     trigger.setAttribute('data-ld-active', String(!isOpen));
     trigger.setAttribute('aria-expanded', String(!isOpen));
+    emit(panel, isOpen ? 'ld:accordion:hide' : 'ld:accordion:show', { trigger: trigger });
   }
 
   /* ---------------------------------------------------------------------
@@ -314,11 +340,13 @@
     backdrop.classList.add('ld-show');
     var focusable = backdrop.querySelector('[data-ld-autofocus]') || backdrop.querySelector('button, input, a');
     if (focusable) focusable.focus();
+    emit(backdrop, 'ld:modal:show', { trigger: trigger || null });
   }
 
   function closeModal(backdrop) {
     backdrop.classList.remove('ld-show');
     returnFocus();
+    emit(backdrop, 'ld:modal:hide', {});
   }
 
   function closeAllModals() {
@@ -341,11 +369,13 @@
     backdrop.classList.add('ld-show');
     var focusable = backdrop.querySelector('[data-ld-autofocus]') || backdrop.querySelector('button, input, a');
     if (focusable) focusable.focus();
+    emit(backdrop, 'ld:offcanvas:show', { trigger: trigger || null });
   }
 
   function closeOffcanvas(backdrop) {
     backdrop.classList.remove('ld-show');
     returnFocus();
+    emit(backdrop, 'ld:offcanvas:hide', {});
   }
 
   function closeAllOffcanvas() {
@@ -392,11 +422,13 @@
       filterCommandList(backdrop, '');
       input.focus();
     }
+    emit(backdrop, 'ld:command:show', { trigger: trigger || null });
   }
 
   function closeCommand(backdrop) {
     backdrop.classList.remove('ld-show');
     returnFocus();
+    emit(backdrop, 'ld:command:hide', {});
   }
 
   function closeAllCommands() {
@@ -861,6 +893,152 @@
   }
 
   /* ---------------------------------------------------------------------
+     Roving tabindex — tabs and segmented control
+     Only the active item in each group is a tab stop; Tab key jumps
+     straight to the panel content, arrow keys move between options
+     within the group (the same pattern browsers use for native radio
+     buttons, and what the ARIA tabs/toolbar authoring practice expects).
+     ------------------------------------------------------------------- */
+
+  function initRovingTabindex(root) {
+    (root || document).querySelectorAll('[data-ld-tabs]').forEach(function (group) {
+      var triggers = Array.prototype.slice.call(group.querySelectorAll('[data-ld-toggle="tab"]'));
+      triggers.forEach(function (t) {
+        t.setAttribute('tabindex', t.getAttribute('data-ld-active') === 'true' ? '0' : '-1');
+      });
+    });
+    (root || document).querySelectorAll('[data-ld-segmented]').forEach(function (group) {
+      var items = Array.prototype.slice.call(group.querySelectorAll('[data-ld-segment]'));
+      items.forEach(function (i) {
+        i.setAttribute('tabindex', i.getAttribute('data-ld-active') === 'true' ? '0' : '-1');
+      });
+    });
+  }
+
+  function handleRovingKeydown(e) {
+    var isTab = e.target.matches && e.target.matches('[data-ld-toggle="tab"]');
+    var isSegment = e.target.matches && e.target.matches('[data-ld-segment]');
+    if (!isTab && !isSegment) return;
+    if (['ArrowLeft', 'ArrowRight', 'Home', 'End'].indexOf(e.key) === -1) return;
+
+    var group = isTab ? e.target.closest('[data-ld-tabs]') : e.target.closest('[data-ld-segmented]');
+    if (!group) return;
+    var selector = isTab ? '[data-ld-toggle="tab"]' : '[data-ld-segment]';
+    var items = Array.prototype.slice.call(group.querySelectorAll(selector));
+    var currentIndex = items.indexOf(e.target);
+    if (currentIndex === -1) return;
+
+    var nextIndex = currentIndex;
+    if (e.key === 'ArrowLeft') nextIndex = (currentIndex - 1 + items.length) % items.length;
+    else if (e.key === 'ArrowRight') nextIndex = (currentIndex + 1) % items.length;
+    else if (e.key === 'Home') nextIndex = 0;
+    else if (e.key === 'End') nextIndex = items.length - 1;
+
+    e.preventDefault();
+    items.forEach(function (item) { item.setAttribute('tabindex', '-1'); });
+    items[nextIndex].setAttribute('tabindex', '0');
+    items[nextIndex].focus();
+    if (isTab) handleTabToggle(items[nextIndex]);
+    else handleSegmentToggle(items[nextIndex]);
+  }
+
+  /* ---------------------------------------------------------------------
+     Scrollspy — data-ld-scrollspy on a container of <a href="#section">
+     links; the matching section that's most in view gets
+     data-ld-active="true" (the same attribute .ld-nav-link already
+     styles), cleared from the rest.
+     ------------------------------------------------------------------- */
+
+  function initScrollspy(root) {
+    (root || document).querySelectorAll('[data-ld-scrollspy]').forEach(function (nav) {
+      var links = Array.prototype.slice.call(nav.querySelectorAll('a[href^="#"]'));
+      var sections = links
+        .map(function (link) { return document.querySelector(link.getAttribute('href')); })
+        .filter(Boolean);
+      if (!sections.length) return;
+
+      var observer = new IntersectionObserver(function (entries) {
+        entries.forEach(function (entry) {
+          if (!entry.isIntersecting) return;
+          var id = '#' + entry.target.id;
+          links.forEach(function (link) {
+            link.setAttribute('data-ld-active', link.getAttribute('href') === id ? 'true' : 'false');
+          });
+        });
+      }, { rootMargin: '-40% 0px -55% 0px', threshold: 0 });
+
+      sections.forEach(function (section) { observer.observe(section); });
+    });
+  }
+
+  /* ---------------------------------------------------------------------
+     Carousel
+     ------------------------------------------------------------------- */
+
+  var carouselTimers = new WeakMap();
+
+  function getCarouselParts(carousel) {
+    var track = carousel.querySelector('[data-ld-carousel-track]');
+    var slides = track ? Array.prototype.slice.call(track.querySelectorAll('[data-ld-carousel-slide]')) : [];
+    var dots = Array.prototype.slice.call(carousel.querySelectorAll('[data-ld-carousel-dot]'));
+    return { track: track, slides: slides, dots: dots };
+  }
+
+  function goToSlide(carousel, index) {
+    var parts = getCarouselParts(carousel);
+    if (!parts.track || !parts.slides.length) return;
+    var next = ((index % parts.slides.length) + parts.slides.length) % parts.slides.length;
+    parts.track.style.transform = 'translateX(-' + (next * 100) + '%)';
+    parts.dots.forEach(function (dot, i) { dot.setAttribute('data-ld-active', i === next ? 'true' : 'false'); });
+    carousel.setAttribute('data-ld-current', String(next));
+    emit(carousel, 'ld:carousel:show', { index: next });
+  }
+
+  function currentSlideIndex(carousel) {
+    var v = parseInt(carousel.getAttribute('data-ld-current'), 10);
+    return isNaN(v) ? 0 : v;
+  }
+
+  function startCarouselAutoplay(carousel) {
+    var interval = parseInt(carousel.getAttribute('data-ld-interval'), 10) || 5000;
+    stopCarouselAutoplay(carousel);
+    var timer = setInterval(function () {
+      goToSlide(carousel, currentSlideIndex(carousel) + 1);
+    }, interval);
+    carouselTimers.set(carousel, timer);
+  }
+
+  function stopCarouselAutoplay(carousel) {
+    var timer = carouselTimers.get(carousel);
+    if (timer) clearInterval(timer);
+  }
+
+  function initCarousels(root) {
+    (root || document).querySelectorAll('[data-ld-carousel]').forEach(function (carousel) {
+      goToSlide(carousel, 0);
+      if (carousel.getAttribute('data-ld-autoplay') === 'true') {
+        startCarouselAutoplay(carousel);
+        carousel.addEventListener('mouseenter', function () { stopCarouselAutoplay(carousel); });
+        carousel.addEventListener('mouseleave', function () { startCarouselAutoplay(carousel); });
+      }
+    });
+  }
+
+  /* ---------------------------------------------------------------------
+     Navbar collapse
+     ------------------------------------------------------------------- */
+
+  function toggleNavbarCollapse(trigger) {
+    var targetSel = trigger.getAttribute('data-ld-target');
+    var panel = targetSel ? document.querySelector(targetSel) : null;
+    if (!panel) return;
+    var isShown = panel.getAttribute('data-ld-show') === 'true';
+    panel.setAttribute('data-ld-show', String(!isShown));
+    trigger.setAttribute('aria-expanded', String(!isShown));
+    emit(panel, isShown ? 'ld:navbar:hide' : 'ld:navbar:show', { trigger: trigger });
+  }
+
+  /* ---------------------------------------------------------------------
      Delegated event wiring
      ------------------------------------------------------------------- */
 
@@ -886,6 +1064,16 @@
     var comboboxOptionEl = e.target.closest('[data-ld-combobox-option]');
     if (comboboxOptionEl) {
       selectComboboxOption(comboboxOptionEl);
+      return;
+    }
+
+    var dotEl = e.target.closest('[data-ld-carousel-dot]');
+    if (dotEl) {
+      var dotCarousel = dotEl.closest('[data-ld-carousel]');
+      if (dotCarousel) {
+        var dots = Array.prototype.slice.call(dotCarousel.querySelectorAll('[data-ld-carousel-dot]'));
+        goToSlide(dotCarousel, dots.indexOf(dotEl));
+      }
       return;
     }
     var toggleEl = e.target.closest('[data-ld-toggle]');
@@ -932,6 +1120,16 @@
         e.preventDefault();
         var comboboxEl = toggleEl.closest('[data-ld-combobox]');
         if (comboboxEl) { openCombobox(comboboxEl); filterCombobox(comboboxEl, ''); }
+      } else if (kind === 'carousel-prev' || kind === 'carousel-next') {
+        e.preventDefault();
+        var carouselEl = toggleEl.closest('[data-ld-carousel]');
+        if (carouselEl) {
+          var carouselDelta = kind === 'carousel-next' ? 1 : -1;
+          goToSlide(carouselEl, currentSlideIndex(carouselEl) + carouselDelta);
+        }
+      } else if (kind === 'navbar-collapse') {
+        e.preventDefault();
+        toggleNavbarCollapse(toggleEl);
       }
       return;
     }
@@ -1041,6 +1239,7 @@
     handleCommandKeydown(e);
     handleTagsKeydown(e);
     handleComboboxKeydown(e);
+    handleRovingKeydown(e);
     trapTab(e);
   });
 
@@ -1080,6 +1279,9 @@
   initPagination();
   initAnimations();
   initSteppers();
+  initRovingTabindex();
+  initScrollspy();
+  initCarousels();
 
   /* ---------------------------------------------------------------------
      Public re-init API — for content added after DOMContentLoaded
@@ -1095,6 +1297,9 @@
     initPagination(root);
     initAnimations(root);
     initSteppers(root);
+    initRovingTabindex(root);
+    initScrollspy(root);
+    initCarousels(root);
   };
 
   initTheme();

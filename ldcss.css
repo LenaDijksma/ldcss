@@ -53,6 +53,7 @@
   --ld-space-2: 8px;
   --ld-space-3: 12px;
   --ld-space-4: 16px;
+  --ld-gutter: var(--ld-space-4); /* .ld-grid-row column gutter — override to widen/narrow the 12-col grid independently of spacing utilities */
   --ld-space-5: 24px;
   --ld-space-6: 32px;
   --ld-space-8: 48px;
@@ -226,10 +227,14 @@ code.ld-code-inline {
 
 .ld-container {
   width: 100%;
-  max-width: 1100px;
+  max-width: 100%;
   margin: 0 auto;
   padding: 0 var(--ld-space-5);
 }
+@media (min-width: 640px)  { .ld-container { max-width: 600px; } }
+@media (min-width: 960px)  { .ld-container { max-width: 900px; } }
+@media (min-width: 1200px) { .ld-container { max-width: 1100px; } }
+@media (min-width: 1440px) { .ld-container { max-width: 1320px; } }
 
 .ld-grid {
   display: grid;
@@ -461,6 +466,48 @@ code.ld-code-inline {
   border-color: var(--ld-accent);
 }
 
+/* -- Native validation, opt-in ------------------------------------------
+   data-ld-error/-success above are manual (you decide when a field is
+   wrong, e.g. after an async check). For plain HTML5 constraints
+   (required, pattern, type="email", …), wrap the form in .ld-validate
+   to get the same red/green treatment automatically via :user-invalid
+   and :user-valid — which only fire after the person has interacted
+   with the field, not on an empty required field's first paint. */
+.ld-validate .ld-input:user-invalid,
+.ld-validate .ld-textarea:user-invalid { border-color: var(--ld-danger); }
+.ld-validate .ld-input:user-invalid:focus,
+.ld-validate .ld-textarea:user-invalid:focus { box-shadow: 0 0 0 3px color-mix(in srgb, var(--ld-danger) 30%, transparent); }
+.ld-validate .ld-input:user-valid,
+.ld-validate .ld-textarea:user-valid { border-color: var(--ld-accent); }
+
+/* -- Floating labels ------------------------------------------------------
+   The label sits inside the field until it has a value or focus, then
+   rises above it. Needs a real placeholder=" " (a single space) on the
+   input for :placeholder-shown to have something to match. */
+.ld-form-floating { position: relative; }
+.ld-form-floating > .ld-input,
+.ld-form-floating > .ld-textarea { padding-top: 22px; padding-bottom: 6px; }
+.ld-form-floating > label {
+  position: absolute;
+  top: 50%;
+  left: var(--ld-space-3);
+  transform: translateY(-50%);
+  font-size: var(--ld-text-sm);
+  color: var(--ld-text-muted);
+  pointer-events: none;
+  transition: transform var(--ld-transition), font-size var(--ld-transition), top var(--ld-transition), color var(--ld-transition);
+}
+.ld-form-floating > .ld-input:focus ~ label,
+.ld-form-floating > .ld-input:not(:placeholder-shown) ~ label,
+.ld-form-floating > .ld-textarea:focus ~ label,
+.ld-form-floating > .ld-textarea:not(:placeholder-shown) ~ label {
+  top: 10px;
+  transform: none;
+  font-size: var(--ld-text-xs);
+  color: var(--ld-text-muted);
+}
+.ld-form-floating > .ld-input:focus ~ label { color: var(--ld-accent); }
+
 .ld-form-hint { font-size: var(--ld-text-xs); color: var(--ld-text-muted); margin-top: var(--ld-space-1); }
 .ld-form-error { font-size: var(--ld-text-xs); color: var(--ld-danger); margin-top: var(--ld-space-1); }
 .ld-form-success { font-size: var(--ld-text-xs); color: var(--ld-accent); margin-top: var(--ld-space-1); }
@@ -476,7 +523,7 @@ code.ld-code-inline {
 [data-ld-dropdown-menu] {
   position: absolute;
   top: calc(100% + var(--ld-space-2));
-  left: 0;
+  inset-inline-start: 0;
   min-width: 180px;
   background: var(--ld-surface);
   border: var(--ld-border-width) solid var(--ld-border);
@@ -554,7 +601,7 @@ code.ld-code-inline {
   padding: var(--ld-space-3) var(--ld-space-4);
   background: var(--ld-surface);
   border: var(--ld-border-width) solid var(--ld-border-soft);
-  border-left: var(--ld-border-width) solid var(--ld-text-muted);
+  border-inline-start: var(--ld-border-width) solid var(--ld-text-muted);
   border-radius: var(--ld-radius);
   font-size: var(--ld-text-sm);
 }
@@ -661,8 +708,8 @@ code.ld-code-inline {
 [data-ld-tooltip]:focus-visible::after { opacity: 1; }
 
 [data-ld-tooltip][data-ld-tooltip-pos='bottom']::after { bottom: auto; top: calc(100% + 8px); }
-[data-ld-tooltip][data-ld-tooltip-pos='left']::after { bottom: auto; left: auto; top: 50%; right: calc(100% + 8px); transform: translateY(-50%); }
-[data-ld-tooltip][data-ld-tooltip-pos='right']::after { bottom: auto; left: auto; top: 50%; right: auto; left: calc(100% + 8px); transform: translateY(-50%); }
+[data-ld-tooltip][data-ld-tooltip-pos='left']::after { bottom: auto; inset-inline-end: calc(100% + 8px); inset-inline-start: auto; top: 50%; transform: translateY(-50%); }
+[data-ld-tooltip][data-ld-tooltip-pos='right']::after { bottom: auto; inset-inline-start: calc(100% + 8px); inset-inline-end: auto; top: 50%; transform: translateY(-50%); }
 
 /* ==========================================================================
    15. Progress — ld-progress
@@ -733,7 +780,7 @@ code.ld-code-inline {
 .ld-terminal-dot:nth-child(1) { background: var(--ld-danger); }
 .ld-terminal-dot:nth-child(2) { background: #C98A1F; }
 .ld-terminal-dot:nth-child(3) { background: var(--ld-accent); }
-.ld-terminal-title { font-size: var(--ld-text-xs); color: var(--ld-text-muted); margin-left: var(--ld-space-2); }
+.ld-terminal-title { font-size: var(--ld-text-xs); color: var(--ld-text-muted); margin-inline-start: var(--ld-space-2); }
 .ld-terminal-body {
   padding: var(--ld-space-4);
   color: var(--ld-code-text);
@@ -964,7 +1011,7 @@ code.ld-code-inline {
 [data-ld-popover-content] {
   position: absolute;
   top: calc(100% + 8px);
-  left: 0;
+  inset-inline-start: 0;
   min-width: 220px;
   background: var(--ld-surface);
   border: var(--ld-border-width) solid var(--ld-border);
@@ -992,6 +1039,16 @@ code.ld-code-inline {
 @keyframes ld-skeleton { 0% { background-position: 100% 50%; } 100% { background-position: 0 50%; } }
 .ld-skeleton[data-ld-shape='circle'] { border-radius: 50%; }
 .ld-skeleton[data-ld-shape='text'] { height: 12px; }
+.ld-skeleton[data-ld-shape='button'] { height: 38px; border-radius: var(--ld-radius); width: 96px; display: inline-block; }
+.ld-skeleton[data-ld-shape='avatar'] { height: 36px; width: 36px; border-radius: 50%; }
+.ld-skeleton-w-25  { width: 25%; }
+.ld-skeleton-w-50  { width: 50%; }
+.ld-skeleton-w-75  { width: 75%; }
+.ld-skeleton-w-100 { width: 100%; }
+/* A few uneven widths on consecutive lines reads as "text," not as a
+   row of identical gray bars — pair data-ld-shape="text" with these. */
+.ld-skeleton-paragraph > .ld-skeleton { margin-bottom: var(--ld-space-2); }
+.ld-skeleton-paragraph > .ld-skeleton:last-child { width: 60%; margin-bottom: 0; }
 
 /* ==========================================================================
    30. Offcanvas — data-ld-toggle="offcanvas"
@@ -1007,11 +1064,11 @@ code.ld-code-inline {
 
 .ld-offcanvas {
   position: fixed;
-  top: 0; bottom: 0; left: 0;
+  top: 0; bottom: 0; inset-inline-start: 0;
   width: 300px;
   max-width: 85vw;
   background: var(--ld-surface);
-  border-right: var(--ld-border-width) solid var(--ld-border);
+  border-inline-end: var(--ld-border-width) solid var(--ld-border);
   box-shadow: 16px 0 32px rgba(20, 23, 26, 0.12);
   transform: translateX(-100%);
   transition: transform 220ms ease;
@@ -1020,10 +1077,15 @@ code.ld-code-inline {
 }
 .ld-offcanvas-backdrop.ld-show .ld-offcanvas { transform: translateX(0); }
 
+/* Note: the slide-in transform above is physical (translateX), not
+   logical — under dir="rtl" the panel still positions correctly via
+   inset-inline-start/end and border-inline-end, but the enter
+   animation direction doesn't auto-flip. Wrap in a :dir(rtl) override
+   if you need the slide direction itself to mirror too. */
 .ld-offcanvas-backdrop[data-ld-pos='right'] .ld-offcanvas {
-  left: auto; right: 0;
-  border-right: none;
-  border-left: var(--ld-border-width) solid var(--ld-border);
+  inset-inline-start: auto; inset-inline-end: 0;
+  border-inline-end: none;
+  border-inline-start: var(--ld-border-width) solid var(--ld-border);
   box-shadow: -16px 0 32px rgba(20, 23, 26, 0.12);
   transform: translateX(100%);
 }
@@ -1301,16 +1363,16 @@ code.ld-code-inline {
 .ld-avatar-group { display: flex; align-items: center; }
 .ld-avatar-group .ld-avatar {
   border: 2px solid var(--ld-bg);
-  margin-left: -10px;
+  margin-inline-start: -10px;
 }
-.ld-avatar-group .ld-avatar:first-child { margin-left: 0; }
+.ld-avatar-group .ld-avatar:first-child { margin-inline-start: 0; }
 .ld-avatar-group-overflow {
   display: flex; align-items: center; justify-content: center;
   width: 32px; height: 32px;
   border-radius: calc(var(--ld-radius) / 1.5);
   background: var(--ld-surface-raised);
   border: 2px solid var(--ld-bg);
-  margin-left: -10px;
+  margin-inline-start: -10px;
   font-size: var(--ld-text-xs);
   color: var(--ld-text-muted);
 }
@@ -1444,18 +1506,18 @@ code.ld-code-inline {
    ========================================================================== */
 
 .ld-input-group { position: relative; display: flex; align-items: center; }
-.ld-input-group .ld-input { padding-left: 34px; }
-.ld-input-group[data-ld-affix='right'] .ld-input { padding-left: var(--ld-space-3); padding-right: 34px; }
+.ld-input-group .ld-input { padding-inline-start: 34px; }
+.ld-input-group[data-ld-affix='right'] .ld-input { padding-inline-start: var(--ld-space-3); padding-inline-end: 34px; }
 .ld-input-affix {
   position: absolute;
-  left: var(--ld-space-3);
+  inset-inline-start: var(--ld-space-3);
   display: flex;
   align-items: center;
   color: var(--ld-text-muted);
   font-size: var(--ld-text-sm);
   pointer-events: none;
 }
-.ld-input-group[data-ld-affix='right'] .ld-input-affix { left: auto; right: var(--ld-space-3); }
+.ld-input-group[data-ld-affix='right'] .ld-input-affix { inset-inline-start: auto; inset-inline-end: var(--ld-space-3); }
 
 /* ==========================================================================
    37k. Combobox / autocomplete — data-ld-combobox (paired with ldcss.js)
@@ -1534,13 +1596,13 @@ code.ld-code-inline {
    the timeline is open-ended and reads top-to-bottom or newest-first.
    ========================================================================== */
 
-.ld-timeline { list-style: none; margin: 0; padding: 0; border-left: var(--ld-border-width) solid var(--ld-border-soft); }
-.ld-timeline-item { position: relative; padding: 0 0 var(--ld-space-5) var(--ld-space-5); }
+.ld-timeline { list-style: none; margin: 0; padding: 0; border-inline-start: var(--ld-border-width) solid var(--ld-border-soft); }
+.ld-timeline-item { position: relative; padding-inline-start: var(--ld-space-5); padding-bottom: var(--ld-space-5); }
 .ld-timeline-item:last-child { padding-bottom: 0; }
 .ld-timeline-item::before {
   content: '';
   position: absolute;
-  left: -5px;
+  inset-inline-start: -5px;
   top: 3px;
   width: 9px;
   height: 9px;
@@ -1575,6 +1637,242 @@ code.ld-code-inline {
 .ld-icon svg { width: 100%; height: 100%; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
 .ld-icon-sm { width: var(--ld-text-sm); height: var(--ld-text-sm); }
 .ld-icon-lg { width: var(--ld-text-xl); height: var(--ld-text-xl); }
+
+/* ==========================================================================
+   37o. 12-column grid — ld-grid-row / ld-col-* / ld-offset-*
+   Distinct from .ld-grid (an even N-up grid for cards/stats): this is
+   for asymmetric layouts — a 4-column sidebar next to an 8-column
+   body, staggered offsets, that kind of thing. Flexbox-based (not CSS
+   Grid) so equal-width auto columns (.ld-col with no number) work the
+   way they do in most grid systems people already know.
+   Mobile-first: base .ld-col-* applies at every size unless overridden
+   by a breakpoint-prefixed class (.ld-col-md-6, etc).
+   ========================================================================== */
+
+.ld-grid-row {
+  display: flex;
+  flex-wrap: wrap;
+  margin-left: calc(var(--ld-gutter, var(--ld-space-4)) / -2);
+  margin-right: calc(var(--ld-gutter, var(--ld-space-4)) / -2);
+}
+.ld-col,
+[class*='ld-col-'] {
+  width: 100%;
+  padding-left: calc(var(--ld-gutter, var(--ld-space-4)) / 2);
+  padding-right: calc(var(--ld-gutter, var(--ld-space-4)) / 2);
+}
+.ld-col { flex: 1 0 0%; }
+.ld-col-auto { flex: 0 0 auto; width: auto; }
+.ld-col-1  { flex: 0 0 auto; width: 8.3333%; }
+.ld-col-2  { flex: 0 0 auto; width: 16.6667%; }
+.ld-col-3  { flex: 0 0 auto; width: 25%; }
+.ld-col-4  { flex: 0 0 auto; width: 33.3333%; }
+.ld-col-5  { flex: 0 0 auto; width: 41.6667%; }
+.ld-col-6  { flex: 0 0 auto; width: 50%; }
+.ld-col-7  { flex: 0 0 auto; width: 58.3333%; }
+.ld-col-8  { flex: 0 0 auto; width: 66.6667%; }
+.ld-col-9  { flex: 0 0 auto; width: 75%; }
+.ld-col-10 { flex: 0 0 auto; width: 83.3333%; }
+.ld-col-11 { flex: 0 0 auto; width: 91.6667%; }
+.ld-col-12 { flex: 0 0 auto; width: 100%; }
+.ld-offset-0  { margin-left: 0; }
+.ld-offset-1  { margin-left: 8.3333%; }
+.ld-offset-2  { margin-left: 16.6667%; }
+.ld-offset-3  { margin-left: 25%; }
+.ld-offset-4  { margin-left: 33.3333%; }
+.ld-offset-5  { margin-left: 41.6667%; }
+.ld-offset-6  { margin-left: 50%; }
+.ld-offset-7  { margin-left: 58.3333%; }
+.ld-offset-8  { margin-left: 66.6667%; }
+.ld-offset-9  { margin-left: 75%; }
+.ld-offset-10 { margin-left: 83.3333%; }
+.ld-offset-11 { margin-left: 91.6667%; }
+
+@media (min-width: 640px) {
+  .ld-col-sm { flex: 1 0 0%; width: 100%; }
+  .ld-col-sm-auto { flex: 0 0 auto; width: auto; }
+  .ld-col-sm-1  { flex: 0 0 auto; width: 8.3333%; }
+  .ld-col-sm-2  { flex: 0 0 auto; width: 16.6667%; }
+  .ld-col-sm-3  { flex: 0 0 auto; width: 25%; }
+  .ld-col-sm-4  { flex: 0 0 auto; width: 33.3333%; }
+  .ld-col-sm-5  { flex: 0 0 auto; width: 41.6667%; }
+  .ld-col-sm-6  { flex: 0 0 auto; width: 50%; }
+  .ld-col-sm-7  { flex: 0 0 auto; width: 58.3333%; }
+  .ld-col-sm-8  { flex: 0 0 auto; width: 66.6667%; }
+  .ld-col-sm-9  { flex: 0 0 auto; width: 75%; }
+  .ld-col-sm-10 { flex: 0 0 auto; width: 83.3333%; }
+  .ld-col-sm-11 { flex: 0 0 auto; width: 91.6667%; }
+  .ld-col-sm-12 { flex: 0 0 auto; width: 100%; }
+  .ld-offset-sm-0  { margin-left: 0; }
+  .ld-offset-sm-1  { margin-left: 8.3333%; }
+  .ld-offset-sm-2  { margin-left: 16.6667%; }
+  .ld-offset-sm-3  { margin-left: 25%; }
+  .ld-offset-sm-4  { margin-left: 33.3333%; }
+  .ld-offset-sm-5  { margin-left: 41.6667%; }
+  .ld-offset-sm-6  { margin-left: 50%; }
+  .ld-offset-sm-7  { margin-left: 58.3333%; }
+  .ld-offset-sm-8  { margin-left: 66.6667%; }
+  .ld-offset-sm-9  { margin-left: 75%; }
+  .ld-offset-sm-10 { margin-left: 83.3333%; }
+  .ld-offset-sm-11 { margin-left: 91.6667%; }
+}
+
+@media (min-width: 960px) {
+  .ld-col-md { flex: 1 0 0%; width: 100%; }
+  .ld-col-md-auto { flex: 0 0 auto; width: auto; }
+  .ld-col-md-1  { flex: 0 0 auto; width: 8.3333%; }
+  .ld-col-md-2  { flex: 0 0 auto; width: 16.6667%; }
+  .ld-col-md-3  { flex: 0 0 auto; width: 25%; }
+  .ld-col-md-4  { flex: 0 0 auto; width: 33.3333%; }
+  .ld-col-md-5  { flex: 0 0 auto; width: 41.6667%; }
+  .ld-col-md-6  { flex: 0 0 auto; width: 50%; }
+  .ld-col-md-7  { flex: 0 0 auto; width: 58.3333%; }
+  .ld-col-md-8  { flex: 0 0 auto; width: 66.6667%; }
+  .ld-col-md-9  { flex: 0 0 auto; width: 75%; }
+  .ld-col-md-10 { flex: 0 0 auto; width: 83.3333%; }
+  .ld-col-md-11 { flex: 0 0 auto; width: 91.6667%; }
+  .ld-col-md-12 { flex: 0 0 auto; width: 100%; }
+  .ld-offset-md-0  { margin-left: 0; }
+  .ld-offset-md-1  { margin-left: 8.3333%; }
+  .ld-offset-md-2  { margin-left: 16.6667%; }
+  .ld-offset-md-3  { margin-left: 25%; }
+  .ld-offset-md-4  { margin-left: 33.3333%; }
+  .ld-offset-md-5  { margin-left: 41.6667%; }
+  .ld-offset-md-6  { margin-left: 50%; }
+  .ld-offset-md-7  { margin-left: 58.3333%; }
+  .ld-offset-md-8  { margin-left: 66.6667%; }
+  .ld-offset-md-9  { margin-left: 75%; }
+  .ld-offset-md-10 { margin-left: 83.3333%; }
+  .ld-offset-md-11 { margin-left: 91.6667%; }
+}
+
+@media (min-width: 1200px) {
+  .ld-col-lg { flex: 1 0 0%; width: 100%; }
+  .ld-col-lg-auto { flex: 0 0 auto; width: auto; }
+  .ld-col-lg-1  { flex: 0 0 auto; width: 8.3333%; }
+  .ld-col-lg-2  { flex: 0 0 auto; width: 16.6667%; }
+  .ld-col-lg-3  { flex: 0 0 auto; width: 25%; }
+  .ld-col-lg-4  { flex: 0 0 auto; width: 33.3333%; }
+  .ld-col-lg-5  { flex: 0 0 auto; width: 41.6667%; }
+  .ld-col-lg-6  { flex: 0 0 auto; width: 50%; }
+  .ld-col-lg-7  { flex: 0 0 auto; width: 58.3333%; }
+  .ld-col-lg-8  { flex: 0 0 auto; width: 66.6667%; }
+  .ld-col-lg-9  { flex: 0 0 auto; width: 75%; }
+  .ld-col-lg-10 { flex: 0 0 auto; width: 83.3333%; }
+  .ld-col-lg-11 { flex: 0 0 auto; width: 91.6667%; }
+  .ld-col-lg-12 { flex: 0 0 auto; width: 100%; }
+  .ld-offset-lg-0  { margin-left: 0; }
+  .ld-offset-lg-1  { margin-left: 8.3333%; }
+  .ld-offset-lg-2  { margin-left: 16.6667%; }
+  .ld-offset-lg-3  { margin-left: 25%; }
+  .ld-offset-lg-4  { margin-left: 33.3333%; }
+  .ld-offset-lg-5  { margin-left: 41.6667%; }
+  .ld-offset-lg-6  { margin-left: 50%; }
+  .ld-offset-lg-7  { margin-left: 58.3333%; }
+  .ld-offset-lg-8  { margin-left: 66.6667%; }
+  .ld-offset-lg-9  { margin-left: 75%; }
+  .ld-offset-lg-10 { margin-left: 83.3333%; }
+  .ld-offset-lg-11 { margin-left: 91.6667%; }
+}
+
+@media (min-width: 1440px) {
+  .ld-col-xl { flex: 1 0 0%; width: 100%; }
+  .ld-col-xl-auto { flex: 0 0 auto; width: auto; }
+  .ld-col-xl-1  { flex: 0 0 auto; width: 8.3333%; }
+  .ld-col-xl-2  { flex: 0 0 auto; width: 16.6667%; }
+  .ld-col-xl-3  { flex: 0 0 auto; width: 25%; }
+  .ld-col-xl-4  { flex: 0 0 auto; width: 33.3333%; }
+  .ld-col-xl-5  { flex: 0 0 auto; width: 41.6667%; }
+  .ld-col-xl-6  { flex: 0 0 auto; width: 50%; }
+  .ld-col-xl-7  { flex: 0 0 auto; width: 58.3333%; }
+  .ld-col-xl-8  { flex: 0 0 auto; width: 66.6667%; }
+  .ld-col-xl-9  { flex: 0 0 auto; width: 75%; }
+  .ld-col-xl-10 { flex: 0 0 auto; width: 83.3333%; }
+  .ld-col-xl-11 { flex: 0 0 auto; width: 91.6667%; }
+  .ld-col-xl-12 { flex: 0 0 auto; width: 100%; }
+  .ld-offset-xl-0  { margin-left: 0; }
+  .ld-offset-xl-1  { margin-left: 8.3333%; }
+  .ld-offset-xl-2  { margin-left: 16.6667%; }
+  .ld-offset-xl-3  { margin-left: 25%; }
+  .ld-offset-xl-4  { margin-left: 33.3333%; }
+  .ld-offset-xl-5  { margin-left: 41.6667%; }
+  .ld-offset-xl-6  { margin-left: 50%; }
+  .ld-offset-xl-7  { margin-left: 58.3333%; }
+  .ld-offset-xl-8  { margin-left: 66.6667%; }
+  .ld-offset-xl-9  { margin-left: 75%; }
+  .ld-offset-xl-10 { margin-left: 83.3333%; }
+  .ld-offset-xl-11 { margin-left: 91.6667%; }
+}
+
+/* ==========================================================================
+   37p. Carousel — data-ld-carousel (paired with ldcss.js)
+   data-ld-carousel wraps a data-ld-carousel-track of data-ld-carousel-slide
+   elements. Prev/next buttons use data-ld-toggle="carousel-prev"/"carousel-next"
+   scoped to the nearest carousel; dots are data-ld-carousel-dot, one per
+   slide, inside a data-ld-carousel-dots container. data-ld-autoplay="true"
+   plus data-ld-interval="5000" (ms) starts it auto-advancing; hovering
+   pauses it.
+   ========================================================================== */
+
+[data-ld-carousel] { position: relative; overflow: hidden; border-radius: var(--ld-radius); }
+[data-ld-carousel-track] {
+  display: flex;
+  transition: transform 400ms ease;
+}
+[data-ld-carousel-slide] { flex: 0 0 100%; min-width: 0; }
+[data-ld-toggle='carousel-prev'],
+[data-ld-toggle='carousel-next'] {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 5;
+  border-radius: 50%;
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+[data-ld-toggle='carousel-prev'] { inset-inline-start: var(--ld-space-3); }
+[data-ld-toggle='carousel-next'] { inset-inline-end: var(--ld-space-3); }
+[data-ld-carousel-dots] {
+  position: absolute;
+  bottom: var(--ld-space-3);
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 6px;
+  z-index: 5;
+}
+[data-ld-carousel-dot] {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  border: none;
+  padding: 0;
+  background: color-mix(in srgb, var(--ld-bg) 60%, transparent);
+  cursor: pointer;
+}
+[data-ld-carousel-dot][data-ld-active='true'] { background: var(--ld-accent); }
+
+/* ==========================================================================
+   37q. Navbar collapse — data-ld-navbar-collapse (paired with ldcss.js)
+   A lighter alternative to the slide-in offcanvas: content that's
+   hidden below a breakpoint and toggled open inline (dropping down
+   under the navbar), then automatically always-visible above that
+   breakpoint with no JS involvement — the classic "hamburger below,
+   inline links above" pattern. data-ld-collapse-at controls which
+   breakpoint it switches at: sm/md (default)/lg/xl.
+   ========================================================================== */
+
+[data-ld-navbar-collapse] { display: none; width: 100%; }
+[data-ld-navbar-collapse][data-ld-show='true'] { display: block; }
+@media (min-width: 640px)  { [data-ld-navbar-collapse][data-ld-collapse-at='sm'] { display: flex !important; width: auto; } }
+@media (min-width: 960px)  { [data-ld-navbar-collapse]:not([data-ld-collapse-at]),
+                              [data-ld-navbar-collapse][data-ld-collapse-at='md'] { display: flex !important; width: auto; } }
+@media (min-width: 1200px) { [data-ld-navbar-collapse][data-ld-collapse-at='lg'] { display: flex !important; width: auto; } }
+@media (min-width: 1440px) { [data-ld-navbar-collapse][data-ld-collapse-at='xl'] { display: flex !important; width: auto; } }
 
 /* ==========================================================================
    38–39. Utility classes & Escape hatches — moved to the end of the file
@@ -1999,10 +2297,13 @@ code.ld-code-inline {
    sm = min-width 640px, md = 960px, lg = 1200px, xl = 1440px
    (sm/md match the breakpoints .ld-grid already uses; lg/xl are new).
    Each breakpoint covers display, grid-cols, flex-direction, text-align,
-   and gap — the utilities layout most often needs to flip at a
-   breakpoint. Extend the same way for other prefixes if needed; the
-   pattern is always .ld-{bp}\:{utility}, one prefixed copy of the base
-   utility's declaration.
+   gap, padding/margin (all-sides only, a reduced size scale: 0/2/3/4/6/8),
+   text-size, and width (25/50/75/100%) — the utilities layout most often
+   needs to flip at a breakpoint. Deliberately NOT covered, to keep this
+   section's size sane: per-side padding/margin (ld-pad-t/-r/-b/-l/-x/-y),
+   the full 8-step spacing scale, and border-radius. Extend the same way
+   if one of those comes up short — the pattern is always
+   .ld-{bp}\:{utility}, one prefixed copy of the base utility's declaration.
    ========================================================================== */
 
 @media (min-width: 640px) {
@@ -2028,6 +2329,29 @@ code.ld-code-inline {
   .ld-sm\:gap-2 { gap: var(--ld-space-2); }
   .ld-sm\:gap-4 { gap: var(--ld-space-4); }
   .ld-sm\:gap-6 { gap: var(--ld-space-6); }
+  .ld-sm\:pad-a-0 { padding: 0; }
+  .ld-sm\:pad-a-2 { padding: var(--ld-space-2); }
+  .ld-sm\:pad-a-3 { padding: var(--ld-space-3); }
+  .ld-sm\:pad-a-4 { padding: var(--ld-space-4); }
+  .ld-sm\:pad-a-6 { padding: var(--ld-space-6); }
+  .ld-sm\:pad-a-8 { padding: var(--ld-space-8); }
+  .ld-sm\:mar-a-0 { margin: 0; }
+  .ld-sm\:mar-a-2 { margin: var(--ld-space-2); }
+  .ld-sm\:mar-a-3 { margin: var(--ld-space-3); }
+  .ld-sm\:mar-a-4 { margin: var(--ld-space-4); }
+  .ld-sm\:mar-a-6 { margin: var(--ld-space-6); }
+  .ld-sm\:mar-a-8 { margin: var(--ld-space-8); }
+  .ld-sm\:text-xs { font-size: var(--ld-text-xs); }
+  .ld-sm\:text-sm { font-size: var(--ld-text-sm); }
+  .ld-sm\:text-base { font-size: var(--ld-text-base); }
+  .ld-sm\:text-lg { font-size: var(--ld-text-lg); }
+  .ld-sm\:text-xl { font-size: var(--ld-text-xl); }
+  .ld-sm\:text-2xl { font-size: var(--ld-text-2xl); }
+  .ld-sm\:text-3xl { font-size: var(--ld-text-3xl); }
+  .ld-sm\:w-25 { width: 25%; }
+  .ld-sm\:w-50 { width: 50%; }
+  .ld-sm\:w-75 { width: 75%; }
+  .ld-sm\:w-100 { width: 100%; }
 }
 
 @media (min-width: 960px) {
@@ -2053,6 +2377,29 @@ code.ld-code-inline {
   .ld-md\:gap-2 { gap: var(--ld-space-2); }
   .ld-md\:gap-4 { gap: var(--ld-space-4); }
   .ld-md\:gap-6 { gap: var(--ld-space-6); }
+  .ld-md\:pad-a-0 { padding: 0; }
+  .ld-md\:pad-a-2 { padding: var(--ld-space-2); }
+  .ld-md\:pad-a-3 { padding: var(--ld-space-3); }
+  .ld-md\:pad-a-4 { padding: var(--ld-space-4); }
+  .ld-md\:pad-a-6 { padding: var(--ld-space-6); }
+  .ld-md\:pad-a-8 { padding: var(--ld-space-8); }
+  .ld-md\:mar-a-0 { margin: 0; }
+  .ld-md\:mar-a-2 { margin: var(--ld-space-2); }
+  .ld-md\:mar-a-3 { margin: var(--ld-space-3); }
+  .ld-md\:mar-a-4 { margin: var(--ld-space-4); }
+  .ld-md\:mar-a-6 { margin: var(--ld-space-6); }
+  .ld-md\:mar-a-8 { margin: var(--ld-space-8); }
+  .ld-md\:text-xs { font-size: var(--ld-text-xs); }
+  .ld-md\:text-sm { font-size: var(--ld-text-sm); }
+  .ld-md\:text-base { font-size: var(--ld-text-base); }
+  .ld-md\:text-lg { font-size: var(--ld-text-lg); }
+  .ld-md\:text-xl { font-size: var(--ld-text-xl); }
+  .ld-md\:text-2xl { font-size: var(--ld-text-2xl); }
+  .ld-md\:text-3xl { font-size: var(--ld-text-3xl); }
+  .ld-md\:w-25 { width: 25%; }
+  .ld-md\:w-50 { width: 50%; }
+  .ld-md\:w-75 { width: 75%; }
+  .ld-md\:w-100 { width: 100%; }
 }
 
 @media (min-width: 1200px) {
@@ -2078,6 +2425,29 @@ code.ld-code-inline {
   .ld-lg\:gap-2 { gap: var(--ld-space-2); }
   .ld-lg\:gap-4 { gap: var(--ld-space-4); }
   .ld-lg\:gap-6 { gap: var(--ld-space-6); }
+  .ld-lg\:pad-a-0 { padding: 0; }
+  .ld-lg\:pad-a-2 { padding: var(--ld-space-2); }
+  .ld-lg\:pad-a-3 { padding: var(--ld-space-3); }
+  .ld-lg\:pad-a-4 { padding: var(--ld-space-4); }
+  .ld-lg\:pad-a-6 { padding: var(--ld-space-6); }
+  .ld-lg\:pad-a-8 { padding: var(--ld-space-8); }
+  .ld-lg\:mar-a-0 { margin: 0; }
+  .ld-lg\:mar-a-2 { margin: var(--ld-space-2); }
+  .ld-lg\:mar-a-3 { margin: var(--ld-space-3); }
+  .ld-lg\:mar-a-4 { margin: var(--ld-space-4); }
+  .ld-lg\:mar-a-6 { margin: var(--ld-space-6); }
+  .ld-lg\:mar-a-8 { margin: var(--ld-space-8); }
+  .ld-lg\:text-xs { font-size: var(--ld-text-xs); }
+  .ld-lg\:text-sm { font-size: var(--ld-text-sm); }
+  .ld-lg\:text-base { font-size: var(--ld-text-base); }
+  .ld-lg\:text-lg { font-size: var(--ld-text-lg); }
+  .ld-lg\:text-xl { font-size: var(--ld-text-xl); }
+  .ld-lg\:text-2xl { font-size: var(--ld-text-2xl); }
+  .ld-lg\:text-3xl { font-size: var(--ld-text-3xl); }
+  .ld-lg\:w-25 { width: 25%; }
+  .ld-lg\:w-50 { width: 50%; }
+  .ld-lg\:w-75 { width: 75%; }
+  .ld-lg\:w-100 { width: 100%; }
 }
 
 @media (min-width: 1440px) {
@@ -2103,6 +2473,29 @@ code.ld-code-inline {
   .ld-xl\:gap-2 { gap: var(--ld-space-2); }
   .ld-xl\:gap-4 { gap: var(--ld-space-4); }
   .ld-xl\:gap-6 { gap: var(--ld-space-6); }
+  .ld-xl\:pad-a-0 { padding: 0; }
+  .ld-xl\:pad-a-2 { padding: var(--ld-space-2); }
+  .ld-xl\:pad-a-3 { padding: var(--ld-space-3); }
+  .ld-xl\:pad-a-4 { padding: var(--ld-space-4); }
+  .ld-xl\:pad-a-6 { padding: var(--ld-space-6); }
+  .ld-xl\:pad-a-8 { padding: var(--ld-space-8); }
+  .ld-xl\:mar-a-0 { margin: 0; }
+  .ld-xl\:mar-a-2 { margin: var(--ld-space-2); }
+  .ld-xl\:mar-a-3 { margin: var(--ld-space-3); }
+  .ld-xl\:mar-a-4 { margin: var(--ld-space-4); }
+  .ld-xl\:mar-a-6 { margin: var(--ld-space-6); }
+  .ld-xl\:mar-a-8 { margin: var(--ld-space-8); }
+  .ld-xl\:text-xs { font-size: var(--ld-text-xs); }
+  .ld-xl\:text-sm { font-size: var(--ld-text-sm); }
+  .ld-xl\:text-base { font-size: var(--ld-text-base); }
+  .ld-xl\:text-lg { font-size: var(--ld-text-lg); }
+  .ld-xl\:text-xl { font-size: var(--ld-text-xl); }
+  .ld-xl\:text-2xl { font-size: var(--ld-text-2xl); }
+  .ld-xl\:text-3xl { font-size: var(--ld-text-3xl); }
+  .ld-xl\:w-25 { width: 25%; }
+  .ld-xl\:w-50 { width: 50%; }
+  .ld-xl\:w-75 { width: 75%; }
+  .ld-xl\:w-100 { width: 100%; }
 }
 
 /* ==========================================================================
