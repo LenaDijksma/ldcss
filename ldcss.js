@@ -4,7 +4,9 @@
  * Components: theme toggle, dropdown, popover, tabs, accordion, modal,
  * offcanvas, command palette, toast, copy-to-clipboard, dropzone, rating,
  * tag input, progress bars, entrance animations, segmented control,
- * filter chips, stepper, combobox, scrollspy, carousel, navbar collapse.
+ * filter chips, stepper, combobox, scrollspy, carousel, navbar collapse,
+ * input clear button, password toggle, autosizing textarea, sortable
+ * table headers.
  *
  * Events: modal/offcanvas/command/dropdown/popover/accordion/tab/carousel
  * dispatch CustomEvents on the element itself — ld:{component}:show and
@@ -21,6 +23,7 @@
 
   var STORAGE_KEY = 'ld-theme';
   var lastFocusedEl = null;
+  var activeAnimationObservers = [];
 
   function emit(el, name, detail) {
     if (!el) return;
@@ -79,6 +82,7 @@
     });
     if (!isOpen) {
       panel.classList.add('ld-show');
+      panel._ldTrigger = trigger;
       trigger.setAttribute('aria-expanded', 'true');
       emit(panel, floatingEventName(panelAttr, 'show'), { trigger: trigger });
     }
@@ -188,6 +192,7 @@
       });
     }, { threshold: 0.15 });
 
+    activeAnimationObservers.push(observer);
     els.forEach(function (el) { observer.observe(el); });
   }
 
@@ -1042,6 +1047,124 @@
      Delegated event wiring
      ------------------------------------------------------------------- */
 
+  /* ---------------------------------------------------------------------
+     Input clear button — [data-ld-input-clear]
+     Shows/hides based on the paired input's value; clearing refocuses
+     the input rather than leaving focus on a now-hidden button.
+     ------------------------------------------------------------------- */
+
+  function getClearTarget(clearBtn) {
+    var targetSel = clearBtn.getAttribute('data-ld-target');
+    return targetSel ? document.querySelector(targetSel) : clearBtn.previousElementSibling;
+  }
+
+  function syncInputClear(input) {
+    var group = input.closest('.ld-input-group') || input.parentElement;
+    if (!group) return;
+    var clearBtn = group.querySelector('[data-ld-input-clear]');
+    if (clearBtn) clearBtn.setAttribute('data-ld-show', input.value.length > 0 ? 'true' : 'false');
+  }
+
+  function initInputClear(root) {
+    (root || document).querySelectorAll('[data-ld-input-clear]').forEach(function (clearBtn) {
+      var input = getClearTarget(clearBtn);
+      if (input) syncInputClear(input);
+    });
+  }
+
+  function handleInputClear(clearBtn) {
+    var input = getClearTarget(clearBtn);
+    if (!input) return;
+    input.value = '';
+    input.dispatchEvent(new Event('input', { bubbles: true }));
+    input.focus();
+  }
+
+  /* ---------------------------------------------------------------------
+     Password visibility toggle — [data-ld-password-toggle]
+     ------------------------------------------------------------------- */
+
+  function handlePasswordToggle(toggleBtn) {
+    var targetSel = toggleBtn.getAttribute('data-ld-target');
+    var input = targetSel ? document.querySelector(targetSel) : toggleBtn.previousElementSibling;
+    if (!input) return;
+    var showing = input.type === 'text';
+    input.type = showing ? 'password' : 'text';
+    toggleBtn.setAttribute('data-ld-active', String(!showing));
+    toggleBtn.setAttribute('aria-label', showing ? 'Show password' : 'Hide password');
+  }
+
+  /* ---------------------------------------------------------------------
+     Autosizing textarea — [data-ld-autosize]
+     Grows with content instead of scrolling internally. Resets height to
+     auto before reading scrollHeight, or it would only ever grow.
+     ------------------------------------------------------------------- */
+
+  function autosizeTextarea(el) {
+    el.style.height = 'auto';
+    el.style.height = el.scrollHeight + 'px';
+  }
+
+  function initAutosize(root) {
+    (root || document).querySelectorAll('[data-ld-autosize]').forEach(function (el) {
+      el.style.overflowY = 'hidden';
+      el.style.resize = 'none';
+      autosizeTextarea(el);
+    });
+  }
+
+  /* ---------------------------------------------------------------------
+     Sortable table headers — .ld-table[data-ld-sortable] th[data-ld-sort]
+     Sorts by the header's data-ld-sort-key (falls back to comparing
+     cell textContent) using each cell's data-ld-sort-value if present,
+     so a header can sort dates/numbers by a hidden value while
+     displaying formatted text.
+     ------------------------------------------------------------------- */
+
+  function handleSortHeaderClick(th) {
+    var table = th.closest('table');
+    var tbody = table && table.querySelector('tbody');
+    if (!tbody) return;
+    var index = Array.prototype.indexOf.call(th.parentElement.children, th);
+    var currentDir = th.getAttribute('data-ld-sort-dir');
+    var nextDir = currentDir === 'asc' ? 'desc' : 'asc';
+
+    th.parentElement.querySelectorAll('th[data-ld-sort]').forEach(function (t) {
+      t.removeAttribute('data-ld-sort-dir');
+      t.setAttribute('aria-sort', 'none');
+    });
+    th.setAttribute('data-ld-sort-dir', nextDir);
+    th.setAttribute('aria-sort', nextDir === 'asc' ? 'ascending' : 'descending');
+
+    var rows = Array.prototype.slice.call(tbody.querySelectorAll('tr'));
+    rows.sort(function (a, b) {
+      var cellA = a.children[index], cellB = b.children[index];
+      var valA = (cellA && (cellA.getAttribute('data-ld-sort-value') || cellA.textContent.trim())) || '';
+      var valB = (cellB && (cellB.getAttribute('data-ld-sort-value') || cellB.textContent.trim())) || '';
+      var numA = parseFloat(valA), numB = parseFloat(valB);
+      var cmp = (!isNaN(numA) && !isNaN(numB)) ? numA - numB : valA.localeCompare(valB);
+      return nextDir === 'asc' ? cmp : -cmp;
+    });
+    rows.forEach(function (row) { tbody.appendChild(row); });
+    emit(table, 'ld:table:sort', { key: th.getAttribute('data-ld-sort-key'), direction: nextDir });
+  }
+
+  /* ---------------------------------------------------------------------
+     Debounce — exposed on window.ldcss for anyone wiring an async data
+     source (server-filtered combobox, remote search) into the delegated
+     input listener below, where debouncing per-instance is the caller's
+     job, not something a synchronous local-list filter needs.
+     ------------------------------------------------------------------- */
+
+  function debounce(fn, wait) {
+    var t;
+    return function () {
+      var args = arguments, ctx = this;
+      clearTimeout(t);
+      t = setTimeout(function () { fn.apply(ctx, args); }, wait || 200);
+    };
+  }
+
   document.addEventListener('click', function (e) {
     var segmentEl = e.target.closest('[data-ld-segment]');
     if (segmentEl) {
@@ -1160,6 +1283,24 @@
       return;
     }
 
+    var inputClearEl = e.target.closest('[data-ld-input-clear]');
+    if (inputClearEl) {
+      handleInputClear(inputClearEl);
+      return;
+    }
+
+    var passwordToggleEl = e.target.closest('[data-ld-password-toggle]');
+    if (passwordToggleEl) {
+      handlePasswordToggle(passwordToggleEl);
+      return;
+    }
+
+    var sortHeaderEl = e.target.closest('th[data-ld-sort]');
+    if (sortHeaderEl) {
+      handleSortHeaderClick(sortHeaderEl);
+      return;
+    }
+
     var tagRemoveEl = e.target.closest('.ld-tag-remove');
     if (tagRemoveEl) {
       var tagEl = tagRemoveEl.closest('.ld-tag');
@@ -1222,12 +1363,22 @@
 
   document.addEventListener('keydown', function (e) {
     if (e.key === 'Escape') {
+      // Modal/offcanvas/command already restore focus themselves (see
+      // lastFocusedEl). Dropdown/popover don't trap focus the way those
+      // do, so this only needs to act when the person was actually
+      // keyboard-navigating inside the open panel — if they'd already
+      // clicked elsewhere, that click is where focus should stay.
+      var openFloating = document.querySelector('[data-ld-dropdown-menu].ld-show, [data-ld-popover-content].ld-show');
+      var floatingReturnEl = (openFloating && openFloating.contains(document.activeElement) && openFloating._ldTrigger) || null;
+
       closeAllDropdowns();
       closeAllPopovers();
       closeAllModals();
       closeAllOffcanvas();
       closeAllCommands();
       closeAllComboboxes();
+
+      if (floatingReturnEl && typeof floatingReturnEl.focus === 'function') floatingReturnEl.focus();
     }
     if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') {
       var paletteExists = document.querySelector('.ld-command-backdrop');
@@ -1256,6 +1407,14 @@
       filterCombobox(box, comboboxInput.value);
       highlightComboboxOption(box, 0);
     }
+
+    if (e.target.hasAttribute && e.target.hasAttribute('data-ld-autosize')) {
+      autosizeTextarea(e.target);
+    }
+
+    if (e.target.closest && e.target.closest('.ld-input-group')) {
+      syncInputClear(e.target);
+    }
   });
 
   document.addEventListener('change', function (e) {
@@ -1282,6 +1441,8 @@
   initRovingTabindex();
   initScrollspy();
   initCarousels();
+  initInputClear();
+  initAutosize();
 
   /* ---------------------------------------------------------------------
      Public re-init API — for content added after DOMContentLoaded
@@ -1300,6 +1461,21 @@
     initRovingTabindex(root);
     initScrollspy(root);
     initCarousels(root);
+    initInputClear(root);
+    initAutosize(root);
+  };
+
+  window.ldcss.debounce = debounce;
+
+  /* Coarse teardown: disconnects every entrance-animation
+     IntersectionObserver. Delegated listeners (click/input/keydown/drag)
+     don't need teardown — they're bound once on document and no-op
+     harmlessly on elements that no longer exist. Call this before
+     removing a large chunk of DOM that contained [data-ld-animate]
+     elements, then call ldcss.refresh() again for whatever's left. */
+  window.ldcss.destroy = function () {
+    activeAnimationObservers.forEach(function (observer) { observer.disconnect(); });
+    activeAnimationObservers = [];
   };
 
   initTheme();

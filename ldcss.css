@@ -39,6 +39,19 @@
   --ld-focus-ring: #14171A;
   --ld-code-text: #0C7A54; /* darker mint — readable on light surfaces */
 
+  /* Semantic status — success mirrors accent by default (most ldcss sites
+     only have one "good" color); override independently if your brand
+     accent isn't green-ish enough to also mean "success". Warning/info
+     were previously hardcoded inline (alert §11, terminal dot §19); they
+     live here now so a theme swap or [data-ld-unstyled] subtree can reach
+     them like every other status color. */
+  --ld-success: var(--ld-accent);
+  --ld-success-text: var(--ld-accent-text);
+  --ld-warning: #C98A1F;
+  --ld-warning-text: #2E1D00;
+  --ld-info: #4C8EFF;
+  --ld-info-text: #04122E;
+
   /* Scale */
   --ld-font-sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', Inter, Roboto, 'Helvetica Neue', Arial, sans-serif;
   --ld-font-mono: 'JetBrains Mono', ui-monospace, 'SFMono-Regular', Menlo, Consolas, monospace;
@@ -67,6 +80,33 @@
   --ld-text-3xl: 2.5rem;
   --ld-text-4xl: 3.25rem;
 
+  /* Every component before this patch hardcoded font-weight: 700 for
+     emphasis and left line-height as either the body 1.6 or a bare 1.25
+     on headings. Tokenizing doesn't change any existing rendering — the
+     defaults below match what was already hardcoded — it just gives you
+     one place to soften "everything is bold" without touching every
+     component rule individually. */
+  --ld-weight-normal: 400;
+  --ld-weight-medium: 500;
+  --ld-weight-bold: 700;
+
+  --ld-leading-tight: 1.25;
+  --ld-leading-normal: 1.6;
+  --ld-leading-relaxed: 1.75;
+
+  /* Stacking scale. The .ld-z-* utilities in §38e already exposed these
+     as classes; components reference the same values here as custom
+     properties so overriding a layer (e.g. hoisting toasts above a
+     third-party widget) is one line in :root instead of hunting through
+     every component rule that used to hardcode the number directly. */
+  --ld-z-dropdown: 20;
+  --ld-z-popover: 25;
+  --ld-z-tooltip: 30;
+  --ld-z-modal: 50;
+  --ld-z-offcanvas: 55;
+  --ld-z-toast: 60;
+  --ld-z-command: 70;
+
   --ld-transition: 120ms ease;
 }
 
@@ -80,6 +120,12 @@
   --ld-border-soft: #222623;
   --ld-danger: #FF6B7A;
   --ld-danger-text: #1A0508;
+  --ld-success: var(--ld-accent);
+  --ld-success-text: var(--ld-accent-text);
+  --ld-warning: #E0A741;
+  --ld-warning-text: #1F1400;
+  --ld-info: #7AACFF;
+  --ld-info-text: #04122E;
   --ld-shadow-color: var(--ld-accent);
   --ld-focus-ring: var(--ld-accent);
   --ld-code-text: var(--ld-accent); /* full brightness reads fine on dark surfaces */
@@ -146,6 +192,12 @@
   --ld-border-soft: #E7EAE7;
   --ld-danger: #E8465C;
   --ld-danger-text: #FFFFFF;
+  --ld-success: var(--ld-accent);
+  --ld-success-text: var(--ld-accent-text);
+  --ld-warning: #C98A1F;
+  --ld-warning-text: #2E1D00;
+  --ld-info: #4C8EFF;
+  --ld-info-text: #04122E;
   --ld-shadow-color: #14171A;
   --ld-focus-ring: #14171A;
   --ld-code-text: #0C7A54;
@@ -531,7 +583,7 @@ code.ld-code-inline {
   box-shadow: var(--ld-shadow);
   padding: var(--ld-space-2);
   display: none;
-  z-index: 20;
+  z-index: var(--ld-z-dropdown);
 }
 [data-ld-dropdown-menu].ld-show { display: block; }
 [data-ld-dropdown-menu] a,
@@ -573,7 +625,7 @@ code.ld-code-inline {
   display: none;
   align-items: center;
   justify-content: center;
-  z-index: 50;
+  z-index: var(--ld-z-modal);
   padding: var(--ld-space-4);
 }
 .ld-modal-backdrop.ld-show { display: flex; }
@@ -611,11 +663,12 @@ code.ld-code-inline {
 .ld-alert-close { background: none; border: none; color: var(--ld-text-muted); font-size: var(--ld-text-base); line-height: 1; cursor: pointer; }
 .ld-alert-close:hover { color: var(--ld-text); }
 
-.ld-alert[data-ld-variant='info'] { border-left-color: var(--ld-text); }
-.ld-alert[data-ld-variant='success'] { border-left-color: var(--ld-accent); }
+.ld-alert[data-ld-variant='info'] { border-left-color: var(--ld-info); }
+.ld-alert[data-ld-variant='info'] .ld-alert-title { color: var(--ld-info); }
+.ld-alert[data-ld-variant='success'] { border-left-color: var(--ld-success); }
 .ld-alert[data-ld-variant='success'] .ld-alert-title { color: var(--ld-code-text); }
-.ld-alert[data-ld-variant='warning'] { border-left-color: #C98A1F; }
-.ld-alert[data-ld-variant='warning'] .ld-alert-title { color: #C98A1F; }
+.ld-alert[data-ld-variant='warning'] { border-left-color: var(--ld-warning); }
+.ld-alert[data-ld-variant='warning'] .ld-alert-title { color: var(--ld-warning); }
 .ld-alert[data-ld-variant='danger'] { border-left-color: var(--ld-danger); }
 .ld-alert[data-ld-variant='danger'] .ld-alert-title { color: var(--ld-danger); }
 
@@ -702,7 +755,7 @@ code.ld-code-inline {
   opacity: 0;
   pointer-events: none;
   transition: opacity var(--ld-transition);
-  z-index: 30;
+  z-index: var(--ld-z-tooltip);
 }
 [data-ld-tooltip]:hover::after,
 [data-ld-tooltip]:focus-visible::after { opacity: 1; }
@@ -778,8 +831,8 @@ code.ld-code-inline {
 }
 .ld-terminal-dot { width: 10px; height: 10px; border-radius: 50%; background: var(--ld-border-soft); }
 .ld-terminal-dot:nth-child(1) { background: var(--ld-danger); }
-.ld-terminal-dot:nth-child(2) { background: #C98A1F; }
-.ld-terminal-dot:nth-child(3) { background: var(--ld-accent); }
+.ld-terminal-dot:nth-child(2) { background: var(--ld-warning); }
+.ld-terminal-dot:nth-child(3) { background: var(--ld-success); }
 .ld-terminal-title { font-size: var(--ld-text-xs); color: var(--ld-text-muted); margin-inline-start: var(--ld-space-2); }
 .ld-terminal-body {
   padding: var(--ld-space-4);
@@ -836,7 +889,7 @@ code.ld-code-inline {
   display: flex;
   flex-direction: column;
   gap: var(--ld-space-2);
-  z-index: 60;
+  z-index: var(--ld-z-toast);
   max-width: 320px;
 }
 .ld-toast {
@@ -896,6 +949,22 @@ code.ld-code-inline {
 .ld-table[data-ld-bordered='true'] th,
 .ld-table[data-ld-bordered='true'] td { border: 1px solid var(--ld-border-soft); }
 .ld-table tbody tr[data-ld-interactive='true']:hover { background: var(--ld-surface-raised); cursor: pointer; }
+
+/* -- Sortable headers (paired with ldcss.js) ------------------------------
+   th[data-ld-sort] on any header cell makes it clickable; the ::after
+   arrow only renders once a direction is set (i.e. after first click),
+   so unsorted columns stay clean rather than showing an ambiguous glyph
+   on every sortable header at once. */
+.ld-table th[data-ld-sort] { cursor: pointer; user-select: none; }
+.ld-table th[data-ld-sort]:hover { color: var(--ld-text); }
+.ld-table th[data-ld-sort]::after {
+  display: inline-block;
+  width: 1em;
+  margin-inline-start: var(--ld-space-1);
+  opacity: 0.5;
+}
+.ld-table th[data-ld-sort][data-ld-sort-dir='asc']::after { content: '↑'; opacity: 1; color: var(--ld-accent); }
+.ld-table th[data-ld-sort][data-ld-sort-dir='desc']::after { content: '↓'; opacity: 1; color: var(--ld-accent); }
 
 /* ==========================================================================
    23. Pagination
@@ -1019,7 +1088,7 @@ code.ld-code-inline {
   box-shadow: var(--ld-shadow);
   padding: var(--ld-space-4);
   display: none;
-  z-index: 25;
+  z-index: var(--ld-z-popover);
   font-size: var(--ld-text-sm);
 }
 [data-ld-popover-content].ld-show { display: block; }
@@ -1058,7 +1127,7 @@ code.ld-code-inline {
   position: fixed; inset: 0;
   background: rgba(13, 15, 14, 0.6);
   display: none;
-  z-index: 55;
+  z-index: var(--ld-z-offcanvas);
 }
 .ld-offcanvas-backdrop.ld-show { display: block; }
 
@@ -1160,7 +1229,7 @@ code.ld-code-inline {
   align-items: flex-start;
   justify-content: center;
   padding-top: 15vh;
-  z-index: 70;
+  z-index: var(--ld-z-command);
 }
 .ld-command-backdrop.ld-show { display: flex; }
 .ld-command {
@@ -1542,7 +1611,7 @@ code.ld-code-inline {
   overflow-y: auto;
   padding: var(--ld-space-2);
   display: none;
-  z-index: 25;
+  z-index: var(--ld-z-popover);
 }
 [data-ld-combobox-list].ld-show { display: block; }
 [data-ld-combobox-option] {
@@ -1873,6 +1942,166 @@ code.ld-code-inline {
                               [data-ld-navbar-collapse][data-ld-collapse-at='md'] { display: flex !important; width: auto; } }
 @media (min-width: 1200px) { [data-ld-navbar-collapse][data-ld-collapse-at='lg'] { display: flex !important; width: auto; } }
 @media (min-width: 1440px) { [data-ld-navbar-collapse][data-ld-collapse-at='xl'] { display: flex !important; width: auto; } }
+
+/* ==========================================================================
+   37r. Select — arrow treatment for .ld-select
+   ------------------------------------------------------------------------
+   .ld-select (§9) previously inherited the plain .ld-input box with no
+   custom arrow — background-image is the only reliable cross-browser way
+   to draw one without a wrapper element, so the caret is baked in as a
+   data-URI SVG that reads --ld-text-muted. Native <select> can't be
+   restyled further than this (no styling the popup list itself); reach
+   for the combobox (§37k) if you need a fully custom listbox.
+   ========================================================================== */
+
+.ld-select {
+  appearance: none;
+  -webkit-appearance: none;
+  background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='%235B6560' d='M4 6l4 4 4-4H4z'/%3e%3c/svg%3e");
+  background-repeat: no-repeat;
+  background-position: right var(--ld-space-3) center;
+  background-size: 12px;
+  padding-inline-end: var(--ld-space-6);
+}
+[data-ld-theme='dark'] .ld-select {
+  background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='%238A928D' d='M4 6l4 4 4-4H4z'/%3e%3c/svg%3e");
+}
+.ld-select[multiple] { background-image: none; padding-inline-end: var(--ld-space-3); }
+
+/* ==========================================================================
+   37s. Notification dot / count badge — ld-dot
+   ------------------------------------------------------------------------
+   For an unread marker on an icon, avatar, or nav item. Different from
+   .ld-badge (§6), which is an inline text pill, not an absolutely
+   positioned overlay. Apply to a position:relative ancestor
+   (.ld-avatar already is one).
+   ========================================================================== */
+
+.ld-dot {
+  position: absolute;
+  top: -2px;
+  inset-inline-end: -2px;
+  min-width: 8px;
+  height: 8px;
+  padding: 0 3px;
+  border-radius: 9999px;
+  background: var(--ld-danger);
+  border: 2px solid var(--ld-surface);
+  box-sizing: content-box;
+}
+.ld-dot[data-ld-count] {
+  height: 16px;
+  min-width: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  font-weight: var(--ld-weight-bold);
+  color: var(--ld-danger-text);
+  line-height: 1;
+}
+.ld-dot[data-ld-count]::before { content: attr(data-ld-count); }
+.ld-dot[data-ld-variant='accent'] { background: var(--ld-accent); color: var(--ld-accent-text); }
+.ld-dot[data-ld-variant='muted'] { background: var(--ld-text-muted); }
+
+/* ==========================================================================
+   37t. Input affix extras — clear button + password toggle
+   ------------------------------------------------------------------------
+   Both slot into the .ld-input-group affix pattern from §37j. Paired
+   with ldcss.js: [data-ld-input-clear] empties the previous sibling
+   input and refocuses it; [data-ld-password-toggle] flips a sibling
+   password input's type between "password" and "text".
+   ========================================================================== */
+
+[data-ld-input-clear] {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--ld-text-muted);
+  display: none;
+  padding: 0 var(--ld-space-2);
+  font-size: var(--ld-text-base);
+  line-height: 1;
+}
+[data-ld-input-clear][data-ld-show='true'] { display: inline-flex; align-items: center; }
+[data-ld-input-clear]:hover { color: var(--ld-text); }
+
+[data-ld-password-toggle] {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--ld-text-muted);
+  font-family: var(--ld-font-family);
+  font-size: var(--ld-text-xs);
+  font-weight: var(--ld-weight-bold);
+  padding: 0 var(--ld-space-2);
+}
+[data-ld-password-toggle]:hover { color: var(--ld-text); }
+[data-ld-password-toggle]::before { content: 'Show'; }
+[data-ld-password-toggle][data-ld-active='true']::before { content: 'Hide'; }
+
+/* ==========================================================================
+   37u. Button group & split button — ld-btn-group
+   ------------------------------------------------------------------------
+   Adjacent .ld-btn elements sharing one outline instead of each drawing
+   its own border/radius/shadow. A split button is just a group with its
+   last child narrowed via [data-ld-split] — the dropdown behavior comes
+   from wrapping that last button in the existing §10 dropdown markup.
+   ========================================================================== */
+
+.ld-btn-group { display: inline-flex; }
+.ld-btn-group .ld-btn {
+  border-radius: 0;
+  box-shadow: none;
+}
+.ld-btn-group .ld-btn:not(:first-child) { border-inline-start-width: 0; }
+.ld-btn-group .ld-btn:first-child { border-start-start-radius: var(--ld-radius); border-end-start-radius: var(--ld-radius); }
+.ld-btn-group .ld-btn:last-child { border-start-end-radius: var(--ld-radius); border-end-end-radius: var(--ld-radius); }
+.ld-btn-group .ld-btn:focus-visible { position: relative; z-index: 1; }
+.ld-btn-group .ld-btn[data-ld-split='true'] { padding-inline: var(--ld-space-2); }
+
+/* ==========================================================================
+   37v. Skip link — ld-skip-link
+   ------------------------------------------------------------------------
+   Place as the very first focusable element in <body>, pointing at your
+   main landmark's id. Off-screen until focused, matching the pattern
+   .ld-sr-only-focusable uses in §38g — this is the same idea pre-styled
+   as a real, visible link rather than a bare accessibility utility.
+   ========================================================================== */
+
+.ld-skip-link {
+  position: absolute;
+  top: -40px;
+  left: var(--ld-space-3);
+  z-index: var(--ld-z-command);
+  background: var(--ld-surface);
+  color: var(--ld-text);
+  border: var(--ld-border-width) solid var(--ld-border);
+  border-radius: var(--ld-radius);
+  padding: var(--ld-space-2) var(--ld-space-4);
+  font-family: var(--ld-font-family);
+  font-size: var(--ld-text-sm);
+  font-weight: var(--ld-weight-bold);
+  text-decoration: none;
+  transition: top var(--ld-transition);
+}
+.ld-skip-link:focus { top: var(--ld-space-3); }
+
+/* ==========================================================================
+   37w. Sticky table header — data-ld-sticky-head
+   ------------------------------------------------------------------------
+   Add alongside .ld-table (§22) for a header row that stays pinned while
+   the table body scrolls. Requires a scrolling ancestor with a bounded
+   height (e.g. wrap the table in a div with max-height + overflow-y:auto)
+   — position:sticky has no effect without one.
+   ========================================================================== */
+
+.ld-table[data-ld-sticky-head] thead th {
+  position: sticky;
+  top: 0;
+  background: var(--ld-surface);
+  z-index: 1;
+}
 
 /* ==========================================================================
    38–39. Utility classes & Escape hatches — moved to the end of the file
@@ -2232,13 +2461,13 @@ code.ld-code-inline {
 .ld-z-40 { z-index: 40; }
 .ld-z-50 { z-index: 50; }
 /* named aliases — match the exact stacking order already used by ldcss components */
-.ld-z-dropdown { z-index: 20; }
-.ld-z-popover { z-index: 25; }
-.ld-z-tooltip { z-index: 30; }
-.ld-z-modal { z-index: 50; }
-.ld-z-offcanvas { z-index: 55; }
-.ld-z-toast { z-index: 60; }
-.ld-z-command { z-index: 70; }
+.ld-z-dropdown { z-index: var(--ld-z-dropdown); }
+.ld-z-popover { z-index: var(--ld-z-popover); }
+.ld-z-tooltip { z-index: var(--ld-z-tooltip); }
+.ld-z-modal { z-index: var(--ld-z-modal); }
+.ld-z-offcanvas { z-index: var(--ld-z-offcanvas); }
+.ld-z-toast { z-index: var(--ld-z-toast); }
+.ld-z-command { z-index: var(--ld-z-command); }
 
 /* ==========================================================================
    38f. Flex extras & grid columns: ld-self-*, ld-order-*, ld-grid-cols-*
@@ -2272,6 +2501,21 @@ code.ld-code-inline {
    ========================================================================== */
 
 .ld-sr-only {
+  position: absolute;
+  width: 1px; height: 1px;
+  padding: 0; margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* Same as .ld-sr-only until the element (or a descendant) receives
+   keyboard focus, then it un-hides and takes up normal flow again.
+   .ld-skip-link (§37v) implements this pattern with its own visible
+   styling; use this class directly for a plainer "reveal on focus"
+   element that doesn't need the skip-link's card treatment. */
+.ld-sr-only-focusable:not(:focus):not(:focus-within) {
   position: absolute;
   width: 1px; height: 1px;
   padding: 0; margin: -1px;
@@ -2496,6 +2740,134 @@ code.ld-code-inline {
   .ld-xl\:w-50 { width: 50%; }
   .ld-xl\:w-75 { width: 75%; }
   .ld-xl\:w-100 { width: 100%; }
+}
+
+/* ==========================================================================
+   38i. Aspect ratio & object-fit
+   ========================================================================== */
+
+.ld-aspect-square { aspect-ratio: 1 / 1; }
+.ld-aspect-video  { aspect-ratio: 16 / 9; }
+.ld-aspect-portrait { aspect-ratio: 3 / 4; }
+.ld-aspect-wide   { aspect-ratio: 21 / 9; }
+
+.ld-object-cover    { object-fit: cover; }
+.ld-object-contain  { object-fit: contain; }
+.ld-object-fill     { object-fit: fill; }
+.ld-object-center   { object-position: center; }
+.ld-object-top      { object-position: top; }
+.ld-object-bottom   { object-position: bottom; }
+
+/* ==========================================================================
+   38j. Opacity scale
+   ========================================================================== */
+
+.ld-opacity-0  { opacity: 0; }
+.ld-opacity-25 { opacity: 0.25; }
+.ld-opacity-50 { opacity: 0.5; }
+.ld-opacity-75 { opacity: 0.75; }
+.ld-opacity-100 { opacity: 1; }
+
+/* ==========================================================================
+   38k. Line-height utilities
+   ========================================================================== */
+
+.ld-leading-tight   { line-height: var(--ld-leading-tight); }
+.ld-leading-normal  { line-height: var(--ld-leading-normal); }
+.ld-leading-relaxed { line-height: var(--ld-leading-relaxed); }
+
+/* ==========================================================================
+   38l. Motion utilities
+   ------------------------------------------------------------------------
+   Generic, reusable animations — as opposed to the one-off @keyframes
+   already baked into specific components (ld-toast-in, ld-skeleton,
+   ld-blink). Respects prefers-reduced-motion via the existing global
+   rule in §2, which zeroes out all animation/transition durations.
+   ========================================================================== */
+
+.ld-animate-spin { animation: ld-spin 1s linear infinite; }
+.ld-animate-pulse { animation: ld-pulse 1.6s ease-in-out infinite; }
+.ld-animate-bounce { animation: ld-bounce 1s ease-in-out infinite; }
+
+@keyframes ld-spin { to { transform: rotate(360deg); } }
+@keyframes ld-pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+@keyframes ld-bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-25%); } }
+
+/* ==========================================================================
+   38m. Dark-mode-only variants: ld-dark\:*
+   ------------------------------------------------------------------------
+   The responsive variants in §38h scope a utility to a breakpoint; these
+   scope a *small, high-value* subset of utilities to dark mode only, for
+   the common case of "same layout, one property needs to flip." For
+   anything bigger than a couple of one-off property swaps, retheme the
+   subtree with tokens instead (§1) — this isn't meant to grow into a
+   parallel utility set the way ld-sm\:/ld-md\:/etc. did.
+   ========================================================================== */
+
+[data-ld-theme='dark'] .ld-dark\:hidden { display: none; }
+[data-ld-theme='dark'] .ld-dark\:block { display: block; }
+[data-ld-theme='dark'] .ld-dark\:opacity-50 { opacity: 0.5; }
+[data-ld-theme='dark'] .ld-dark\:opacity-75 { opacity: 0.75; }
+:not([data-ld-theme='dark']) .ld-light\:hidden { display: none; }
+
+/* ==========================================================================
+   38n. Scrollbar styling
+   ------------------------------------------------------------------------
+   Firefox (scrollbar-width/scrollbar-color) and Chromium/Safari
+   (::-webkit-scrollbar) need separate properties — there's no shorthand
+   that covers both. Apply .ld-scrollbar-thin to any scrolling container.
+   ========================================================================== */
+
+.ld-scrollbar-thin {
+  scrollbar-width: thin;
+  scrollbar-color: var(--ld-border) transparent;
+}
+.ld-scrollbar-thin::-webkit-scrollbar { width: 8px; height: 8px; }
+.ld-scrollbar-thin::-webkit-scrollbar-track { background: transparent; }
+.ld-scrollbar-thin::-webkit-scrollbar-thumb { background: var(--ld-border); border-radius: 9999px; }
+.ld-scrollbar-thin::-webkit-scrollbar-thumb:hover { background: var(--ld-text-muted); }
+
+/* ==========================================================================
+   38o. Safe-area insets
+   ------------------------------------------------------------------------
+   For content pinned to a viewport edge (toasts, offcanvas, fixed nav)
+   on notched/rounded-corner mobile devices. env() falls back to 0 on
+   devices/browsers that don't support it, so these are safe to apply
+   unconditionally.
+   ========================================================================== */
+
+.ld-safe-top    { padding-top: max(var(--ld-space-4), env(safe-area-inset-top)); }
+.ld-safe-bottom { padding-bottom: max(var(--ld-space-4), env(safe-area-inset-bottom)); }
+.ld-safe-left   { padding-left: max(var(--ld-space-4), env(safe-area-inset-left)); }
+.ld-safe-right  { padding-right: max(var(--ld-space-4), env(safe-area-inset-right)); }
+
+/* ==========================================================================
+   38p. Additional accessibility media queries
+   ------------------------------------------------------------------------
+   Complements the prefers-reduced-motion rule in §2 and the
+   prefers-contrast: more tokens in §1.
+   ========================================================================== */
+
+/* Windows High Contrast Mode / forced-colors: let the OS palette take
+   over rather than fighting it with our soft shadows and mint accent —
+   both become invisible or wrong under forced-colors, so drop them and
+   let borders (which forced-colors respects) carry the UI instead. */
+@media (forced-colors: active) {
+  .ld-btn, .ld-card, .ld-modal, .ld-input, .ld-textarea, .ld-select {
+    box-shadow: none;
+    forced-color-adjust: auto;
+  }
+}
+
+/* .ld-glass (§39) relies on backdrop-filter blur to read as "glass";
+   for people who've asked for reduced transparency, fall back to a
+   solid surface instead of a blur that may not render as intended. */
+@media (prefers-reduced-transparency: reduce) {
+  .ld-glass {
+    background: var(--ld-surface);
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+  }
 }
 
 /* ==========================================================================

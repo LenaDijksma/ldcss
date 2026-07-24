@@ -28,6 +28,7 @@
     <li><a href="#v05" class="ld-nav-link">v0.5</a></li>
     <li><a href="#v11" class="ld-nav-link">v1.1</a></li>
     <li><a href="#v20" class="ld-nav-link">v2.0</a></li>
+    <li><a href="#v21" class="ld-nav-link">v2.1</a></li>
   </ul>
   <div class="ld-row">
     <button class="ld-btn" data-ld-size="sm" data-ld-variant="ghost" data-ld-toggle="command" data-ld-target="#demo-command">⌘K</button>
@@ -38,7 +39,7 @@
 <div class="ld-container">
 
   <header class="ld-hero">
-    <span class="ld-badge" data-ld-variant="primary">v2.0.0</span>
+    <span class="ld-badge" data-ld-variant="primary">v2.1.0</span>
     <h1>ldcss</h1>
     <p class="ld-text-muted">A small framework built on two ideas: <span class="ld-text-accent">ld-*</span> classes for structure, <span class="ld-text-accent">data-ld-*</span> attributes for state and variants. No build step. No dependencies.</p>
     <pre class="ld-code">&lt;button class="ld-btn" data-ld-variant="primary" data-ld-size="lg"&gt;
@@ -153,6 +154,7 @@
         <p class="ld-text-muted">Include ldcss.css and ldcss.js. Everything else is attributes on plain HTML — no build step.</p>
       </div>
       <div id="tab-3" data-ld-tab-panel>
+        <p class="ld-text-muted"><strong>v2.1.0</strong> — new components: native <code class="ld-code-inline">ld-select</code> gets a real arrow (light/dark aware; <code class="ld-code-inline">[multiple]</code> is left bare); <code class="ld-code-inline">ld-dot</code> notification badge for avatars/icons (<code class="ld-code-inline">data-ld-count</code>, <code class="ld-code-inline">data-ld-variant</code>); <code class="ld-code-inline">data-ld-input-clear</code> and <code class="ld-code-inline">data-ld-password-toggle</code>, both slotting into the existing <code class="ld-code-inline">ld-input-group</code> affix pattern; <code class="ld-code-inline">ld-btn-group</code> (+ <code class="ld-code-inline">data-ld-split</code> for a split button); <code class="ld-code-inline">ld-skip-link</code>; and two table additions — <code class="ld-code-inline">data-ld-sticky-head</code> (pins the header row inside a scrolling ancestor) and click-to-sort headers via <code class="ld-code-inline">th[data-ld-sort]</code> (<code class="ld-code-inline">data-ld-sort-key</code>, per-cell <code class="ld-code-inline">data-ld-sort-value</code> for sorting formatted text by a hidden number/date, fires <code class="ld-code-inline">ld:table:sort</code>). New utilities: <code class="ld-code-inline">ld-aspect-*</code>/<code class="ld-code-inline">ld-object-*</code>, <code class="ld-code-inline">ld-opacity-*</code>, <code class="ld-code-inline">ld-leading-*</code>, generic motion (<code class="ld-code-inline">ld-animate-spin</code>/<code class="ld-code-inline">-pulse</code>/<code class="ld-code-inline">-bounce</code>, separate from the one-off keyframes already built into toast/skeleton/spinner), a small <code class="ld-code-inline">ld-dark:*</code>/<code class="ld-code-inline">ld-light:*</code> variant set for one-off property flips (retheme with tokens instead for anything bigger), <code class="ld-code-inline">ld-scrollbar-thin</code>, and <code class="ld-code-inline">ld-safe-{top,bottom,left,right}</code> for notched-device insets. Accessibility: <code class="ld-code-inline">ld-sr-only-focusable</code> (the reveal-on-focus half of <code class="ld-code-inline">ld-sr-only</code>, also what <code class="ld-code-inline">ld-skip-link</code> is built on); a <code class="ld-code-inline">forced-colors: active</code> pass that drops shadows and lets Windows High Contrast Mode's own palette carry buttons/cards/inputs; and a <code class="ld-code-inline">prefers-reduced-transparency</code> fallback that swaps <code class="ld-code-inline">ld-glass</code>'s blur for a solid surface. Theming: new semantic status tokens <code class="ld-code-inline">--ld-success</code>/<code class="ld-code-inline">--ld-warning</code>/<code class="ld-code-inline">--ld-info</code> (+ <code class="ld-code-inline">-text</code> pairs, themed for light/dark/notheme) replace what used to be one hardcoded hex value inline in the alert and terminal-window rules; new <code class="ld-code-inline">--ld-weight-*</code> and <code class="ld-code-inline">--ld-leading-*</code> scales; and the <code class="ld-code-inline">--ld-z-*</code> stacking values (already exposed as <code class="ld-code-inline">ld-z-*</code> utility classes) are now also real custom properties that every overlay component reads, instead of each hardcoding its own layer number. <strong>Minor non-breaking visual change:</strong> the alert <code class="ld-code-inline">info</code> variant's rail/title color moved off <code class="ld-code-inline">--ld-text</code> onto the new <code class="ld-code-inline">--ld-info</code> blue, to match every other semantic variant being a real color rather than "just text-colored." JS: dropdown/popover now return focus to their trigger when closed with Escape while you were navigating inside them (modal/offcanvas/command already did this); <code class="ld-code-inline">window.ldcss.destroy()</code> disconnects entrance-animation observers before you remove a chunk of DOM; <code class="ld-code-inline">window.ldcss.debounce()</code> is exposed for wiring an async/remote combobox source (the built-in local-list filter doesn't need it).</p>
         <p class="ld-text-muted"><strong>v2.0.0 — Bootstrap-parity batch (breaking visual change: container).</strong> <code class="ld-code-inline">.ld-container</code> now steps its max-width at each breakpoint (100% fluid below 640px, then 600/900/1100/1320px) instead of a single fixed 1100px cap — pages relying on the old fluid-up-to-1100px behavior at in-between viewport widths (roughly 640–1099px) will render narrower than before at those sizes; <code class="ld-code-inline">ld-container-sm</code>/<code class="ld-code-inline">ld-container-wide</code> are unaffected. New: a real 12-column grid (<code class="ld-code-inline">ld-grid-row</code>/<code class="ld-code-inline">ld-col-*</code>/<code class="ld-code-inline">ld-offset-*</code>, responsive at every breakpoint, distinct from the even-split <code class="ld-code-inline">ld-grid</code>) for asymmetric layouts; a carousel (<code class="ld-code-inline">data-ld-carousel</code>, with autoplay, dots, and prev/next); navbar collapse (<code class="ld-code-inline">data-ld-navbar-collapse</code>, the inline "hamburger below a breakpoint, always-visible above it" pattern, distinct from the slide-in <code class="ld-code-inline">ld-offcanvas</code>); floating labels (<code class="ld-code-inline">ld-form-floating</code>); opt-in native validation styling (<code class="ld-code-inline">.ld-validate</code>, using <code class="ld-code-inline">:user-invalid</code>/<code class="ld-code-inline">:user-valid</code> so it only reacts after interaction, not on an empty required field's first paint); richer skeleton placeholders (button/avatar shapes, a width scale, a paragraph pattern with uneven line lengths); and scrollspy (<code class="ld-code-inline">data-ld-scrollspy</code> on a container of anchor links — this page's own nav uses it now, watch the underline move as you scroll). Responsive utilities gained padding/margin (all-sides, sizes 0/2/3/4/6/8), text-size, and width axes at every breakpoint. Tabs and the segmented control now use roving tabindex — Tab jumps straight to content, arrow keys move between options within the group. Every overlay component (modal, offcanvas, dropdown, popover, accordion, tabs, command palette, carousel) now dispatches bubbling <code class="ld-code-inline">ld:{component}:show</code>/<code class="ld-code-inline">hide</code> CustomEvents, so one listener higher up the DOM can react to any instance instead of patching click handlers. RTL pass: offcanvas, tooltip left/right placement, pull-quote, terminal title, avatar-group overlap, input affix, timeline, dropdown menu, and popover all switched from physical <code class="ld-code-inline">left</code>/<code class="ld-code-inline">right</code> to logical properties (<code class="ld-code-inline">inset-inline-*</code>, <code class="ld-code-inline">margin-inline-*</code>, <code class="ld-code-inline">border-inline-*</code>) — they now mirror correctly under <code class="ld-code-inline">dir="rtl"</code>; toast position was deliberately left physical, since a "top-right" notification shouldn't relocate based on text direction. Known gap: overlay slide/enter animations (offcanvas transform, in particular) are still physical, not direction-aware — positioning is correct under RTL, the transition direction itself isn't yet.</p>
         <p class="ld-text-muted"><strong>v1.1.0</strong> — new components: <code class="ld-code-inline">data-ld-segmented</code>/<code class="ld-code-inline">data-ld-segment</code> (segmented control, for a value rather than a view — contrast with tabs), <code class="ld-code-inline">data-ld-chip</code>/<code class="ld-code-inline">data-ld-chips="single"</code> (interactive filter chips, distinct from the display-only <code class="ld-code-inline">ld-tag</code>), <code class="ld-code-inline">ld-input-group</code>/<code class="ld-code-inline">ld-input-affix</code> (icon or unit alongside an input), <code class="ld-code-inline">data-ld-combobox</code> (filtered, keyboard-navigable search-inline — distinct from the command palette, which is search-in-a-modal), <code class="ld-code-inline">ld-empty</code> (the "no results" pattern), <code class="ld-code-inline">ld-timeline</code> (a vertical, open-ended activity feed — contrast with the fixed-stage stepper), and <code class="ld-code-inline">ld-icon</code> (a sizing convention for inline SVGs, not an icon set). <strong>Stepper is now interactive</strong>: add a bare <code class="ld-code-inline">data-ld-stepper</code> attribute alongside the existing <code class="ld-code-inline">ld-stepper</code> class to opt in — <code class="ld-code-inline">data-ld-clickable="true"</code> lets people jump to any step, <code class="ld-code-inline">data-ld-toggle="step-next"</code>/<code class="ld-code-inline">"step-prev"</code> wires up buttons, and <code class="ld-code-inline">data-ld-step-panels="#selector"</code> pairs it with show/hide panels the way tabs pair with tab panels; old static <code class="ld-code-inline">ld-stepper</code> markup with no <code class="ld-code-inline">data-ld-stepper</code> attribute is untouched. Toast container now reads <code class="ld-code-inline">data-ld-toast-position</code> on <code class="ld-code-inline">&lt;body&gt;</code> (top/bottom × left/center/right; top-right stays the default) at the moment it's first created. Theme now falls back to <code class="ld-code-inline">prefers-color-scheme: dark</code> on a first visit with no saved choice — an explicit toggle always wins after that. Responsive utilities gained <code class="ld-code-inline">lg</code> (1200px) and <code class="ld-code-inline">xl</code> (1440px) breakpoints, and every breakpoint (<code class="ld-code-inline">sm</code>/<code class="ld-code-inline">md</code>/<code class="ld-code-inline">lg</code>/<code class="ld-code-inline">xl</code>) now also covers <code class="ld-code-inline">flex-row</code>/<code class="ld-code-inline">flex-col</code>, <code class="ld-code-inline">text-left</code>/<code class="ld-code-inline">center</code>/<code class="ld-code-inline">right</code>, and <code class="ld-code-inline">gap-0</code>/<code class="ld-code-inline">2</code>/<code class="ld-code-inline">4</code>/<code class="ld-code-inline">6</code>, not just <code class="ld-code-inline">display</code> and <code class="ld-code-inline">grid-cols</code>. Documented (no code change): a one-off custom brand color beyond the seven <code class="ld-code-inline">ld-accent-*</code> presets is just <code class="ld-code-inline">--ld-accent</code>/<code class="ld-code-inline">--ld-accent-text</code> set inline on any element, the same mechanism the presets use.</p>
         <p class="ld-text-muted"><strong>v1.0.0 — modern default (breaking visual change).</strong> ldcss no longer defaults to ldcss's original sharp/mono/hard-shadow look. Out of the box it's now: rounded corners (<code class="ld-code-inline">--ld-radius</code> 0px → 10px), a soft layered shadow instead of a hard offset (<code class="ld-code-inline">--ld-shadow</code>/new <code class="ld-code-inline">--ld-shadow-lg</code>), a thinner neutral-gray border (<code class="ld-code-inline">--ld-border-width</code> 2px → 1px, border color no longer near-black), and a system sans-serif font (<code class="ld-code-inline">--ld-font-family</code> now defaults to new token <code class="ld-code-inline">--ld-font-sans</code>; use <code class="ld-code-inline">ld-font-mono</code> to opt back in — code/pre/kbd/terminal are unaffected, they read <code class="ld-code-inline">--ld-font-mono</code> directly and stay mono). Every bordered/shadowed component was touched: buttons, badges, cards, inputs, dropdowns, modals, alerts, toasts, popovers, tooltips, the command palette, and more all pick up the new radius/shadow tokens; progress bars, switches, tags, and the range thumb are now pill/circle-shaped; button press and card hover use a normal soft lift instead of the old shadow-cancel trick; input focus is a soft ring (<code class="ld-code-inline">color-mix()</code>) instead of a hard-offset box. Two new escape hatches for getting the old (or a fully custom) look back: <code class="ld-code-inline">data-ld-shadow="hard"</code> restores the original offset shadow anywhere you set it — on <code class="ld-code-inline">&lt;html&gt;</code> for the whole page or on one element — the same mechanism the old <code class="ld-code-inline">data-ld-shadow="soft"</code> used, just inverted now that soft is the default; <code class="ld-code-inline">data-ld-unstyled</code> resets radius/shadow/border-weight/accent-fill to neutral on a container so a stylesheet loaded after ldcss.css can restyle it cleanly without fighting specificity. The old hard-offset <code class="ld-code-inline">sm</code>/<code class="ld-code-inline">md</code>/<code class="ld-code-inline">lg</code> shadow-depth tiers on <code class="ld-code-inline">data-ld-shadow</code> are now soft blur tiers to match. <strong>Migration:</strong> if you were relying on the old look, add <code class="ld-code-inline">data-ld-shadow="hard"</code> to <code class="ld-code-inline">&lt;html&gt;</code> and <code class="ld-code-inline">ld-font-mono</code> to your body/container for the closest match — corners and border color aren't independently revertible via attribute yet, override <code class="ld-code-inline">--ld-radius</code>/<code class="ld-code-inline">--ld-border</code> directly if you need them back too.</p>
@@ -700,6 +702,75 @@ $ echo "linked ldcss.css and ldcss.js"</div>
           <div class="ld-skeleton" data-ld-shape="text"></div>
         </div>
       </div>
+    </div>
+  </section>
+
+  <section id="v21">
+    <h2>Select arrow, notification dot, input affixes, button group, sortable table</h2>
+    <p class="ld-section-sub">New in v2.1.0 — plus generic motion/scrollbar/opacity/aspect-ratio utilities and a forced-colors pass (not pictured, see cheat sheet)</p>
+
+    <div class="ld-grid" data-ld-cols="3" style="margin-bottom: var(--ld-space-6);">
+      <div>
+        <label class="ld-label">ld-select</label>
+        <select class="ld-select">
+          <option>Every plan</option>
+          <option>Free</option>
+          <option>Pro</option>
+          <option>Enterprise</option>
+        </select>
+      </div>
+
+      <div>
+        <label class="ld-label">ld-dot notification badge</label>
+        <div class="ld-row">
+          <div class="ld-avatar" style="position: relative;">LD<span class="ld-dot" data-ld-count="3"></span></div>
+          <div class="ld-avatar" data-ld-variant="accent" style="position: relative;">JS<span class="ld-dot"></span></div>
+        </div>
+      </div>
+
+      <div>
+        <label class="ld-label">ld-btn-group / split button</label>
+        <div class="ld-btn-group">
+          <button type="button" class="ld-btn">Day</button>
+          <button type="button" class="ld-btn">Week</button>
+          <button type="button" class="ld-btn" data-ld-split="true" aria-label="More options">▾</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="ld-grid" data-ld-cols="2" style="margin-bottom: var(--ld-space-6);">
+      <div>
+        <label class="ld-label">Input clear button</label>
+        <div class="ld-input-group">
+          <input class="ld-input" id="clear-demo" type="text" value="Filter results…">
+          <button type="button" data-ld-input-clear data-ld-target="#clear-demo" aria-label="Clear">&times;</button>
+        </div>
+      </div>
+      <div>
+        <label class="ld-label">Password visibility toggle</label>
+        <div class="ld-input-group">
+          <input class="ld-input" id="pw-demo" type="password" value="hunter2">
+          <button type="button" data-ld-password-toggle data-ld-target="#pw-demo"></button>
+        </div>
+      </div>
+    </div>
+
+    <label class="ld-label">Sortable, sticky-head table (click a column header)</label>
+    <div style="max-height: 180px; overflow-y: auto;" class="ld-scrollbar-thin">
+      <table class="ld-table" data-ld-striped="true" data-ld-sortable data-ld-sticky-head>
+        <thead>
+          <tr>
+            <th data-ld-sort data-ld-sort-key="name">Component</th>
+            <th data-ld-sort data-ld-sort-key="added">Added</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td>Command palette</td><td data-ld-sort-value="20230501">v0.5.0</td></tr>
+          <tr><td>Combobox</td><td data-ld-sort-value="20240301">v1.1.0</td></tr>
+          <tr><td>12-column grid</td><td data-ld-sort-value="20240801">v2.0.0</td></tr>
+          <tr><td>Button group</td><td data-ld-sort-value="20250101">v2.1.0</td></tr>
+        </tbody>
+      </table>
     </div>
   </section>
 
