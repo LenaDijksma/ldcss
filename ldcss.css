@@ -1341,9 +1341,9 @@ code.ld-code-inline {
   background: var(--ld-surface);
 }
 [data-ld-tags]:focus-within { border-color: var(--ld-accent); }
-.ld-tag { display: inline-flex; align-items: center; gap: 4px; background: var(--ld-surface-raised); border: 1px solid var(--ld-border-soft); border-radius: 9999px; padding: 2px 8px; font-size: var(--ld-text-xs); }
-.ld-tag-remove { background: none; border: none; color: var(--ld-text-muted); cursor: pointer; font-size: var(--ld-text-sm); line-height: 1; padding: 0; }
-.ld-tag-remove:hover { color: var(--ld-danger); }
+.ld-tag, [data-ld-tag] { display: inline-flex; align-items: center; gap: 4px; background: var(--ld-surface-raised); border: 1px solid var(--ld-border-soft); border-radius: 9999px; padding: 2px 8px; font-size: var(--ld-text-xs); }
+.ld-tag-remove, [data-ld-tag-remove] { background: none; border: none; color: var(--ld-text-muted); cursor: pointer; font-size: var(--ld-text-sm); line-height: 1; padding: 0; }
+.ld-tag-remove:hover, [data-ld-tag-remove]:hover { color: var(--ld-danger); }
 [data-ld-tags-input] { flex: 1; min-width: 100px; border: none; background: none; font-family: var(--ld-font-family); font-size: var(--ld-text-sm); color: var(--ld-text); outline: none; }
 
 /* ==========================================================================
@@ -1566,6 +1566,14 @@ code.ld-code-inline {
   font-weight: 700;
 }
 [data-ld-chip][data-ld-active='true'] .ld-chip-check { display: inline; }
+/* The .ld-chip-check span is optional. If it's left out of the markup
+   (just `<button data-ld-chip>Label</button>`), this pseudo-element
+   supplies the same checkmark automatically so plain markup still looks
+   right — :has() skips this when the span is present, so no double mark. */
+[data-ld-chip][data-ld-active='true']:not(:has(.ld-chip-check))::before {
+  content: "✓";
+  line-height: 1;
+}
 
 /* ==========================================================================
    37j. Input affix — ld-input-group
@@ -2542,12 +2550,14 @@ code.ld-code-inline {
    (sm/md match the breakpoints .ld-grid already uses; lg/xl are new).
    Each breakpoint covers display, grid-cols, flex-direction, text-align,
    gap, padding/margin (all-sides only, a reduced size scale: 0/2/3/4/6/8),
-   text-size, and width (25/50/75/100%) — the utilities layout most often
-   needs to flip at a breakpoint. Deliberately NOT covered, to keep this
-   section's size sane: per-side padding/margin (ld-pad-t/-r/-b/-l/-x/-y),
-   the full 8-step spacing scale, and border-radius. Extend the same way
-   if one of those comes up short — the pattern is always
-   .ld-{bp}\:{utility}, one prefixed copy of the base utility's declaration.
+   text-size, order, and width (25/50/75/100%) — the utilities layout most
+   often needs to flip at a breakpoint (reordering a hero's text/art columns
+   on mobile is common enough that order earned a spot alongside flex-direction).
+   Deliberately NOT covered, to keep this section's size sane: per-side
+   padding/margin (ld-pad-t/-r/-b/-l/-x/-y), the full 8-step spacing scale,
+   and border-radius. Extend the same way if one of those comes up short —
+   the pattern is always .ld-{bp}\:{utility}, one prefixed copy of the base
+   utility's declaration.
    ========================================================================== */
 
 @media (min-width: 640px) {
@@ -2566,6 +2576,13 @@ code.ld-code-inline {
   .ld-sm\:grid-cols-6 { grid-template-columns: repeat(6, 1fr); }
   .ld-sm\:flex-row { flex-direction: row; }
   .ld-sm\:flex-col { flex-direction: column; }
+  .ld-sm\:order-1 { order: 1; }
+  .ld-sm\:order-2 { order: 2; }
+  .ld-sm\:order-3 { order: 3; }
+  .ld-sm\:order-4 { order: 4; }
+  .ld-sm\:order-5 { order: 5; }
+  .ld-sm\:order-first { order: -1; }
+  .ld-sm\:order-last { order: 999; }
   .ld-sm\:text-left { text-align: left; }
   .ld-sm\:text-center { text-align: center; }
   .ld-sm\:text-right { text-align: right; }
@@ -2614,6 +2631,13 @@ code.ld-code-inline {
   .ld-md\:grid-cols-6 { grid-template-columns: repeat(6, 1fr); }
   .ld-md\:flex-row { flex-direction: row; }
   .ld-md\:flex-col { flex-direction: column; }
+  .ld-md\:order-1 { order: 1; }
+  .ld-md\:order-2 { order: 2; }
+  .ld-md\:order-3 { order: 3; }
+  .ld-md\:order-4 { order: 4; }
+  .ld-md\:order-5 { order: 5; }
+  .ld-md\:order-first { order: -1; }
+  .ld-md\:order-last { order: 999; }
   .ld-md\:text-left { text-align: left; }
   .ld-md\:text-center { text-align: center; }
   .ld-md\:text-right { text-align: right; }
@@ -2662,6 +2686,13 @@ code.ld-code-inline {
   .ld-lg\:grid-cols-6 { grid-template-columns: repeat(6, 1fr); }
   .ld-lg\:flex-row { flex-direction: row; }
   .ld-lg\:flex-col { flex-direction: column; }
+  .ld-lg\:order-1 { order: 1; }
+  .ld-lg\:order-2 { order: 2; }
+  .ld-lg\:order-3 { order: 3; }
+  .ld-lg\:order-4 { order: 4; }
+  .ld-lg\:order-5 { order: 5; }
+  .ld-lg\:order-first { order: -1; }
+  .ld-lg\:order-last { order: 999; }
   .ld-lg\:text-left { text-align: left; }
   .ld-lg\:text-center { text-align: center; }
   .ld-lg\:text-right { text-align: right; }
@@ -2710,6 +2741,13 @@ code.ld-code-inline {
   .ld-xl\:grid-cols-6 { grid-template-columns: repeat(6, 1fr); }
   .ld-xl\:flex-row { flex-direction: row; }
   .ld-xl\:flex-col { flex-direction: column; }
+  .ld-xl\:order-1 { order: 1; }
+  .ld-xl\:order-2 { order: 2; }
+  .ld-xl\:order-3 { order: 3; }
+  .ld-xl\:order-4 { order: 4; }
+  .ld-xl\:order-5 { order: 5; }
+  .ld-xl\:order-first { order: -1; }
+  .ld-xl\:order-last { order: 999; }
   .ld-xl\:text-left { text-align: left; }
   .ld-xl\:text-center { text-align: center; }
   .ld-xl\:text-right { text-align: right; }

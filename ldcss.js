@@ -454,6 +454,34 @@
       openOffcanvas(arg);
     } else if (type === 'modal') {
       openModal(arg);
+    } else if (type === 'goto') {
+      runGotoAction(arg);
+    }
+  }
+
+  /* data-ld-command-action="goto:#section" scrolls to an in-page anchor
+     (smoothly, unless the person prefers reduced motion), updates the URL,
+     and moves focus to the target for keyboard/screen-reader users — the
+     same landing behavior a real link click gets. Anything not starting
+     with "#" is treated as a normal page URL and just navigates there,
+     e.g. "goto:/pricing" or "goto:https://example.com". */
+  function runGotoAction(arg) {
+    if (!arg) return;
+    if (arg.charAt(0) === '#') {
+      var targetEl;
+      try { targetEl = document.querySelector(arg); } catch (err) { targetEl = null; }
+      if (!targetEl) return;
+      var reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      targetEl.scrollIntoView(reduceMotion ? { block: 'start' } : { behavior: 'smooth', block: 'start' });
+      if (window.history && window.history.pushState) {
+        window.history.pushState(null, '', arg);
+      } else {
+        window.location.hash = arg;
+      }
+      if (!targetEl.hasAttribute('tabindex')) targetEl.setAttribute('tabindex', '-1');
+      targetEl.focus({ preventScroll: true });
+    } else {
+      window.location.href = arg;
     }
   }
 
@@ -691,6 +719,7 @@
     if (!text) return;
     var tag = document.createElement('span');
     tag.className = 'ld-tag';
+    tag.setAttribute('data-ld-tag', '');
 
     var label = document.createElement('span');
     label.textContent = text;
@@ -699,6 +728,7 @@
     var remove = document.createElement('button');
     remove.type = 'button';
     remove.className = 'ld-tag-remove';
+    remove.setAttribute('data-ld-tag-remove', '');
     remove.setAttribute('aria-label', 'Remove ' + text);
     remove.textContent = '×';
     tag.appendChild(remove);
@@ -716,7 +746,7 @@
       if (wrapper) addTag(wrapper, input, input.value);
     } else if (e.key === 'Backspace' && !input.value) {
       var wrap = input.closest('[data-ld-tags]');
-      var tags = wrap ? wrap.querySelectorAll('.ld-tag') : [];
+      var tags = wrap ? wrap.querySelectorAll('.ld-tag, [data-ld-tag]') : [];
       if (tags.length) tags[tags.length - 1].remove();
     }
   }
@@ -1301,9 +1331,9 @@
       return;
     }
 
-    var tagRemoveEl = e.target.closest('.ld-tag-remove');
+    var tagRemoveEl = e.target.closest('.ld-tag-remove, [data-ld-tag-remove]');
     if (tagRemoveEl) {
-      var tagEl = tagRemoveEl.closest('.ld-tag');
+      var tagEl = tagRemoveEl.closest('.ld-tag, [data-ld-tag]');
       if (tagEl) tagEl.remove();
       return;
     }
