@@ -37,7 +37,7 @@
   --ld-danger-text: #FFFFFF;
   --ld-shadow-color: #14171A; /* only used by data-ld-shadow='hard', defined just below */
   --ld-focus-ring: #14171A;
-  --ld-code-text: #0C7A54; /* darker mint — readable on light surfaces */
+  --ld-code-text: #0c297a; /* darker mint — readable on light surfaces */
 
   /* Semantic status — success mirrors accent by default (most ldcss sites
      only have one "good" color); override independently if your brand
@@ -45,7 +45,7 @@
      were previously hardcoded inline (alert §11, terminal dot §19); they
      live here now so a theme swap or [data-ld-unstyled] subtree can reach
      them like every other status color. */
-  --ld-success: var(--ld-accent);
+  --ld-success: #27bd16;
   --ld-success-text: var(--ld-accent-text);
   --ld-warning: #C98A1F;
   --ld-warning-text: #2E1D00;
@@ -120,7 +120,7 @@
   --ld-border-soft: #222623;
   --ld-danger: #FF6B7A;
   --ld-danger-text: #1A0508;
-  --ld-success: var(--ld-accent);
+  --ld-success: #27bd16;
   --ld-success-text: var(--ld-accent-text);
   --ld-warning: #E0A741;
   --ld-warning-text: #1F1400;
@@ -468,6 +468,23 @@ code.ld-code-inline {
 }
 .ld-nav-link:hover { color: var(--ld-text); }
 .ld-nav-link[data-ld-active='true'] { color: var(--ld-text); border-color: var(--ld-accent); }
+
+/* --------------------------------------------------------------------------
+   8b. Footer — ld-footer
+   Bottom counterpart to ld-nav: same padding/surface, but border-top since
+   it sits at the end of the page instead of the start. Pair with
+   ld-shadow-up / ld-shadow-up-sm / ld-shadow-up-lg (§38) if you want a lift
+   off the page instead of (or in addition to) the border.
+   -------------------------------------------------------------------------- */
+
+.ld-footer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--ld-space-3) var(--ld-space-5);
+  background: var(--ld-surface);
+  border-top: var(--ld-border-width) solid var(--ld-border);
+}
 
 /* ==========================================================================
    9. Forms — ld-form / ld-input
@@ -2427,8 +2444,8 @@ code.ld-code-inline {
 
 /* -- Truncation -------------------------------------------------------------------- */
 .ld-truncate { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.ld-line-clamp-2 { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
-.ld-line-clamp-3 { display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+.ld-line-clamp-2 { display: -webkit-box; -webkit-line-clamp: 2; line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.ld-line-clamp-3 { display: -webkit-box; -webkit-line-clamp: 3; line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
 
 /* ==========================================================================
    38d. Color utilities: ld-text-*, ld-bg-*
@@ -2441,6 +2458,11 @@ code.ld-code-inline {
 .ld-bg-surface { background: var(--ld-surface); }
 .ld-bg-raised { background: var(--ld-surface-raised); }
 .ld-bg-transparent { background: transparent; }
+.ld-bg-accent { background: var(--ld-accent); }
+.ld-bg-danger { background: var(--ld-danger); }
+.ld-bg-success { background: var(--ld-success); }
+.ld-bg-warning { background: var(--ld-warning); }
+.ld-bg-info { background: var(--ld-info); }
 
 /* ==========================================================================
    38e. Position & z-index utilities: ld-{relative,absolute,fixed,sticky},
@@ -2971,6 +2993,18 @@ code.ld-code-inline {
 [data-ld-theme='dark'] .ld-shadow-soft-sm { box-shadow: 0 1px 4px rgba(0, 0, 0, 0.4); }
 [data-ld-theme='dark'] .ld-shadow-soft     { box-shadow: 0 4px 12px rgba(0, 0, 0, 0.45); }
 [data-ld-theme='dark'] .ld-shadow-soft-lg { box-shadow: 0 12px 32px rgba(0, 0, 0, 0.5); }
+
+/* -- Shadow depth, upward (same sm/base/lg scale as ld-shadow-soft-*, for
+   elements like a footer where the shadow should read as cast toward the
+   top rather than the bottom) ----------------------------------------- */
+
+.ld-shadow-up-sm { box-shadow: 0 -1px 4px rgba(20, 23, 26, 0.10); }
+.ld-shadow-up      { box-shadow: 0 -4px 12px rgba(20, 23, 26, 0.14); }
+.ld-shadow-up-lg { box-shadow: 0 -12px 32px rgba(20, 23, 26, 0.18); }
+
+[data-ld-theme='dark'] .ld-shadow-up-sm { box-shadow: 0 -1px 4px rgba(0, 0, 0, 0.4); }
+[data-ld-theme='dark'] .ld-shadow-up     { box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.45); }
+[data-ld-theme='dark'] .ld-shadow-up-lg { box-shadow: 0 -12px 32px rgba(0, 0, 0, 0.5); }
 
 /* .ld-btn:active/:disabled and .ld-input:focus set box-shadow at higher
    specificity than these utilities, so a pressed/disabled button or a

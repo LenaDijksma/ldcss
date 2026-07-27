@@ -29,6 +29,7 @@
     <li><a href="#v11" class="ld-nav-link">v1.1</a></li>
     <li><a href="#v20" class="ld-nav-link">v2.0</a></li>
     <li><a href="#v21" class="ld-nav-link">v2.1</a></li>
+    <li><a href="#v24" class="ld-nav-link">v2.4</a></li>
   </ul>
   <div class="ld-row">
     <button class="ld-btn" data-ld-size="sm" data-ld-variant="ghost" data-ld-toggle="command" data-ld-target="#demo-command">⌘K</button>
@@ -39,7 +40,7 @@
 <div class="ld-container">
 
   <header class="ld-hero">
-    <span class="ld-badge" data-ld-variant="primary">v2.1.0</span>
+    <span class="ld-badge" data-ld-variant="primary">v2.4.0</span>
     <h1>ldcss</h1>
     <p class="ld-text-muted">A small framework built on two ideas: <span class="ld-text-accent">ld-*</span> classes for structure, <span class="ld-text-accent">data-ld-*</span> attributes for state and variants. No build step. No dependencies.</p>
     <pre class="ld-code">&lt;button class="ld-btn" data-ld-variant="primary" data-ld-size="lg"&gt;
@@ -154,6 +155,7 @@
         <p class="ld-text-muted">Include ldcss.css and ldcss.js. Everything else is attributes on plain HTML — no build step.</p>
       </div>
       <div id="tab-3" data-ld-tab-panel>
+        <p class="ld-text-muted"><strong>v2.4.0</strong> — a small, backward-compatible batch: <code class="ld-code-inline">ld-footer</code> is the bottom counterpart to <code class="ld-code-inline">ld-nav</code> that ldcss was missing — same padding and surface, just <code class="ld-code-inline">border-top</code> instead of <code class="ld-code-inline">border-bottom</code> since it anchors the end of the page rather than the start. New <code class="ld-code-inline">ld-shadow-up</code>/<code class="ld-code-inline">-sm</code>/<code class="ld-code-inline">-lg</code> utility trio mirrors the existing <code class="ld-code-inline">ld-shadow-soft-sm</code>/<code class="ld-code-inline">-soft</code>/<code class="ld-code-inline">-soft-lg</code> scale (same opacities, same dark-theme handling) but casts the shadow upward — built to pair with <code class="ld-code-inline">ld-footer</code>, or any other element pinned to the bottom of the viewport. And <code class="ld-code-inline">ld-bg-*</code> gains five semantic values — <code class="ld-code-inline">accent</code>/<code class="ld-code-inline">danger</code>/<code class="ld-code-inline">success</code>/<code class="ld-code-inline">warning</code>/<code class="ld-code-inline">info</code> — joining <code class="ld-code-inline">surface</code>/<code class="ld-code-inline">raised</code>/<code class="ld-code-inline">transparent</code>, reading the same tokens <code class="ld-code-inline">ld-text-danger</code> and the badge/alert variants already use.</p>
         <p class="ld-text-muted"><strong>v2.3.0</strong> — new command palette action: <code class="ld-code-inline">data-ld-command-action="goto:target"</code>. If <code class="ld-code-inline">target</code> starts with <code class="ld-code-inline">#</code> it's treated as an in-page anchor — smooth-scrolls to it (instantly under <code class="ld-code-inline">prefers-reduced-motion</code>), updates the URL via <code class="ld-code-inline">history.pushState</code> so the hash is shareable/back-button-able, and moves focus onto the target (adding <code class="ld-code-inline">tabindex="-1"</code> first if it isn't already focusable) so keyboard and screen-reader users land in the right place, same as a normal anchor-link click. Anything else — <code class="ld-code-inline">goto:/pricing</code>, a full URL — just navigates there. Before this, jumping to a page or section from the command palette meant wrapping the item in a real <code class="ld-code-inline">&lt;a href&gt;</code> (still supported, and still the right call for a plain link with no scroll/focus choreography needed) — <code class="ld-code-inline">goto</code> is for when you want an action-triggered jump instead, e.g. a "Go to pricing" result that isn't literally a link in the surrounding markup.</p>
         <p class="ld-text-muted"><strong>v2.2.0</strong> — three consistency fixes, all backward-compatible (no markup changes required). <strong>Chips:</strong> <code class="ld-code-inline">[data-ld-chip][data-ld-active="true"]</code> now shows a checkmark on its own via a <code class="ld-code-inline">:has()</code>-guarded <code class="ld-code-inline">::before</code>, so a bare <code class="ld-code-inline">&lt;button data-ld-chip&gt;Label&lt;/button&gt;</code> looks right without also hand-adding a <code class="ld-code-inline">.ld-chip-check</code> span; pages that already include the span are unaffected — <code class="ld-code-inline">:has()</code> detects it and steps aside rather than doubling the mark. <strong>Tags:</strong> <code class="ld-code-inline">data-ld-tag</code>/<code class="ld-code-inline">data-ld-tag-remove</code> are now first-class equivalents of <code class="ld-code-inline">.ld-tag</code>/<code class="ld-code-inline">.ld-tag-remove</code> in both the CSS and the click/backspace-to-remove handlers, so tag markup can follow the same attribute-for-interactive-state convention as chips/segments instead of being the one place that only had classes; JS-generated tags (typed into <code class="ld-code-inline">data-ld-tags-input</code>) now carry both the class and the attribute. <strong>Responsive utilities:</strong> <code class="ld-code-inline">order</code> joins the per-breakpoint set — <code class="ld-code-inline">ld-sm:order-*</code>/<code class="ld-code-inline">ld-md:order-*</code>/<code class="ld-code-inline">ld-lg:order-*</code>/<code class="ld-code-inline">ld-xl:order-*</code> (1–5, <code class="ld-code-inline">first</code>, <code class="ld-code-inline">last</code>), for the common case of reordering a two-column hero's text/art on mobile without a non-responsive <code class="ld-code-inline">ld-order-*</code> affecting every breakpoint at once.</p>
         <p class="ld-text-muted"><strong>v2.1.0</strong> — new components: native <code class="ld-code-inline">ld-select</code> gets a real arrow (light/dark aware; <code class="ld-code-inline">[multiple]</code> is left bare); <code class="ld-code-inline">ld-dot</code> notification badge for avatars/icons (<code class="ld-code-inline">data-ld-count</code>, <code class="ld-code-inline">data-ld-variant</code>); <code class="ld-code-inline">data-ld-input-clear</code> and <code class="ld-code-inline">data-ld-password-toggle</code>, both slotting into the existing <code class="ld-code-inline">ld-input-group</code> affix pattern; <code class="ld-code-inline">ld-btn-group</code> (+ <code class="ld-code-inline">data-ld-split</code> for a split button); <code class="ld-code-inline">ld-skip-link</code>; and two table additions — <code class="ld-code-inline">data-ld-sticky-head</code> (pins the header row inside a scrolling ancestor) and click-to-sort headers via <code class="ld-code-inline">th[data-ld-sort]</code> (<code class="ld-code-inline">data-ld-sort-key</code>, per-cell <code class="ld-code-inline">data-ld-sort-value</code> for sorting formatted text by a hidden number/date, fires <code class="ld-code-inline">ld:table:sort</code>). New utilities: <code class="ld-code-inline">ld-aspect-*</code>/<code class="ld-code-inline">ld-object-*</code>, <code class="ld-code-inline">ld-opacity-*</code>, <code class="ld-code-inline">ld-leading-*</code>, generic motion (<code class="ld-code-inline">ld-animate-spin</code>/<code class="ld-code-inline">-pulse</code>/<code class="ld-code-inline">-bounce</code>, separate from the one-off keyframes already built into toast/skeleton/spinner), a small <code class="ld-code-inline">ld-dark:*</code>/<code class="ld-code-inline">ld-light:*</code> variant set for one-off property flips (retheme with tokens instead for anything bigger), <code class="ld-code-inline">ld-scrollbar-thin</code>, and <code class="ld-code-inline">ld-safe-{top,bottom,left,right}</code> for notched-device insets. Accessibility: <code class="ld-code-inline">ld-sr-only-focusable</code> (the reveal-on-focus half of <code class="ld-code-inline">ld-sr-only</code>, also what <code class="ld-code-inline">ld-skip-link</code> is built on); a <code class="ld-code-inline">forced-colors: active</code> pass that drops shadows and lets Windows High Contrast Mode's own palette carry buttons/cards/inputs; and a <code class="ld-code-inline">prefers-reduced-transparency</code> fallback that swaps <code class="ld-code-inline">ld-glass</code>'s blur for a solid surface. Theming: new semantic status tokens <code class="ld-code-inline">--ld-success</code>/<code class="ld-code-inline">--ld-warning</code>/<code class="ld-code-inline">--ld-info</code> (+ <code class="ld-code-inline">-text</code> pairs, themed for light/dark/notheme) replace what used to be one hardcoded hex value inline in the alert and terminal-window rules; new <code class="ld-code-inline">--ld-weight-*</code> and <code class="ld-code-inline">--ld-leading-*</code> scales; and the <code class="ld-code-inline">--ld-z-*</code> stacking values (already exposed as <code class="ld-code-inline">ld-z-*</code> utility classes) are now also real custom properties that every overlay component reads, instead of each hardcoding its own layer number. <strong>Minor non-breaking visual change:</strong> the alert <code class="ld-code-inline">info</code> variant's rail/title color moved off <code class="ld-code-inline">--ld-text</code> onto the new <code class="ld-code-inline">--ld-info</code> blue, to match every other semantic variant being a real color rather than "just text-colored." JS: dropdown/popover now return focus to their trigger when closed with Escape while you were navigating inside them (modal/offcanvas/command already did this); <code class="ld-code-inline">window.ldcss.destroy()</code> disconnects entrance-animation observers before you remove a chunk of DOM; <code class="ld-code-inline">window.ldcss.debounce()</code> is exposed for wiring an async/remote combobox source (the built-in local-list filter doesn't need it).</p>
@@ -773,8 +775,47 @@ $ echo "linked ldcss.css and ldcss.js"</div>
           <tr><td>Combobox</td><td data-ld-sort-value="20240301">v1.1.0</td></tr>
           <tr><td>12-column grid</td><td data-ld-sort-value="20240801">v2.0.0</td></tr>
           <tr><td>Button group</td><td data-ld-sort-value="20250101">v2.1.0</td></tr>
+          <tr><td>Footer</td><td data-ld-sort-value="20250701">v2.4.0</td></tr>
         </tbody>
       </table>
+    </div>
+  </section>
+
+  <section id="v24">
+    <h2>Footer, upward shadows, semantic backgrounds</h2>
+    <p class="ld-section-sub">New in v2.4.0</p>
+
+    <div class="ld-grid" data-ld-cols="3">
+      <div>
+        <label class="ld-label">ld-shadow-up-sm / ld-shadow-up / ld-shadow-up-lg</label>
+        <div class="ld-row" style="gap: var(--ld-space-4); margin-top: var(--ld-space-4);">
+          <div class="ld-card ld-shadow-up-sm" data-ld-shadow="none" style="max-width:90px;">
+            <div class="ld-card-body" style="font-size:var(--ld-text-xs); text-align:center;">-sm</div>
+          </div>
+          <div class="ld-card ld-shadow-up" data-ld-shadow="none" style="max-width:90px;">
+            <div class="ld-card-body" style="font-size:var(--ld-text-xs); text-align:center;">-up</div>
+          </div>
+          <div class="ld-card ld-shadow-up-lg" data-ld-shadow="none" style="max-width:90px;">
+            <div class="ld-card-body" style="font-size:var(--ld-text-xs); text-align:center;">-lg</div>
+          </div>
+        </div>
+      </div>
+
+      <div>
+        <label class="ld-label">ld-bg-accent / danger / success / warning / info</label>
+        <div class="ld-row" style="gap: var(--ld-space-2);">
+          <span class="ld-badge ld-bg-accent" style="color: var(--ld-accent-text);">accent</span>
+          <span class="ld-badge ld-bg-danger" style="color: var(--ld-danger-text);">danger</span>
+          <span class="ld-badge ld-bg-success" style="color: var(--ld-success-text);">success</span>
+          <span class="ld-badge ld-bg-warning" style="color: var(--ld-warning-text);">warning</span>
+          <span class="ld-badge ld-bg-info" style="color: var(--ld-info-text);">info</span>
+        </div>
+      </div>
+
+      <div>
+        <label class="ld-label">ld-footer</label>
+        <p class="ld-text-muted ld-text-sm">This page's own footer (scroll down) uses <code class="ld-code-inline">ld-footer</code> — same padding/surface as <code class="ld-code-inline">ld-nav</code>, flipped to <code class="ld-code-inline">border-top</code>, paired with <code class="ld-code-inline">ld-shadow-up</code>.</p>
+      </div>
     </div>
   </section>
 
@@ -812,12 +853,12 @@ $ echo "linked ldcss.css and ldcss.js"</div>
     <input class="ld-command-input" type="text" placeholder="Type a command or search…" data-ld-autofocus>
     <ul class="ld-command-list" data-ld-command-list>
       <li class="ld-command-item" data-ld-command-item data-ld-highlighted="true" data-ld-command-action="offcanvas:#side-left">Open dashboard</li>
-      <li class="ld-command-item" data-ld-command-item data-ld-command-action="toast:Created new-file.txt">Create new file</li>
       <li class="ld-command-item" data-ld-command-item data-ld-command-action="theme">Toggle theme</li>
       <li class="ld-command-item" data-ld-command-item data-ld-command-action="offcanvas:#side-right">Open settings</li>
       <li class="ld-command-item" data-ld-command-item data-ld-command-action="toast:Invite link copied to clipboard">Invite a teammate</li>
       <li class="ld-command-item" data-ld-command-item data-ld-command-action="goto:#new-components">Go to "Blockquote, divider, stat, avatar group" (goto, in-page)</li>
-      <li class="ld-command-item" data-ld-command-item data-ld-command-action="goto:cheat-sheet.html">Open the cheat sheet (goto, cross-page)</li>
+      <li class="ld-command-item" data-ld-command-item data-ld-command-action="goto:/cheat-sheet">Open the cheat sheet (goto, cross-page)</li>
+      <li class="ld-command-item" data-ld-command-item data-ld-command-action="goto:/">Open the nav page</li>
     </ul>
     <div class="ld-command-empty">No matching commands.</div>
     <div class="ld-command-hint"><span class="ld-kbd">↑↓</span> navigate <span class="ld-kbd">↵</span> select <span class="ld-kbd">esc</span> close</div>
@@ -837,6 +878,10 @@ $ echo "linked ldcss.css and ldcss.js"</div>
     </div>
   </div>
 </div>
+
+<footer class="ld-footer ld-shadow-up">
+  <p class="ld-text-muted ld-text-sm">ldcss v2.4.0 · built with ldcss</p>
+</footer>
 
 <script src="ldcss.js"></script>
 </body>
