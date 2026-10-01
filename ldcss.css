@@ -51,7 +51,7 @@
      live here now so a theme swap or [data-ld-unstyled] subtree can reach
      them like every other status color. */
   --ld-success: #27bd16;
-  --ld-success-text: #27a819;
+  --ld-success-text: #0e2b0a;
   --ld-warning: #C98A1F;
   --ld-warning-text: #2E1D00;
   --ld-info: #4C8EFF;
@@ -129,7 +129,7 @@
   --ld-danger: #FF6B7A;
   --ld-danger-text: #1A0508;
   --ld-success: #27bd16;
-  --ld-success-text: #27a819;
+  --ld-success-text: #0e2b0a;
   --ld-warning: #E0A741;
   --ld-warning-text: #1F1400;
   --ld-info: #7AACFF;
@@ -1006,7 +1006,7 @@ code.ld-code-inline {
 }
 
 .ld-alert[data-ld-variant='success'] .ld-alert-title {
-  color: var(--ld-success-text);
+  color: var(--ld-success);
 }
 
 .ld-alert[data-ld-variant='warning'] {
