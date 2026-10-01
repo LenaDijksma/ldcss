@@ -1,0 +1,33 @@
+/* ==========================================================================
+   27. Popover — data-ld-popover / data-ld-toggle="popover"
+   ========================================================================== */
+
+[data-ld-popover] {
+  position: relative;
+  display: inline-block;
+}
+
+[data-ld-popover-content] {
+  position: absolute;
+  top: calc(100% + 8px);
+  inset-inline-start: 0;
+  min-width: 220px;
+  background: var(--ld-surface);
+  border: var(--ld-border-width) solid var(--ld-border);
+  border-radius: var(--ld-radius);
+  box-shadow: var(--ld-shadow);
+  padding: var(--ld-space-4);
+  display: none;
+  z-index: var(--ld-z-popover);
+  font-size: var(--ld-text-sm);
+}
+
+[data-ld-popover-content].ld-show {
+  display: block;
+}
+
+.ld-popover-title {
+  font-weight: 700;
+  margin-bottom: var(--ld-space-2);
+}
+

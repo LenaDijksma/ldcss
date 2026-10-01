@@ -1,0 +1,23 @@
+/* ==========================================================================
+   35. Rating — data-ld-rating
+   ========================================================================== */
+
+[data-ld-rating] {
+  display: inline-flex;
+  gap: 2px;
+}
+
+[data-ld-star] {
+  font-size: var(--ld-text-lg);
+  color: var(--ld-border-soft);
+  cursor: pointer;
+  line-height: 1;
+  background: none;
+  border: none;
+  padding: 0;
+}
+
+[data-ld-star][data-ld-active='true'] {
+  color: var(--ld-accent);
+}
+

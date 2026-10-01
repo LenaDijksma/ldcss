@@ -1,0 +1,70 @@
+/* ==========================================================================
+   28. Skeleton loader
+   ========================================================================== */
+
+.ld-skeleton {
+  background: linear-gradient(90deg, var(--ld-surface-raised) 25%, var(--ld-border-soft) 37%, var(--ld-surface-raised) 63%);
+  background-size: 400% 100%;
+  animation: ld-skeleton 1.4s ease infinite;
+  border-radius: calc(var(--ld-radius) / 2);
+  height: 14px;
+}
+
+@keyframes ld-skeleton {
+  0% {
+    background-position: 100% 50%;
+  }
+
+  100% {
+    background-position: 0 50%;
+  }
+}
+
+.ld-skeleton[data-ld-shape='circle'] {
+  border-radius: 50%;
+}
+
+.ld-skeleton[data-ld-shape='text'] {
+  height: 12px;
+}
+
+.ld-skeleton[data-ld-shape='button'] {
+  height: 38px;
+  border-radius: var(--ld-radius);
+  width: 96px;
+  display: inline-block;
+}
+
+.ld-skeleton[data-ld-shape='avatar'] {
+  height: 36px;
+  width: 36px;
+  border-radius: 50%;
+}
+
+.ld-skeleton-w-25 {
+  width: 25%;
+}
+
+.ld-skeleton-w-50 {
+  width: 50%;
+}
+
+.ld-skeleton-w-75 {
+  width: 75%;
+}
+
+.ld-skeleton-w-100 {
+  width: 100%;
+}
+
+/* A few uneven widths on consecutive lines reads as "text," not as a
+   row of identical gray bars — pair data-ld-shape="text" with these. */
+.ld-skeleton-paragraph>.ld-skeleton {
+  margin-bottom: var(--ld-space-2);
+}
+
+.ld-skeleton-paragraph>.ld-skeleton:last-child {
+  width: 60%;
+  margin-bottom: 0;
+}
+

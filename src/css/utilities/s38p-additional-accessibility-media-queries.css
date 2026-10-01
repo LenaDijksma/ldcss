@@ -1,0 +1,35 @@
+/* ==========================================================================
+   38p. Additional accessibility media queries
+   ------------------------------------------------------------------------
+   Complements the prefers-reduced-motion rule in §2 and the
+   prefers-contrast: more tokens in §1.
+   ========================================================================== */
+
+/* Windows High Contrast Mode / forced-colors: let the OS palette take
+   over rather than fighting it with our soft shadows and mint accent —
+   both become invisible or wrong under forced-colors, so drop them and
+   let borders (which forced-colors respects) carry the UI instead. */
+@media (forced-colors: active) {
+
+  .ld-btn,
+  .ld-card,
+  .ld-modal,
+  .ld-input,
+  .ld-textarea,
+  .ld-select {
+    box-shadow: none;
+    forced-color-adjust: auto;
+  }
+}
+
+/* .ld-glass (§39) relies on backdrop-filter blur to read as "glass";
+   for people who've asked for reduced transparency, fall back to a
+   solid surface instead of a blur that may not render as intended. */
+@media (prefers-reduced-transparency: reduce) {
+  .ld-glass {
+    background: var(--ld-surface);
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+  }
+}
+

@@ -1,0 +1,332 @@
+/* ==========================================================================
+   39. Escape hatches
+   ------------------------------------------------------------------------
+   ldcss now defaults to rounded corners, soft shadows, and a sans-serif
+   font. These utilities let individual elements opt into something else —
+   sharper corners, a different shadow depth, or monospace — without
+   fighting the framework. See also data-ld-shadow='hard' (§1/§4) and
+   data-ld-unstyled (§1) for retheming a whole subtree at once instead of
+   one element at a time.
+   ========================================================================== */
+
+/* -- Rounded corners ------------------------------------------------------ */
+
+.ld-round-none {
+  border-radius: 0;
+}
+
+.ld-round-sm {
+  border-radius: 4px;
+}
+
+.ld-round {
+  border-radius: 8px;
+}
+
+.ld-round-lg {
+  border-radius: 16px;
+}
+
+.ld-round-xl {
+  border-radius: 24px;
+}
+
+.ld-round-full {
+  border-radius: 9999px;
+}
+
+/* -- Border width x style grid -------------------------------------------
+   ld-border-{width}px-{style}. Color defaults to the standard border
+   token; override with an inline `border-color` or `style` if needed. */
+
+.ld-border-0 {
+  border-width: 0;
+}
+
+.ld-border-1px-solid,
+.ld-border-2px-solid,
+.ld-border-3px-solid,
+.ld-border-4px-solid,
+.ld-border-1px-dashed,
+.ld-border-2px-dashed,
+.ld-border-3px-dashed,
+.ld-border-4px-dashed,
+.ld-border-1px-dotted,
+.ld-border-2px-dotted,
+.ld-border-3px-dotted,
+.ld-border-4px-dotted,
+.ld-border-1px-double,
+.ld-border-2px-double,
+.ld-border-3px-double,
+.ld-border-4px-double {
+  border-color: var(--ld-border-soft);
+}
+
+.ld-border-1px-solid {
+  border-width: 1px;
+  border-style: solid;
+}
+
+.ld-border-2px-solid {
+  border-width: 2px;
+  border-style: solid;
+}
+
+.ld-border-3px-solid {
+  border-width: 3px;
+  border-style: solid;
+}
+
+.ld-border-4px-solid {
+  border-width: 4px;
+  border-style: solid;
+}
+
+.ld-border-1px-dashed {
+  border-width: 1px;
+  border-style: dashed;
+}
+
+.ld-border-2px-dashed {
+  border-width: 2px;
+  border-style: dashed;
+}
+
+.ld-border-3px-dashed {
+  border-width: 3px;
+  border-style: dashed;
+}
+
+.ld-border-4px-dashed {
+  border-width: 4px;
+  border-style: dashed;
+}
+
+.ld-border-1px-dotted {
+  border-width: 1px;
+  border-style: dotted;
+}
+
+.ld-border-2px-dotted {
+  border-width: 2px;
+  border-style: dotted;
+}
+
+.ld-border-3px-dotted {
+  border-width: 3px;
+  border-style: dotted;
+}
+
+.ld-border-4px-dotted {
+  border-width: 4px;
+  border-style: dotted;
+}
+
+.ld-border-1px-double {
+  border-width: 3px;
+  border-style: double;
+}
+
+.ld-border-2px-double {
+  border-width: 4px;
+  border-style: double;
+}
+
+.ld-border-3px-double {
+  border-width: 5px;
+  border-style: double;
+}
+
+.ld-border-4px-double {
+  border-width: 6px;
+  border-style: double;
+}
+
+/* -- Shadow depth (independent of the default --ld-shadow token) --------- */
+
+.ld-shadow-none {
+  box-shadow: none;
+}
+
+.ld-shadow-soft-sm {
+  box-shadow: 0 1px 4px rgba(20, 23, 26, 0.10);
+}
+
+.ld-shadow-soft {
+  box-shadow: 0 4px 12px rgba(20, 23, 26, 0.14);
+}
+
+.ld-shadow-soft-lg {
+  box-shadow: 0 12px 32px rgba(20, 23, 26, 0.18);
+}
+
+[data-ld-theme='dark'] .ld-shadow-soft-sm {
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.4);
+}
+
+[data-ld-theme='dark'] .ld-shadow-soft {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.45);
+}
+
+[data-ld-theme='dark'] .ld-shadow-soft-lg {
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.5);
+}
+
+/* -- Shadow depth, upward (same sm/base/lg scale as ld-shadow-soft-*, for
+   elements like a footer where the shadow should read as cast toward the
+   top rather than the bottom) ----------------------------------------- */
+
+.ld-shadow-up-sm {
+  box-shadow: 0 -1px 4px rgba(20, 23, 26, 0.10);
+}
+
+.ld-shadow-up {
+  box-shadow: 0 -4px 12px rgba(20, 23, 26, 0.14);
+}
+
+.ld-shadow-up-lg {
+  box-shadow: 0 -12px 32px rgba(20, 23, 26, 0.18);
+}
+
+[data-ld-theme='dark'] .ld-shadow-up-sm {
+  box-shadow: 0 -1px 4px rgba(0, 0, 0, 0.4);
+}
+
+[data-ld-theme='dark'] .ld-shadow-up {
+  box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.45);
+}
+
+[data-ld-theme='dark'] .ld-shadow-up-lg {
+  box-shadow: 0 -12px 32px rgba(0, 0, 0, 0.5);
+}
+
+/* This section is its own cascade layer (ld.escape), so a shadow utility
+   wins over every component rule no matter how specific that rule is —
+   including .ld-btn:active/:disabled, .ld-input:focus and
+   .ld-card[data-ld-interactive]:hover. A button given .ld-shadow-soft keeps
+   that shadow while pressed, and an interactive card keeps its custom resting
+   shadow on hover (its lift transform still applies). */
+
+/* -- Type ------------------------------------------------------------------
+   ldcss now defaults to --ld-font-sans. Use ld-font-mono to opt an element
+   (and everything under it — --ld-font-family is a custom property, so
+   unlike font-family it inherits) into monospace, e.g. for a data-dense
+   dashboard section, or ld-font-serif for editorial copy. Apply once to a
+   container and every component inside that reads var(--ld-font-family) —
+   buttons, inputs, tabs, headings, etc. — picks it up. code/pre/kbd stay
+   mono deliberately, they read --ld-font-mono directly, not this token. */
+
+.ld-font-sans {
+  --ld-font-family: var(--ld-font-sans);
+  font-family: var(--ld-font-family);
+}
+
+.ld-font-serif {
+  --ld-font-family: ui-serif, Georgia, "Times New Roman", serif;
+  font-family: var(--ld-font-family);
+}
+
+.ld-font-mono {
+  --ld-font-family: var(--ld-font-mono);
+  font-family: var(--ld-font-family);
+}
+
+/* -- Density scale ---------------------------------------------------------
+   Override the spacing tokens for a whole subtree. Apply to a container;
+   every component inside that reads --ld-space-* picks it up. */
+
+.ld-scale-compact {
+  --ld-space-1: 2px;
+  --ld-space-2: 4px;
+  --ld-space-3: 8px;
+  --ld-space-4: 10px;
+  --ld-space-5: 16px;
+  --ld-space-6: 20px;
+  --ld-space-8: 32px;
+}
+
+.ld-scale-cozy {
+  --ld-space-1: 4px;
+  --ld-space-2: 8px;
+  --ld-space-3: 12px;
+  --ld-space-4: 16px;
+  --ld-space-5: 24px;
+  --ld-space-6: 32px;
+  --ld-space-8: 48px;
+}
+
+.ld-scale-spacious {
+  --ld-space-1: 6px;
+  --ld-space-2: 12px;
+  --ld-space-3: 18px;
+  --ld-space-4: 24px;
+  --ld-space-5: 36px;
+  --ld-space-6: 48px;
+  --ld-space-8: 64px;
+}
+
+/* -- Per-element accent swap ------------------------------------------------
+   Override just the brand color for one subtree, without touching theme. */
+
+.ld-accent-mint {
+  --ld-accent: #46E8B3;
+  --ld-accent-text: #04231A;
+}
+
+.ld-accent-blue {
+  --ld-accent: #4C8EFF;
+  --ld-accent-text: #04122E;
+}
+
+.ld-accent-purple {
+  --ld-accent: #B98CFF;
+  --ld-accent-text: #1C0A33;
+}
+
+.ld-accent-pink {
+  --ld-accent: #FF6FA5;
+  --ld-accent-text: #330015;
+}
+
+.ld-accent-orange {
+  --ld-accent: #FF9A4C;
+  --ld-accent-text: #331500;
+}
+
+.ld-accent-yellow {
+  --ld-accent: #F2D93B;
+  --ld-accent-text: #2E2600;
+}
+
+.ld-accent-red {
+  --ld-accent: #FF6B6B;
+  --ld-accent-text: #330000;
+}
+
+/* Need a brand color that isn't one of the seven presets above? There's
+   no separate mechanism for this — --ld-accent and --ld-accent-text are
+   plain custom properties, so set them directly wherever you'd apply
+   one of the .ld-accent-* classes:
+     <div style="--ld-accent:#2F6F4E; --ld-accent-text:#EAF6EF;">
+   Everything that reads var(--ld-accent) — buttons, badges, focus
+   states inside data-ld-shadow="hard" subtrees, etc. — picks it up the
+   same way it would pick up a preset, scoped to that element and its
+   descendants. Pick --ld-accent-text for contrast against --ld-accent,
+   not against the page background. */
+
+/* -- Surface registers -------------------------------------------------
+   Alternatives to the default bordered/shadowed surface. */
+
+.ld-glass {
+  background: color-mix(in srgb, var(--ld-surface) 55%, transparent);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid var(--ld-border-soft);
+}
+
+.ld-flat {
+  background: none;
+  border: none;
+  box-shadow: none;
+  padding: 0;
+}

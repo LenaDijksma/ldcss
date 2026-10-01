@@ -1,0 +1,56 @@
+/* ==========================================================================
+   12. Accordion — data-ld-accordion
+   ========================================================================== */
+
+.ld-accordion-item {
+  border: var(--ld-border-width) solid var(--ld-border-soft);
+  border-top: none;
+}
+
+.ld-accordion-item:first-child {
+  border-top: var(--ld-border-width) solid var(--ld-border-soft);
+}
+
+.ld-accordion-trigger {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: var(--ld-space-3);
+  padding: var(--ld-space-3) var(--ld-space-4);
+  background: var(--ld-surface);
+  border: none;
+  font-family: var(--ld-font-family);
+  font-size: var(--ld-text-sm);
+  font-weight: 700;
+  color: var(--ld-text);
+  cursor: pointer;
+  text-align: left;
+}
+
+.ld-accordion-trigger:hover {
+  background: var(--ld-surface-raised);
+}
+
+.ld-accordion-trigger::after {
+  content: '+';
+  color: var(--ld-accent);
+  font-weight: 700;
+  transition: transform var(--ld-transition);
+}
+
+.ld-accordion-trigger[data-ld-active='true']::after {
+  content: '−';
+}
+
+[data-ld-accordion-panel] {
+  display: none;
+  padding: 0 var(--ld-space-4) var(--ld-space-4);
+  font-size: var(--ld-text-sm);
+  color: var(--ld-text-muted);
+}
+
+[data-ld-accordion-panel].ld-show {
+  display: block;
+}
+

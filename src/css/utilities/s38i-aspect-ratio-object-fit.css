@@ -1,0 +1,44 @@
+/* ==========================================================================
+   38i. Aspect ratio & object-fit
+   ========================================================================== */
+
+.ld-aspect-square {
+  aspect-ratio: 1 / 1;
+}
+
+.ld-aspect-video {
+  aspect-ratio: 16 / 9;
+}
+
+.ld-aspect-portrait {
+  aspect-ratio: 3 / 4;
+}
+
+.ld-aspect-wide {
+  aspect-ratio: 21 / 9;
+}
+
+.ld-object-cover {
+  object-fit: cover;
+}
+
+.ld-object-contain {
+  object-fit: contain;
+}
+
+.ld-object-fill {
+  object-fit: fill;
+}
+
+.ld-object-center {
+  object-position: center;
+}
+
+.ld-object-top {
+  object-position: top;
+}
+
+.ld-object-bottom {
+  object-position: bottom;
+}
+

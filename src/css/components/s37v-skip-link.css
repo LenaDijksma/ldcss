@@ -1,0 +1,30 @@
+/* ==========================================================================
+   37v. Skip link — ld-skip-link
+   ------------------------------------------------------------------------
+   Place as the very first focusable element in <body>, pointing at your
+   main landmark's id. Off-screen until focused, matching the pattern
+   .ld-sr-only-focusable uses in §38g — this is the same idea pre-styled
+   as a real, visible link rather than a bare accessibility utility.
+   ========================================================================== */
+
+.ld-skip-link {
+  position: absolute;
+  top: -40px;
+  left: var(--ld-space-3);
+  z-index: var(--ld-z-command);
+  background: var(--ld-surface);
+  color: var(--ld-text);
+  border: var(--ld-border-width) solid var(--ld-border);
+  border-radius: var(--ld-radius);
+  padding: var(--ld-space-2) var(--ld-space-4);
+  font-family: var(--ld-font-family);
+  font-size: var(--ld-text-sm);
+  font-weight: var(--ld-weight-bold);
+  text-decoration: none;
+  transition: top var(--ld-transition);
+}
+
+.ld-skip-link:focus {
+  top: var(--ld-space-3);
+}
+

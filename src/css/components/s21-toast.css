@@ -1,0 +1,120 @@
+/* ==========================================================================
+   21. Toast
+   ========================================================================== */
+
+.ld-toast-container {
+  position: fixed;
+  top: var(--ld-space-4);
+  right: var(--ld-space-4);
+  display: flex;
+  flex-direction: column;
+  gap: var(--ld-space-2);
+  z-index: var(--ld-z-toast);
+  max-width: 320px;
+}
+
+.ld-toast {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--ld-space-2);
+  background: var(--ld-surface);
+  border: var(--ld-border-width) solid var(--ld-border);
+  border-radius: var(--ld-radius);
+  box-shadow: var(--ld-shadow);
+  padding: var(--ld-space-3) var(--ld-space-4);
+  font-size: var(--ld-text-sm);
+  animation: ld-toast-in 160ms ease;
+}
+
+@keyframes ld-toast-in {
+  from {
+    transform: translateY(-6px);
+    opacity: 0;
+  }
+
+  to {
+    transform: none;
+    opacity: 1;
+  }
+}
+
+.ld-toast-body {
+  flex: 1;
+}
+
+.ld-toast-close {
+  background: none;
+  border: none;
+  color: var(--ld-text-muted);
+  cursor: pointer;
+  font-size: var(--ld-text-base);
+  line-height: 1;
+}
+
+.ld-toast-close:hover {
+  color: var(--ld-text);
+}
+
+.ld-toast[data-ld-variant='success'] {
+  border-left: var(--ld-border-width) solid var(--ld-accent);
+}
+
+.ld-toast[data-ld-variant='danger'] {
+  border-left: var(--ld-border-width) solid var(--ld-danger);
+}
+
+/* -- Toast container position ------------------------------------------------
+   Default is top-right (set inline by ldcss.js when it creates the
+   container). Set data-ld-toast-position on <body> to change it before
+   the first toast fires — ldcss.js reads that attribute once, at
+   container-creation time, and applies it here. */
+.ld-toast-container[data-ld-position='top-left'] {
+  top: var(--ld-space-4);
+  left: var(--ld-space-4);
+  right: auto;
+}
+
+.ld-toast-container[data-ld-position='top-center'] {
+  top: var(--ld-space-4);
+  left: 50%;
+  right: auto;
+  transform: translateX(-50%);
+}
+
+.ld-toast-container[data-ld-position='bottom-right'] {
+  top: auto;
+  bottom: var(--ld-space-4);
+  right: var(--ld-space-4);
+}
+
+.ld-toast-container[data-ld-position='bottom-left'] {
+  top: auto;
+  bottom: var(--ld-space-4);
+  left: var(--ld-space-4);
+  right: auto;
+}
+
+.ld-toast-container[data-ld-position='bottom-center'] {
+  top: auto;
+  bottom: var(--ld-space-4);
+  left: 50%;
+  right: auto;
+  transform: translateX(-50%);
+}
+
+.ld-toast-container[data-ld-position^='bottom'] .ld-toast {
+  animation-name: ld-toast-in-bottom;
+}
+
+@keyframes ld-toast-in-bottom {
+  from {
+    transform: translateY(6px);
+    opacity: 0;
+  }
+
+  to {
+    transform: none;
+    opacity: 1;
+  }
+}
+

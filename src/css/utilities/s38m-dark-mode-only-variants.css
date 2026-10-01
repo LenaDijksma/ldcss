@@ -1,0 +1,31 @@
+/* ==========================================================================
+   38m. Dark-mode-only variants: ld-dark\:*
+   ------------------------------------------------------------------------
+   The responsive variants in §38h scope a utility to a breakpoint; these
+   scope a *small, high-value* subset of utilities to dark mode only, for
+   the common case of "same layout, one property needs to flip." For
+   anything bigger than a couple of one-off property swaps, retheme the
+   subtree with tokens instead (§1) — this isn't meant to grow into a
+   parallel utility set the way ld-sm\:/ld-md\:/etc. did.
+   ========================================================================== */
+
+[data-ld-theme='dark'] .ld-dark\:hidden {
+  display: none;
+}
+
+[data-ld-theme='dark'] .ld-dark\:block {
+  display: block;
+}
+
+[data-ld-theme='dark'] .ld-dark\:opacity-50 {
+  opacity: 0.5;
+}
+
+[data-ld-theme='dark'] .ld-dark\:opacity-75 {
+  opacity: 0.75;
+}
+
+:not([data-ld-theme='dark']) .ld-light\:hidden {
+  display: none;
+}
+

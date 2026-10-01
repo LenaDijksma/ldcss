@@ -1,0 +1,25 @@
+/* ==========================================================================
+   15. Progress — ld-progress
+   ========================================================================== */
+
+.ld-progress {
+  width: 100%;
+  height: 10px;
+  background: var(--ld-surface-raised);
+  border: 1px solid var(--ld-border-soft);
+  border-radius: 9999px;
+  overflow: hidden;
+}
+
+.ld-progress-bar {
+  height: 100%;
+  width: 0%;
+  background: var(--ld-accent);
+  border-radius: 9999px;
+  transition: width 240ms ease;
+}
+
+.ld-progress-bar[data-ld-variant='danger'] {
+  background: var(--ld-danger);
+}
+

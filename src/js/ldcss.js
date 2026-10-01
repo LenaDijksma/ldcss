@@ -5,6 +5,7 @@
  * offcanvas, command palette, toast, copy-to-clipboard, dropzone, rating,
  * tag input, progress bars, entrance animations, segmented control,
  * filter chips, stepper, combobox, scrollspy, carousel, navbar collapse,
+ * sidebar menu (closes on link click / Escape),
  * input clear button, password toggle, autosizing textarea, sortable
  * table headers.
  *
@@ -1073,6 +1074,19 @@
     emit(panel, isShown ? 'ld:navbar:hide' : 'ld:navbar:show', { trigger: trigger });
   }
 
+  /* Closes an open collapsible menu (sidebar dropdown on small screens).
+     Returns the trigger button so callers can move focus back to it. */
+  function closeNavbarCollapse(panel) {
+    if (!panel || panel.getAttribute('data-ld-show') !== 'true') return null;
+    panel.setAttribute('data-ld-show', 'false');
+    var trigger = panel.id
+      ? document.querySelector('[data-ld-toggle="navbar-collapse"][data-ld-target="#' + panel.id + '"]')
+      : null;
+    if (trigger) trigger.setAttribute('aria-expanded', 'false');
+    emit(panel, 'ld:navbar:hide', { trigger: trigger });
+    return trigger;
+  }
+
   /* ---------------------------------------------------------------------
      Delegated event wiring
      ------------------------------------------------------------------- */
@@ -1458,6 +1472,20 @@
     }
   });
 
+  /* Sidebar dropdown (small screens): choosing a link closes the menu, and
+     Escape closes it and hands focus back to the toggle button. */
+  document.addEventListener('click', function (e) {
+    var sideLink = e.target.closest && e.target.closest('.ld-sidebar-link');
+    if (sideLink) closeNavbarCollapse(sideLink.closest('.ld-sidebar-body'));
+  });
+
+  document.addEventListener('keydown', function (e) {
+    if (e.key !== 'Escape') return;
+    var openMenu = document.querySelector('.ld-sidebar-body[data-ld-show="true"]');
+    var trigger = closeNavbarCollapse(openMenu);
+    if (trigger) trigger.focus();
+  });
+
   document.addEventListener('dragover', handleDropzoneDragOver);
   document.addEventListener('dragleave', handleDropzoneDragLeave);
   document.addEventListener('drop', handleDropzoneDrop);
@@ -1507,6 +1535,4 @@
     activeAnimationObservers.forEach(function (observer) { observer.disconnect(); });
     activeAnimationObservers = [];
   };
-
-  initTheme();
 })();

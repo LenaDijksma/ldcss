@@ -1,0 +1,39 @@
+/* ==========================================================================
+   37a. Blockquote / pull-quote — ld-blockquote
+   ========================================================================== */
+
+.ld-blockquote {
+  margin: 0;
+  padding-left: var(--ld-space-4);
+  border-left: 3px solid var(--ld-accent);
+  font-size: var(--ld-text-lg);
+  color: var(--ld-text);
+}
+
+.ld-blockquote-cite {
+  display: block;
+  margin-top: var(--ld-space-2);
+  font-size: var(--ld-text-sm);
+  color: var(--ld-text-muted);
+}
+
+.ld-blockquote-cite::before {
+  content: '— ';
+}
+
+/* Pull-quote: centered, no rail, for a standalone editorial callout
+   (the register the fragrance-demo readiness test hand-rolled twice) */
+.ld-pull-quote {
+  margin: 0;
+  padding: 0;
+  border: none;
+  text-align: center;
+  font-size: var(--ld-text-xl);
+  font-style: italic;
+}
+
+.ld-pull-quote .ld-blockquote-cite {
+  text-align: center;
+  font-style: normal;
+}
+

@@ -1,0 +1,82 @@
+/* ==========================================================================
+   30. Offcanvas — data-ld-toggle="offcanvas"
+   ========================================================================== */
+
+.ld-offcanvas-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(13, 15, 14, 0.6);
+  display: none;
+  z-index: var(--ld-z-offcanvas);
+}
+
+.ld-offcanvas-backdrop.ld-show {
+  display: block;
+}
+
+.ld-offcanvas {
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  inset-inline-start: 0;
+  width: 300px;
+  max-width: 85vw;
+  background: var(--ld-surface);
+  border-inline-end: var(--ld-border-width) solid var(--ld-border);
+  box-shadow: 16px 0 32px rgba(20, 23, 26, 0.12);
+  transform: translateX(-100%);
+  transition: transform 220ms ease;
+  padding: var(--ld-space-5);
+  overflow-y: auto;
+}
+
+.ld-offcanvas-backdrop.ld-show .ld-offcanvas {
+  transform: translateX(0);
+}
+
+/* Note: the slide-in transform above is physical (translateX), not
+   logical — under dir="rtl" the panel still positions correctly via
+   inset-inline-start/end and border-inline-end, but the enter
+   animation direction doesn't auto-flip. Wrap in a :dir(rtl) override
+   if you need the slide direction itself to mirror too. */
+.ld-offcanvas-backdrop[data-ld-pos='right'] .ld-offcanvas {
+  inset-inline-start: auto;
+  inset-inline-end: 0;
+  border-inline-end: none;
+  border-inline-start: var(--ld-border-width) solid var(--ld-border);
+  box-shadow: -16px 0 32px rgba(20, 23, 26, 0.12);
+  transform: translateX(100%);
+}
+
+.ld-offcanvas-backdrop[data-ld-pos='right'].ld-show .ld-offcanvas {
+  transform: translateX(0);
+}
+
+[data-ld-theme='dark'] .ld-offcanvas {
+  box-shadow: 16px 0 32px rgba(0, 0, 0, 0.45);
+}
+
+[data-ld-theme='dark'] .ld-offcanvas-backdrop[data-ld-pos='right'] .ld-offcanvas {
+  box-shadow: -16px 0 32px rgba(0, 0, 0, 0.45);
+}
+
+.ld-offcanvas-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--ld-space-4);
+}
+
+.ld-offcanvas-close {
+  background: none;
+  border: none;
+  font-family: var(--ld-font-family);
+  font-size: var(--ld-text-lg);
+  cursor: pointer;
+  color: var(--ld-text-muted);
+}
+
+.ld-offcanvas-close:hover {
+  color: var(--ld-text);
+}
+

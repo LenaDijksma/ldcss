@@ -1,0 +1,65 @@
+/* ==========================================================================
+   37m. Timeline — ld-timeline
+   A vertical, dated sequence: order history, an activity feed, a
+   changelog. Unlike the stepper (horizontal, a fixed set of stages),
+   the timeline is open-ended and reads top-to-bottom or newest-first.
+   ========================================================================== */
+
+.ld-timeline {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  border-inline-start: var(--ld-border-width) solid var(--ld-border-soft);
+}
+
+.ld-timeline-item {
+  position: relative;
+  padding-inline-start: var(--ld-space-5);
+  padding-bottom: var(--ld-space-5);
+}
+
+.ld-timeline-item:last-child {
+  padding-bottom: 0;
+}
+
+.ld-timeline-item::before {
+  content: '';
+  position: absolute;
+  inset-inline-start: -5px;
+  top: 3px;
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: var(--ld-surface);
+  border: 2px solid var(--ld-border);
+}
+
+.ld-timeline-item[data-ld-variant='accent']::before {
+  border-color: var(--ld-accent);
+  background: var(--ld-accent);
+}
+
+.ld-timeline-item[data-ld-variant='danger']::before {
+  border-color: var(--ld-danger);
+  background: var(--ld-danger);
+}
+
+.ld-timeline-time {
+  display: block;
+  font-family: var(--ld-font-mono);
+  font-size: var(--ld-text-xs);
+  color: var(--ld-text-muted);
+  margin-bottom: 2px;
+}
+
+.ld-timeline-title {
+  font-weight: 700;
+  font-size: var(--ld-text-sm);
+}
+
+.ld-timeline-body {
+  font-size: var(--ld-text-sm);
+  color: var(--ld-text-muted);
+  margin-top: 2px;
+}
+

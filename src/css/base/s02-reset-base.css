@@ -1,0 +1,85 @@
+/* ==========================================================================
+   2. Reset / base
+   ========================================================================== */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  margin: 0;
+  background: var(--ld-bg);
+  color: var(--ld-text);
+  font-family: var(--ld-font-family);
+  font-size: var(--ld-text-base);
+  line-height: 1.6;
+  transition: background var(--ld-transition), color var(--ld-transition);
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: var(--ld-font-family);
+  font-weight: 700;
+  line-height: 1.25;
+  margin: 0 0 var(--ld-space-3);
+}
+
+p {
+  margin: 0 0 var(--ld-space-3);
+  color: var(--ld-text);
+}
+
+a {
+  color: inherit;
+}
+
+code,
+pre {
+  font-family: var(--ld-font-mono);
+}
+
+pre.ld-code {
+  background: var(--ld-surface);
+  border: var(--ld-border-width) solid var(--ld-border);
+  border-radius: var(--ld-radius);
+  box-shadow: var(--ld-shadow);
+  color: var(--ld-code-text);
+  padding: var(--ld-space-4);
+  overflow-x: auto;
+  font-size: var(--ld-text-sm);
+}
+
+code.ld-code-inline {
+  background: var(--ld-surface-raised);
+  color: var(--ld-code-text);
+  padding: 1px 6px;
+  border: 1px solid var(--ld-border-soft);
+  border-radius: calc(var(--ld-radius) / 2);
+  font-size: 0.9em;
+}
+
+:focus-visible {
+  outline: 2px dashed var(--ld-focus-ring);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+
+  *,
+  *::before,
+  *::after {
+    transition: none !important;
+    animation: none !important;
+  }
+}
+

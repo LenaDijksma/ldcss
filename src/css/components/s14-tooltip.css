@@ -1,0 +1,52 @@
+/* ==========================================================================
+   14. Tooltip — data-ld-tooltip
+   ========================================================================== */
+
+[data-ld-tooltip] {
+  position: relative;
+}
+
+[data-ld-tooltip]::after {
+  content: attr(data-ld-tooltip);
+  position: absolute;
+  bottom: calc(100% + 8px);
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--ld-text);
+  color: var(--ld-bg);
+  font-size: var(--ld-text-xs);
+  white-space: nowrap;
+  padding: var(--ld-space-1) var(--ld-space-2);
+  border-radius: calc(var(--ld-radius) / 2);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity var(--ld-transition);
+  z-index: var(--ld-z-tooltip);
+}
+
+[data-ld-tooltip]:hover::after,
+[data-ld-tooltip]:focus-visible::after {
+  opacity: 1;
+}
+
+[data-ld-tooltip][data-ld-tooltip-pos='bottom']::after {
+  bottom: auto;
+  top: calc(100% + 8px);
+}
+
+[data-ld-tooltip][data-ld-tooltip-pos='left']::after {
+  bottom: auto;
+  inset-inline-end: calc(100% + 8px);
+  inset-inline-start: auto;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+[data-ld-tooltip][data-ld-tooltip-pos='right']::after {
+  bottom: auto;
+  inset-inline-start: calc(100% + 8px);
+  inset-inline-end: auto;
+  top: 50%;
+  transform: translateY(-50%);
+}
+

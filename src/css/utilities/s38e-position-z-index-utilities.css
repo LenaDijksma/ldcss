@@ -1,0 +1,104 @@
+/* ==========================================================================
+   38e. Position & z-index utilities: ld-{relative,absolute,fixed,sticky},
+   ld-inset-0, ld-{top,right,bottom,left}-0, ld-z-*
+   ========================================================================== */
+
+/* -- Position ------------------------------------------------------------------------ */
+.ld-static {
+  position: static;
+}
+
+.ld-relative {
+  position: relative;
+}
+
+.ld-absolute {
+  position: absolute;
+}
+
+.ld-fixed {
+  position: fixed;
+}
+
+.ld-sticky {
+  position: sticky;
+}
+
+/* -- Inset / edges (use with an already-positioned element) -------------------------- */
+.ld-inset-0 {
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+}
+
+.ld-top-0 {
+  top: 0;
+}
+
+.ld-right-0 {
+  right: 0;
+}
+
+.ld-bottom-0 {
+  bottom: 0;
+}
+
+.ld-left-0 {
+  left: 0;
+}
+
+/* -- Z-index: numeric scale + named aliases matching this file's own components ----- */
+.ld-z-0 {
+  z-index: 0;
+}
+
+.ld-z-10 {
+  z-index: 10;
+}
+
+.ld-z-20 {
+  z-index: 20;
+}
+
+.ld-z-30 {
+  z-index: 30;
+}
+
+.ld-z-40 {
+  z-index: 40;
+}
+
+.ld-z-50 {
+  z-index: 50;
+}
+
+/* named aliases — match the exact stacking order already used by ldcss components */
+.ld-z-dropdown {
+  z-index: var(--ld-z-dropdown);
+}
+
+.ld-z-popover {
+  z-index: var(--ld-z-popover);
+}
+
+.ld-z-tooltip {
+  z-index: var(--ld-z-tooltip);
+}
+
+.ld-z-modal {
+  z-index: var(--ld-z-modal);
+}
+
+.ld-z-offcanvas {
+  z-index: var(--ld-z-offcanvas);
+}
+
+.ld-z-toast {
+  z-index: var(--ld-z-toast);
+}
+
+.ld-z-command {
+  z-index: var(--ld-z-command);
+}
+

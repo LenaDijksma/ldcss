@@ -1,0 +1,71 @@
+/* ==========================================================================
+   8. Nav — ld-nav
+   ========================================================================== */
+
+.ld-nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--ld-space-3) var(--ld-space-5);
+  background: var(--ld-surface);
+  border-bottom: var(--ld-border-width) solid var(--ld-border);
+}
+
+.ld-nav-brand {
+  font-weight: 700;
+  font-size: var(--ld-text-lg);
+  text-decoration: none;
+  color: var(--ld-text);
+  display: flex;
+  align-items: center;
+  gap: var(--ld-space-2);
+}
+
+.ld-nav-brand::before {
+  content: none;
+}
+
+/* Opt-in brand mark (v3.0.0 — it used to be a default '$').
+   data-ld-mark="$"  shows whatever text you put in the attribute: "$", ">", "▲", …
+   data-ld-mark      (empty) or "true" shows the classic "$".
+   data-ld-mark="none" still works and shows nothing. */
+.ld-nav-brand[data-ld-mark]::before {
+  content: attr(data-ld-mark);
+  color: var(--ld-accent);
+}
+
+.ld-nav-brand[data-ld-mark='']::before,
+.ld-nav-brand[data-ld-mark='true']::before {
+  content: '$';
+}
+
+.ld-nav-brand[data-ld-mark='none']::before {
+  content: none;
+}
+
+.ld-nav-links {
+  display: flex;
+  gap: var(--ld-space-5);
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.ld-nav-link {
+  text-decoration: none;
+  color: var(--ld-text-muted);
+  font-size: var(--ld-text-sm);
+  padding-bottom: 2px;
+  border-bottom: 2px solid transparent;
+  transition: color var(--ld-transition), border-color var(--ld-transition);
+}
+
+.ld-nav-link:hover {
+  color: var(--ld-text);
+}
+
+.ld-nav-link[data-ld-active='true'] {
+  color: var(--ld-text);
+  border-color: var(--ld-accent);
+}
+

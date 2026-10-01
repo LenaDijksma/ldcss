@@ -1,0 +1,52 @@
+/* ==========================================================================
+   37t. Input affix extras — clear button + password toggle
+   ------------------------------------------------------------------------
+   Both slot into the .ld-input-group affix pattern from §37j. Paired
+   with ldcss.js: [data-ld-input-clear] empties the previous sibling
+   input and refocuses it; [data-ld-password-toggle] flips a sibling
+   password input's type between "password" and "text".
+   ========================================================================== */
+
+[data-ld-input-clear] {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--ld-text-muted);
+  display: none;
+  padding: 0 var(--ld-space-2);
+  font-size: var(--ld-text-base);
+  line-height: 1;
+}
+
+[data-ld-input-clear][data-ld-show='true'] {
+  display: inline-flex;
+  align-items: center;
+}
+
+[data-ld-input-clear]:hover {
+  color: var(--ld-text);
+}
+
+[data-ld-password-toggle] {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--ld-text-muted);
+  font-family: var(--ld-font-family);
+  font-size: var(--ld-text-xs);
+  font-weight: var(--ld-weight-bold);
+  padding: 0 var(--ld-space-2);
+}
+
+[data-ld-password-toggle]:hover {
+  color: var(--ld-text);
+}
+
+[data-ld-password-toggle]::before {
+  content: 'Show';
+}
+
+[data-ld-password-toggle][data-ld-active='true']::before {
+  content: 'Hide';
+}
+

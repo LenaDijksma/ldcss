@@ -1,0 +1,147 @@
+/* ==========================================================================
+   9. Forms — ld-form / ld-input
+   ========================================================================== */
+
+.ld-form-group {
+  margin-bottom: var(--ld-space-4);
+}
+
+.ld-label {
+  display: block;
+  font-size: var(--ld-text-xs);
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--ld-text-muted);
+  margin-bottom: var(--ld-space-2);
+}
+
+.ld-input,
+.ld-textarea,
+.ld-select {
+  width: 100%;
+  font-family: var(--ld-font-family);
+  font-size: var(--ld-text-sm);
+  padding: var(--ld-space-2) var(--ld-space-3);
+  background: var(--ld-surface);
+  color: var(--ld-text);
+  border: var(--ld-border-width) solid var(--ld-border-soft);
+  border-radius: var(--ld-radius);
+  transition: border-color var(--ld-transition), box-shadow var(--ld-transition);
+}
+
+.ld-input:focus,
+.ld-textarea:focus,
+.ld-select:focus {
+  outline: none;
+  border-color: var(--ld-accent);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--ld-accent) 30%, transparent);
+}
+
+.ld-input[data-ld-error='true'],
+.ld-textarea[data-ld-error='true'] {
+  border-color: var(--ld-danger);
+}
+
+.ld-input[data-ld-error='true']:focus {
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--ld-danger) 30%, transparent);
+}
+
+.ld-input[data-ld-success='true'],
+.ld-textarea[data-ld-success='true'] {
+  border-color: var(--ld-accent);
+}
+
+/* -- Native validation, opt-in ------------------------------------------
+   data-ld-error/-success above are manual (you decide when a field is
+   wrong, e.g. after an async check). For plain HTML5 constraints
+   (required, pattern, type="email", …), wrap the form in .ld-validate
+   to get the same red/green treatment automatically via :user-invalid
+   and :user-valid — which only fire after the person has interacted
+   with the field, not on an empty required field's first paint. */
+.ld-validate .ld-input:user-invalid,
+.ld-validate .ld-textarea:user-invalid {
+  border-color: var(--ld-danger);
+}
+
+.ld-validate .ld-input:user-invalid:focus,
+.ld-validate .ld-textarea:user-invalid:focus {
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--ld-danger) 30%, transparent);
+}
+
+.ld-validate .ld-input:user-valid,
+.ld-validate .ld-textarea:user-valid {
+  border-color: var(--ld-accent);
+}
+
+/* -- Floating labels ------------------------------------------------------
+   The label sits inside the field until it has a value or focus, then
+   rises above it. Needs a real placeholder=" " (a single space) on the
+   input for :placeholder-shown to have something to match. */
+.ld-form-floating {
+  position: relative;
+}
+
+.ld-form-floating>.ld-input,
+.ld-form-floating>.ld-textarea {
+  padding-top: 22px;
+  padding-bottom: 6px;
+}
+
+.ld-form-floating>label {
+  position: absolute;
+  top: 50%;
+  left: var(--ld-space-3);
+  transform: translateY(-50%);
+  font-size: var(--ld-text-sm);
+  color: var(--ld-text-muted);
+  pointer-events: none;
+  transition: transform var(--ld-transition), font-size var(--ld-transition), top var(--ld-transition), color var(--ld-transition);
+}
+
+.ld-form-floating>.ld-input:focus~label,
+.ld-form-floating>.ld-input:not(:placeholder-shown)~label,
+.ld-form-floating>.ld-textarea:focus~label,
+.ld-form-floating>.ld-textarea:not(:placeholder-shown)~label {
+  top: 10px;
+  transform: none;
+  font-size: var(--ld-text-xs);
+  color: var(--ld-text-muted);
+}
+
+.ld-form-floating>.ld-input:focus~label {
+  color: var(--ld-accent);
+}
+
+.ld-form-hint {
+  font-size: var(--ld-text-xs);
+  color: var(--ld-text-muted);
+  margin-top: var(--ld-space-1);
+}
+
+.ld-form-error {
+  font-size: var(--ld-text-xs);
+  color: var(--ld-danger);
+  margin-top: var(--ld-space-1);
+}
+
+.ld-form-success {
+  font-size: var(--ld-text-xs);
+  color: var(--ld-accent);
+  margin-top: var(--ld-space-1);
+}
+
+.ld-checkbox {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--ld-space-2);
+  font-size: var(--ld-text-sm);
+  cursor: pointer;
+}
+
+.ld-checkbox input {
+  accent-color: var(--ld-accent);
+  width: 16px;
+  height: 16px;
+}
+

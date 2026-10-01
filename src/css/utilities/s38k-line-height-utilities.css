@@ -1,0 +1,16 @@
+/* ==========================================================================
+   38k. Line-height utilities
+   ========================================================================== */
+
+.ld-leading-tight {
+  line-height: var(--ld-leading-tight);
+}
+
+.ld-leading-normal {
+  line-height: var(--ld-leading-normal);
+}
+
+.ld-leading-relaxed {
+  line-height: var(--ld-leading-relaxed);
+}
+

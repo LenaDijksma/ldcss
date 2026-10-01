@@ -1,0 +1,55 @@
+/* ==========================================================================
+   19. Terminal window
+   ========================================================================== */
+
+.ld-terminal {
+  border: var(--ld-border-width) solid var(--ld-border);
+  border-radius: var(--ld-radius);
+  box-shadow: var(--ld-shadow);
+  background: var(--ld-surface);
+  overflow: hidden;
+}
+
+.ld-terminal-bar {
+  display: flex;
+  align-items: center;
+  gap: var(--ld-space-2);
+  padding: var(--ld-space-2) var(--ld-space-3);
+  background: var(--ld-surface-raised);
+  border-bottom: 1px solid var(--ld-border-soft);
+}
+
+.ld-terminal-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--ld-border-soft);
+}
+
+.ld-terminal-dot:nth-child(1) {
+  background: var(--ld-danger);
+}
+
+.ld-terminal-dot:nth-child(2) {
+  background: var(--ld-warning);
+}
+
+.ld-terminal-dot:nth-child(3) {
+  background: var(--ld-success);
+}
+
+.ld-terminal-title {
+  font-size: var(--ld-text-xs);
+  color: var(--ld-text-muted);
+  margin-inline-start: var(--ld-space-2);
+}
+
+.ld-terminal-body {
+  padding: var(--ld-space-4);
+  color: var(--ld-code-text);
+  font-family: var(--ld-font-mono);
+  font-size: var(--ld-text-sm);
+  overflow-x: auto;
+  white-space: pre;
+}
+

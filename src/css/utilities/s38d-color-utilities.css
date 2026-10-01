@@ -1,0 +1,42 @@
+/* ==========================================================================
+   38d. Color utilities: ld-text-*, ld-bg-*
+   ========================================================================== */
+
+/* -- Text color (ld-text-muted and ld-text-accent already exist in §37 Misc) ------ */
+.ld-text-danger {
+  color: var(--ld-danger);
+}
+
+/* -- Background ------------------------------------------------------------------- */
+.ld-bg-surface {
+  background: var(--ld-surface);
+}
+
+.ld-bg-raised {
+  background: var(--ld-surface-raised);
+}
+
+.ld-bg-transparent {
+  background: transparent;
+}
+
+.ld-bg-accent {
+  background: var(--ld-accent);
+}
+
+.ld-bg-danger {
+  background: var(--ld-danger);
+}
+
+.ld-bg-success {
+  background: var(--ld-success);
+}
+
+.ld-bg-warning {
+  background: var(--ld-warning);
+}
+
+.ld-bg-info {
+  background: var(--ld-info);
+}
+

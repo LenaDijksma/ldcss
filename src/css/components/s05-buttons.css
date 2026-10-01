@@ -1,0 +1,85 @@
+/* ==========================================================================
+   5. Buttons — ld-btn
+   ========================================================================== */
+
+.ld-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--ld-space-2);
+  font-family: var(--ld-font-family);
+  font-weight: 700;
+  font-size: var(--ld-text-sm);
+  letter-spacing: 0.02em;
+  padding: var(--ld-space-2) var(--ld-space-4);
+  border: var(--ld-border-width) solid var(--ld-border);
+  border-radius: var(--ld-radius);
+  background: var(--ld-surface);
+  color: var(--ld-text);
+  cursor: pointer;
+  text-decoration: none;
+  box-shadow: var(--ld-shadow);
+  transition: transform var(--ld-transition), box-shadow var(--ld-transition), background var(--ld-transition);
+}
+
+.ld-btn:hover {
+  background: var(--ld-surface-raised);
+}
+
+.ld-btn:active,
+.ld-btn[data-ld-pressed='true'] {
+  transform: translateY(1px);
+  box-shadow: none;
+}
+
+.ld-btn:disabled,
+.ld-btn[data-ld-disabled='true'] {
+  opacity: 0.45;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+.ld-btn[data-ld-prompt='true']::before {
+  content: '>';
+  opacity: 0.6;
+}
+
+/* variants */
+.ld-btn[data-ld-variant='primary'] {
+  background: var(--ld-accent-fill);
+  border-color: var(--ld-accent);
+  color: var(--ld-accent-text);
+}
+
+.ld-btn[data-ld-variant='primary']:hover {
+  filter: brightness(1.05);
+}
+
+.ld-btn[data-ld-variant='outline'] {
+  background: transparent;
+  border-color: var(--ld-accent);
+  color: var(--ld-text);
+}
+
+.ld-btn[data-ld-variant='ghost'] {
+  background: transparent;
+  border-color: transparent;
+  box-shadow: none;
+}
+
+.ld-btn[data-ld-variant='danger'] {
+  background: var(--ld-danger);
+  border-color: var(--ld-danger);
+  color: var(--ld-danger-text);
+}
+
+/* sizes */
+.ld-btn[data-ld-size='sm'] {
+  padding: var(--ld-space-1) var(--ld-space-3);
+  font-size: var(--ld-text-xs);
+}
+
+.ld-btn[data-ld-size='lg'] {
+  padding: var(--ld-space-3) var(--ld-space-5);
+  font-size: var(--ld-text-base);
+}
+

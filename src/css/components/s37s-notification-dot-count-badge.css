@@ -1,0 +1,47 @@
+/* ==========================================================================
+   37s. Notification dot / count badge — ld-dot
+   ------------------------------------------------------------------------
+   For an unread marker on an icon, avatar, or nav item. Different from
+   .ld-badge (§6), which is an inline text pill, not an absolutely
+   positioned overlay. Apply to a position:relative ancestor
+   (.ld-avatar already is one).
+   ========================================================================== */
+
+.ld-dot {
+  position: absolute;
+  top: -2px;
+  inset-inline-end: -2px;
+  min-width: 8px;
+  height: 8px;
+  padding: 0 3px;
+  border-radius: 9999px;
+  background: var(--ld-danger);
+  border: 2px solid var(--ld-surface);
+  box-sizing: content-box;
+}
+
+.ld-dot[data-ld-count] {
+  height: 16px;
+  min-width: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  font-weight: var(--ld-weight-bold);
+  color: var(--ld-danger-text);
+  line-height: 1;
+}
+
+.ld-dot[data-ld-count]::before {
+  content: attr(data-ld-count);
+}
+
+.ld-dot[data-ld-variant='accent'] {
+  background: var(--ld-accent);
+  color: var(--ld-accent-text);
+}
+
+.ld-dot[data-ld-variant='muted'] {
+  background: var(--ld-text-muted);
+}
+

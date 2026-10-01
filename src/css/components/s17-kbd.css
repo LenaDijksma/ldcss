@@ -1,0 +1,16 @@
+/* ==========================================================================
+   17. Kbd
+   ========================================================================== */
+
+.ld-kbd {
+  display: inline-block;
+  padding: 1px 6px;
+  font-family: var(--ld-font-mono);
+  font-size: 0.85em;
+  background: var(--ld-surface-raised);
+  color: var(--ld-text);
+  border: 1px solid var(--ld-border-soft);
+  border-bottom-width: 2px;
+  border-radius: 4px;
+}
+

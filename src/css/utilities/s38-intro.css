@@ -1,0 +1,12 @@
+/* ==========================================================================
+   38–39. Utility classes & Escape hatches — moved to the end of the file
+   on purpose. Every rule below uses a single class selector (specificity
+   0,1,0), same as almost every component rule above it. CSS breaks same-
+   specificity ties by *source order*, not by "utility vs component" intent
+   — so these have to physically come after every component they're meant
+   to be able to override, or they lose silently. (Previously §3b–3i sat
+   right after Layout, before ~30 component sections that could out-order
+   them; Escape Hatches sat at old §29, before 8 more component sections
+   with the same problem. Both are fixed by living here instead.)
+   ========================================================================== */
+

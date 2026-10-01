@@ -1,0 +1,31 @@
+/* ==========================================================================
+   38n. Scrollbar styling
+   ------------------------------------------------------------------------
+   Firefox (scrollbar-width/scrollbar-color) and Chromium/Safari
+   (::-webkit-scrollbar) need separate properties — there's no shorthand
+   that covers both. Apply .ld-scrollbar-thin to any scrolling container.
+   ========================================================================== */
+
+.ld-scrollbar-thin {
+  scrollbar-width: thin;
+  scrollbar-color: var(--ld-border) transparent;
+}
+
+.ld-scrollbar-thin::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+.ld-scrollbar-thin::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.ld-scrollbar-thin::-webkit-scrollbar-thumb {
+  background: var(--ld-border);
+  border-radius: 9999px;
+}
+
+.ld-scrollbar-thin::-webkit-scrollbar-thumb:hover {
+  background: var(--ld-text-muted);
+}
+

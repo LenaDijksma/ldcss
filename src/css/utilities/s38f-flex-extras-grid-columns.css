@@ -1,0 +1,75 @@
+/* ==========================================================================
+   38f. Flex extras & grid columns: ld-self-*, ld-order-*, ld-grid-cols-*
+   ========================================================================== */
+
+/* -- Align self (per-item override of ld-items-*) ------------------------------------- */
+.ld-self-start {
+  align-self: flex-start;
+}
+
+.ld-self-center {
+  align-self: center;
+}
+
+.ld-self-end {
+  align-self: flex-end;
+}
+
+.ld-self-stretch {
+  align-self: stretch;
+}
+
+/* -- Order --------------------------------------------------------------------------- */
+.ld-order-1 {
+  order: 1;
+}
+
+.ld-order-2 {
+  order: 2;
+}
+
+.ld-order-3 {
+  order: 3;
+}
+
+.ld-order-4 {
+  order: 4;
+}
+
+.ld-order-5 {
+  order: 5;
+}
+
+.ld-order-first {
+  order: -1;
+}
+
+.ld-order-last {
+  order: 999;
+}
+
+/* -- Generic grid columns (independent of .ld-grid / data-ld-cols) -------------------- */
+.ld-grid-cols-1 {
+  grid-template-columns: repeat(1, 1fr);
+}
+
+.ld-grid-cols-2 {
+  grid-template-columns: repeat(2, 1fr);
+}
+
+.ld-grid-cols-3 {
+  grid-template-columns: repeat(3, 1fr);
+}
+
+.ld-grid-cols-4 {
+  grid-template-columns: repeat(4, 1fr);
+}
+
+.ld-grid-cols-5 {
+  grid-template-columns: repeat(5, 1fr);
+}
+
+.ld-grid-cols-6 {
+  grid-template-columns: repeat(6, 1fr);
+}
+

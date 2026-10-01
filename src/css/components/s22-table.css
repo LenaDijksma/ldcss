@@ -1,0 +1,72 @@
+/* ==========================================================================
+   22. Table
+   ========================================================================== */
+
+.ld-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--ld-text-sm);
+}
+
+.ld-table th,
+.ld-table td {
+  padding: var(--ld-space-2) var(--ld-space-3);
+  text-align: left;
+  border-bottom: 1px solid var(--ld-border-soft);
+}
+
+.ld-table thead th {
+  font-size: var(--ld-text-xs);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--ld-text-muted);
+  border-bottom: var(--ld-border-width) solid var(--ld-border);
+}
+
+.ld-table[data-ld-striped='true'] tbody tr:nth-child(even) {
+  background: var(--ld-surface-raised);
+}
+
+.ld-table[data-ld-bordered='true'] th,
+.ld-table[data-ld-bordered='true'] td {
+  border: 1px solid var(--ld-border-soft);
+}
+
+.ld-table tbody tr[data-ld-interactive='true']:hover {
+  background: var(--ld-surface-raised);
+  cursor: pointer;
+}
+
+/* -- Sortable headers (paired with ldcss.js) ------------------------------
+   th[data-ld-sort] on any header cell makes it clickable; the ::after
+   arrow only renders once a direction is set (i.e. after first click),
+   so unsorted columns stay clean rather than showing an ambiguous glyph
+   on every sortable header at once. */
+.ld-table th[data-ld-sort] {
+  cursor: pointer;
+  user-select: none;
+}
+
+.ld-table th[data-ld-sort]:hover {
+  color: var(--ld-text);
+}
+
+.ld-table th[data-ld-sort]::after {
+  display: inline-block;
+  width: 1em;
+  margin-inline-start: var(--ld-space-1);
+  opacity: 0.5;
+}
+
+.ld-table th[data-ld-sort][data-ld-sort-dir='asc']::after {
+  content: '↑';
+  opacity: 1;
+  color: var(--ld-accent);
+}
+
+.ld-table th[data-ld-sort][data-ld-sort-dir='desc']::after {
+  content: '↓';
+  opacity: 1;
+  color: var(--ld-accent);
+}
+

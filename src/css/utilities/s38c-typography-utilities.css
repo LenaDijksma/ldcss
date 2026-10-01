@@ -1,0 +1,108 @@
+/* ==========================================================================
+   38c. Typography utilities: ld-text-{size}, ld-font-*, ld-truncate, ld-line-clamp-*
+   ========================================================================== */
+
+/* -- Font size (maps to --ld-text-*) ------------------------------------------ */
+.ld-text-xs {
+  font-size: var(--ld-text-xs);
+}
+
+.ld-text-sm {
+  font-size: var(--ld-text-sm);
+}
+
+.ld-text-base {
+  font-size: var(--ld-text-base);
+}
+
+.ld-text-lg {
+  font-size: var(--ld-text-lg);
+}
+
+.ld-text-xl {
+  font-size: var(--ld-text-xl);
+}
+
+.ld-text-2xl {
+  font-size: var(--ld-text-2xl);
+}
+
+.ld-text-3xl {
+  font-size: var(--ld-text-3xl);
+}
+
+.ld-text-4xl {
+  font-size: var(--ld-text-4xl);
+}
+
+/* -- Font weight --------------------------------------------------------------- */
+.ld-font-normal {
+  font-weight: 400;
+}
+
+.ld-font-medium {
+  font-weight: 500;
+}
+
+.ld-font-bold {
+  font-weight: 700;
+}
+
+/* -- Text transform -------------------------------------------------------------- */
+.ld-uppercase {
+  text-transform: uppercase;
+}
+
+.ld-lowercase {
+  text-transform: lowercase;
+}
+
+.ld-capitalize {
+  text-transform: capitalize;
+}
+
+/* -- Font style ------------------------------------------------------------------- */
+.ld-italic {
+  font-style: italic;
+}
+
+.ld-not-italic {
+  font-style: normal;
+}
+
+/* -- Letter spacing -------------------------------------------------------------- */
+.ld-tracking-wide {
+  letter-spacing: 0.05em;
+}
+
+/* -- Truncation -------------------------------------------------------------------- */
+.ld-truncate {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.ld-line-clamp-2 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.ld-line-clamp-3 {
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* -- Text decoration (new in v3.0.0, mostly useful with ld-hover:underline) -- */
+.ld-underline {
+  text-decoration: underline;
+}
+
+.ld-no-underline {
+  text-decoration: none;
+}

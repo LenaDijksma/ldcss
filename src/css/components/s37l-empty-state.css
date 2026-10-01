@@ -1,0 +1,42 @@
+/* ==========================================================================
+   37l. Empty state — ld-empty
+   The "nothing here" pattern: no results, an empty cart, a fresh
+   account with no history yet. Pure layout/type, no JS — drop it in
+   wherever a list or grid would otherwise render blank.
+   ========================================================================== */
+
+.ld-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  gap: var(--ld-space-1);
+  padding: var(--ld-space-8) var(--ld-space-5);
+  color: var(--ld-text-muted);
+}
+
+.ld-empty-icon {
+  font-family: var(--ld-font-mono);
+  font-size: var(--ld-text-3xl);
+  color: var(--ld-border);
+  margin-bottom: var(--ld-space-2);
+}
+
+.ld-empty-title {
+  font-size: var(--ld-text-base);
+  font-weight: 700;
+  color: var(--ld-text);
+}
+
+.ld-empty-body {
+  font-size: var(--ld-text-sm);
+  max-width: 40ch;
+}
+
+.ld-empty-actions {
+  margin-top: var(--ld-space-3);
+  display: flex;
+  gap: var(--ld-space-2);
+}
+

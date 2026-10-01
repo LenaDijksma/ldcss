@@ -1,0 +1,622 @@
+/* ==========================================================================
+   37o. 12-column grid — ld-grid-row / ld-col-* / ld-offset-*
+   Distinct from .ld-grid (an even N-up grid for cards/stats): this is
+   for asymmetric layouts — a 4-column sidebar next to an 8-column
+   body, staggered offsets, that kind of thing. Flexbox-based (not CSS
+   Grid) so equal-width auto columns (.ld-col with no number) work the
+   way they do in most grid systems people already know.
+   Mobile-first: base .ld-col-* applies at every size unless overridden
+   by a breakpoint-prefixed class (.ld-col-md-6, etc).
+   ========================================================================== */
+
+.ld-grid-row {
+  display: flex;
+  flex-wrap: wrap;
+  margin-left: calc(var(--ld-gutter, var(--ld-space-4)) / -2);
+  margin-right: calc(var(--ld-gutter, var(--ld-space-4)) / -2);
+}
+
+.ld-col,
+[class*='ld-col-'] {
+  width: 100%;
+  padding-left: calc(var(--ld-gutter, var(--ld-space-4)) / 2);
+  padding-right: calc(var(--ld-gutter, var(--ld-space-4)) / 2);
+}
+
+.ld-col {
+  flex: 1 0 0%;
+}
+
+.ld-col-auto {
+  flex: 0 0 auto;
+  width: auto;
+}
+
+.ld-col-1 {
+  flex: 0 0 auto;
+  width: 8.3333%;
+}
+
+.ld-col-2 {
+  flex: 0 0 auto;
+  width: 16.6667%;
+}
+
+.ld-col-3 {
+  flex: 0 0 auto;
+  width: 25%;
+}
+
+.ld-col-4 {
+  flex: 0 0 auto;
+  width: 33.3333%;
+}
+
+.ld-col-5 {
+  flex: 0 0 auto;
+  width: 41.6667%;
+}
+
+.ld-col-6 {
+  flex: 0 0 auto;
+  width: 50%;
+}
+
+.ld-col-7 {
+  flex: 0 0 auto;
+  width: 58.3333%;
+}
+
+.ld-col-8 {
+  flex: 0 0 auto;
+  width: 66.6667%;
+}
+
+.ld-col-9 {
+  flex: 0 0 auto;
+  width: 75%;
+}
+
+.ld-col-10 {
+  flex: 0 0 auto;
+  width: 83.3333%;
+}
+
+.ld-col-11 {
+  flex: 0 0 auto;
+  width: 91.6667%;
+}
+
+.ld-col-12 {
+  flex: 0 0 auto;
+  width: 100%;
+}
+
+.ld-offset-0 {
+  margin-left: 0;
+}
+
+.ld-offset-1 {
+  margin-left: 8.3333%;
+}
+
+.ld-offset-2 {
+  margin-left: 16.6667%;
+}
+
+.ld-offset-3 {
+  margin-left: 25%;
+}
+
+.ld-offset-4 {
+  margin-left: 33.3333%;
+}
+
+.ld-offset-5 {
+  margin-left: 41.6667%;
+}
+
+.ld-offset-6 {
+  margin-left: 50%;
+}
+
+.ld-offset-7 {
+  margin-left: 58.3333%;
+}
+
+.ld-offset-8 {
+  margin-left: 66.6667%;
+}
+
+.ld-offset-9 {
+  margin-left: 75%;
+}
+
+.ld-offset-10 {
+  margin-left: 83.3333%;
+}
+
+.ld-offset-11 {
+  margin-left: 91.6667%;
+}
+
+@media (min-width: 640px) {
+  .ld-col-sm {
+    flex: 1 0 0%;
+    width: 100%;
+  }
+
+  .ld-col-sm-auto {
+    flex: 0 0 auto;
+    width: auto;
+  }
+
+  .ld-col-sm-1 {
+    flex: 0 0 auto;
+    width: 8.3333%;
+  }
+
+  .ld-col-sm-2 {
+    flex: 0 0 auto;
+    width: 16.6667%;
+  }
+
+  .ld-col-sm-3 {
+    flex: 0 0 auto;
+    width: 25%;
+  }
+
+  .ld-col-sm-4 {
+    flex: 0 0 auto;
+    width: 33.3333%;
+  }
+
+  .ld-col-sm-5 {
+    flex: 0 0 auto;
+    width: 41.6667%;
+  }
+
+  .ld-col-sm-6 {
+    flex: 0 0 auto;
+    width: 50%;
+  }
+
+  .ld-col-sm-7 {
+    flex: 0 0 auto;
+    width: 58.3333%;
+  }
+
+  .ld-col-sm-8 {
+    flex: 0 0 auto;
+    width: 66.6667%;
+  }
+
+  .ld-col-sm-9 {
+    flex: 0 0 auto;
+    width: 75%;
+  }
+
+  .ld-col-sm-10 {
+    flex: 0 0 auto;
+    width: 83.3333%;
+  }
+
+  .ld-col-sm-11 {
+    flex: 0 0 auto;
+    width: 91.6667%;
+  }
+
+  .ld-col-sm-12 {
+    flex: 0 0 auto;
+    width: 100%;
+  }
+
+  .ld-offset-sm-0 {
+    margin-left: 0;
+  }
+
+  .ld-offset-sm-1 {
+    margin-left: 8.3333%;
+  }
+
+  .ld-offset-sm-2 {
+    margin-left: 16.6667%;
+  }
+
+  .ld-offset-sm-3 {
+    margin-left: 25%;
+  }
+
+  .ld-offset-sm-4 {
+    margin-left: 33.3333%;
+  }
+
+  .ld-offset-sm-5 {
+    margin-left: 41.6667%;
+  }
+
+  .ld-offset-sm-6 {
+    margin-left: 50%;
+  }
+
+  .ld-offset-sm-7 {
+    margin-left: 58.3333%;
+  }
+
+  .ld-offset-sm-8 {
+    margin-left: 66.6667%;
+  }
+
+  .ld-offset-sm-9 {
+    margin-left: 75%;
+  }
+
+  .ld-offset-sm-10 {
+    margin-left: 83.3333%;
+  }
+
+  .ld-offset-sm-11 {
+    margin-left: 91.6667%;
+  }
+}
+
+@media (min-width: 960px) {
+  .ld-col-md {
+    flex: 1 0 0%;
+    width: 100%;
+  }
+
+  .ld-col-md-auto {
+    flex: 0 0 auto;
+    width: auto;
+  }
+
+  .ld-col-md-1 {
+    flex: 0 0 auto;
+    width: 8.3333%;
+  }
+
+  .ld-col-md-2 {
+    flex: 0 0 auto;
+    width: 16.6667%;
+  }
+
+  .ld-col-md-3 {
+    flex: 0 0 auto;
+    width: 25%;
+  }
+
+  .ld-col-md-4 {
+    flex: 0 0 auto;
+    width: 33.3333%;
+  }
+
+  .ld-col-md-5 {
+    flex: 0 0 auto;
+    width: 41.6667%;
+  }
+
+  .ld-col-md-6 {
+    flex: 0 0 auto;
+    width: 50%;
+  }
+
+  .ld-col-md-7 {
+    flex: 0 0 auto;
+    width: 58.3333%;
+  }
+
+  .ld-col-md-8 {
+    flex: 0 0 auto;
+    width: 66.6667%;
+  }
+
+  .ld-col-md-9 {
+    flex: 0 0 auto;
+    width: 75%;
+  }
+
+  .ld-col-md-10 {
+    flex: 0 0 auto;
+    width: 83.3333%;
+  }
+
+  .ld-col-md-11 {
+    flex: 0 0 auto;
+    width: 91.6667%;
+  }
+
+  .ld-col-md-12 {
+    flex: 0 0 auto;
+    width: 100%;
+  }
+
+  .ld-offset-md-0 {
+    margin-left: 0;
+  }
+
+  .ld-offset-md-1 {
+    margin-left: 8.3333%;
+  }
+
+  .ld-offset-md-2 {
+    margin-left: 16.6667%;
+  }
+
+  .ld-offset-md-3 {
+    margin-left: 25%;
+  }
+
+  .ld-offset-md-4 {
+    margin-left: 33.3333%;
+  }
+
+  .ld-offset-md-5 {
+    margin-left: 41.6667%;
+  }
+
+  .ld-offset-md-6 {
+    margin-left: 50%;
+  }
+
+  .ld-offset-md-7 {
+    margin-left: 58.3333%;
+  }
+
+  .ld-offset-md-8 {
+    margin-left: 66.6667%;
+  }
+
+  .ld-offset-md-9 {
+    margin-left: 75%;
+  }
+
+  .ld-offset-md-10 {
+    margin-left: 83.3333%;
+  }
+
+  .ld-offset-md-11 {
+    margin-left: 91.6667%;
+  }
+}
+
+@media (min-width: 1200px) {
+  .ld-col-lg {
+    flex: 1 0 0%;
+    width: 100%;
+  }
+
+  .ld-col-lg-auto {
+    flex: 0 0 auto;
+    width: auto;
+  }
+
+  .ld-col-lg-1 {
+    flex: 0 0 auto;
+    width: 8.3333%;
+  }
+
+  .ld-col-lg-2 {
+    flex: 0 0 auto;
+    width: 16.6667%;
+  }
+
+  .ld-col-lg-3 {
+    flex: 0 0 auto;
+    width: 25%;
+  }
+
+  .ld-col-lg-4 {
+    flex: 0 0 auto;
+    width: 33.3333%;
+  }
+
+  .ld-col-lg-5 {
+    flex: 0 0 auto;
+    width: 41.6667%;
+  }
+
+  .ld-col-lg-6 {
+    flex: 0 0 auto;
+    width: 50%;
+  }
+
+  .ld-col-lg-7 {
+    flex: 0 0 auto;
+    width: 58.3333%;
+  }
+
+  .ld-col-lg-8 {
+    flex: 0 0 auto;
+    width: 66.6667%;
+  }
+
+  .ld-col-lg-9 {
+    flex: 0 0 auto;
+    width: 75%;
+  }
+
+  .ld-col-lg-10 {
+    flex: 0 0 auto;
+    width: 83.3333%;
+  }
+
+  .ld-col-lg-11 {
+    flex: 0 0 auto;
+    width: 91.6667%;
+  }
+
+  .ld-col-lg-12 {
+    flex: 0 0 auto;
+    width: 100%;
+  }
+
+  .ld-offset-lg-0 {
+    margin-left: 0;
+  }
+
+  .ld-offset-lg-1 {
+    margin-left: 8.3333%;
+  }
+
+  .ld-offset-lg-2 {
+    margin-left: 16.6667%;
+  }
+
+  .ld-offset-lg-3 {
+    margin-left: 25%;
+  }
+
+  .ld-offset-lg-4 {
+    margin-left: 33.3333%;
+  }
+
+  .ld-offset-lg-5 {
+    margin-left: 41.6667%;
+  }
+
+  .ld-offset-lg-6 {
+    margin-left: 50%;
+  }
+
+  .ld-offset-lg-7 {
+    margin-left: 58.3333%;
+  }
+
+  .ld-offset-lg-8 {
+    margin-left: 66.6667%;
+  }
+
+  .ld-offset-lg-9 {
+    margin-left: 75%;
+  }
+
+  .ld-offset-lg-10 {
+    margin-left: 83.3333%;
+  }
+
+  .ld-offset-lg-11 {
+    margin-left: 91.6667%;
+  }
+}
+
+@media (min-width: 1440px) {
+  .ld-col-xl {
+    flex: 1 0 0%;
+    width: 100%;
+  }
+
+  .ld-col-xl-auto {
+    flex: 0 0 auto;
+    width: auto;
+  }
+
+  .ld-col-xl-1 {
+    flex: 0 0 auto;
+    width: 8.3333%;
+  }
+
+  .ld-col-xl-2 {
+    flex: 0 0 auto;
+    width: 16.6667%;
+  }
+
+  .ld-col-xl-3 {
+    flex: 0 0 auto;
+    width: 25%;
+  }
+
+  .ld-col-xl-4 {
+    flex: 0 0 auto;
+    width: 33.3333%;
+  }
+
+  .ld-col-xl-5 {
+    flex: 0 0 auto;
+    width: 41.6667%;
+  }
+
+  .ld-col-xl-6 {
+    flex: 0 0 auto;
+    width: 50%;
+  }
+
+  .ld-col-xl-7 {
+    flex: 0 0 auto;
+    width: 58.3333%;
+  }
+
+  .ld-col-xl-8 {
+    flex: 0 0 auto;
+    width: 66.6667%;
+  }
+
+  .ld-col-xl-9 {
+    flex: 0 0 auto;
+    width: 75%;
+  }
+
+  .ld-col-xl-10 {
+    flex: 0 0 auto;
+    width: 83.3333%;
+  }
+
+  .ld-col-xl-11 {
+    flex: 0 0 auto;
+    width: 91.6667%;
+  }
+
+  .ld-col-xl-12 {
+    flex: 0 0 auto;
+    width: 100%;
+  }
+
+  .ld-offset-xl-0 {
+    margin-left: 0;
+  }
+
+  .ld-offset-xl-1 {
+    margin-left: 8.3333%;
+  }
+
+  .ld-offset-xl-2 {
+    margin-left: 16.6667%;
+  }
+
+  .ld-offset-xl-3 {
+    margin-left: 25%;
+  }
+
+  .ld-offset-xl-4 {
+    margin-left: 33.3333%;
+  }
+
+  .ld-offset-xl-5 {
+    margin-left: 41.6667%;
+  }
+
+  .ld-offset-xl-6 {
+    margin-left: 50%;
+  }
+
+  .ld-offset-xl-7 {
+    margin-left: 58.3333%;
+  }
+
+  .ld-offset-xl-8 {
+    margin-left: 66.6667%;
+  }
+
+  .ld-offset-xl-9 {
+    margin-left: 75%;
+  }
+
+  .ld-offset-xl-10 {
+    margin-left: 83.3333%;
+  }
+
+  .ld-offset-xl-11 {
+    margin-left: 91.6667%;
+  }
+}
+

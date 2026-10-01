@@ -1,0 +1,25 @@
+/* ==========================================================================
+   38o. Safe-area insets
+   ------------------------------------------------------------------------
+   For content pinned to a viewport edge (toasts, offcanvas, fixed nav)
+   on notched/rounded-corner mobile devices. env() falls back to 0 on
+   devices/browsers that don't support it, so these are safe to apply
+   unconditionally.
+   ========================================================================== */
+
+.ld-safe-top {
+  padding-top: max(var(--ld-space-4), env(safe-area-inset-top));
+}
+
+.ld-safe-bottom {
+  padding-bottom: max(var(--ld-space-4), env(safe-area-inset-bottom));
+}
+
+.ld-safe-left {
+  padding-left: max(var(--ld-space-4), env(safe-area-inset-left));
+}
+
+.ld-safe-right {
+  padding-right: max(var(--ld-space-4), env(safe-area-inset-right));
+}
+

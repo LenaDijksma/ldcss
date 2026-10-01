@@ -1,0 +1,31 @@
+/* ==========================================================================
+   37g. Print — ld-print-hidden, ld-print-only
+   ========================================================================== */
+
+@media print {
+  .ld-print-hidden {
+    display: none !important;
+  }
+
+  .ld-print-only {
+    display: block !important;
+  }
+
+  .ld-nav,
+  .ld-offcanvas-backdrop,
+  [data-ld-command-backdrop] {
+    display: none !important;
+  }
+
+  body {
+    background: #fff;
+    color: #000;
+  }
+}
+
+@media not print {
+  .ld-print-only {
+    display: none;
+  }
+}
+

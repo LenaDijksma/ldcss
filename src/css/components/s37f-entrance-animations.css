@@ -1,0 +1,42 @@
+/* ==========================================================================
+   37f. Entrance animations — data-ld-animate (paired with ldcss.js)
+   ========================================================================== */
+
+[data-ld-animate] {
+  opacity: 0;
+  transition: opacity 0.5s ease, transform 0.5s ease;
+}
+
+[data-ld-animate='fade-up'] {
+  transform: translateY(16px);
+}
+
+[data-ld-animate='fade-down'] {
+  transform: translateY(-16px);
+}
+
+[data-ld-animate='fade-left'] {
+  transform: translateX(16px);
+}
+
+[data-ld-animate='fade-right'] {
+  transform: translateX(-16px);
+}
+
+[data-ld-animate='fade-in'] {
+  transform: none;
+}
+
+[data-ld-animate].ld-in-view {
+  opacity: 1;
+  transform: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [data-ld-animate] {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+}
+

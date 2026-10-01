@@ -1,0 +1,49 @@
+/* ==========================================================================
+   20. Spinner
+   ========================================================================== */
+
+.ld-spinner {
+  display: inline-block;
+  width: 9px;
+  height: 1.1em;
+  vertical-align: -0.2em;
+  background: var(--ld-accent);
+  animation: ld-blink 1s steps(1, start) infinite;
+}
+
+@keyframes ld-blink {
+  50% {
+    opacity: 0;
+  }
+}
+
+.ld-spinner[data-ld-variant='dots'] {
+  width: auto;
+  height: auto;
+  background: none;
+  animation: none;
+  vertical-align: middle;
+}
+
+.ld-spinner[data-ld-variant='dots']::before {
+  content: '. . .';
+  letter-spacing: 2px;
+  color: var(--ld-accent);
+  font-weight: 700;
+  animation: ld-dots 1.2s steps(1) infinite;
+}
+
+@keyframes ld-dots {
+  0% {
+    content: '.';
+  }
+
+  33% {
+    content: '. .';
+  }
+
+  66% {
+    content: '. . .';
+  }
+}
+

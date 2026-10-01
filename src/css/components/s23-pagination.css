@@ -1,0 +1,46 @@
+/* ==========================================================================
+   23. Pagination
+   ========================================================================== */
+
+.ld-pagination {
+  display: flex;
+  gap: var(--ld-space-1);
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.ld-pagination button,
+.ld-pagination a {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 32px;
+  height: 32px;
+  padding: 0 var(--ld-space-2);
+  border: 1px solid var(--ld-border-soft);
+  border-radius: calc(var(--ld-radius) / 2);
+  background: var(--ld-surface);
+  color: var(--ld-text);
+  font-family: var(--ld-font-family);
+  font-size: var(--ld-text-sm);
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.ld-pagination button:hover,
+.ld-pagination a:hover {
+  background: var(--ld-surface-raised);
+}
+
+.ld-pagination li[data-ld-active='true'] button {
+  background: var(--ld-accent);
+  border-color: var(--ld-accent);
+  color: var(--ld-accent-text);
+}
+
+.ld-pagination button:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+

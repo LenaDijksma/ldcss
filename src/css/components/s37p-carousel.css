@@ -1,0 +1,73 @@
+/* ==========================================================================
+   37p. Carousel — data-ld-carousel (paired with ldcss.js)
+   data-ld-carousel wraps a data-ld-carousel-track of data-ld-carousel-slide
+   elements. Prev/next buttons use data-ld-toggle="carousel-prev"/"carousel-next"
+   scoped to the nearest carousel; dots are data-ld-carousel-dot, one per
+   slide, inside a data-ld-carousel-dots container. data-ld-autoplay="true"
+   plus data-ld-interval="5000" (ms) starts it auto-advancing; hovering
+   pauses it.
+   ========================================================================== */
+
+[data-ld-carousel] {
+  position: relative;
+  overflow: hidden;
+  border-radius: var(--ld-radius);
+}
+
+[data-ld-carousel-track] {
+  display: flex;
+  transition: transform 400ms ease;
+}
+
+[data-ld-carousel-slide] {
+  flex: 0 0 100%;
+  min-width: 0;
+}
+
+[data-ld-toggle='carousel-prev'],
+[data-ld-toggle='carousel-next'] {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 5;
+  border-radius: 50%;
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+[data-ld-toggle='carousel-prev'] {
+  inset-inline-start: var(--ld-space-3);
+}
+
+[data-ld-toggle='carousel-next'] {
+  inset-inline-end: var(--ld-space-3);
+}
+
+[data-ld-carousel-dots] {
+  position: absolute;
+  bottom: var(--ld-space-3);
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 6px;
+  z-index: 5;
+}
+
+[data-ld-carousel-dot] {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  border: none;
+  padding: 0;
+  background: color-mix(in srgb, var(--ld-bg) 60%, transparent);
+  cursor: pointer;
+}
+
+[data-ld-carousel-dot][data-ld-active='true'] {
+  background: var(--ld-accent);
+}
+

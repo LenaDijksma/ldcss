@@ -1,0 +1,58 @@
+/* ==========================================================================
+   36. Tag input — data-ld-tags
+   ========================================================================== */
+
+[data-ld-tags] {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--ld-space-2);
+  align-items: center;
+  padding: var(--ld-space-2);
+  border: var(--ld-border-width) solid var(--ld-border-soft);
+  border-radius: var(--ld-radius);
+  background: var(--ld-surface);
+}
+
+[data-ld-tags]:focus-within {
+  border-color: var(--ld-accent);
+}
+
+.ld-tag,
+[data-ld-tag] {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: var(--ld-surface-raised);
+  border: 1px solid var(--ld-border-soft);
+  border-radius: 9999px;
+  padding: 2px 8px;
+  font-size: var(--ld-text-xs);
+}
+
+.ld-tag-remove,
+[data-ld-tag-remove] {
+  background: none;
+  border: none;
+  color: var(--ld-text-muted);
+  cursor: pointer;
+  font-size: var(--ld-text-sm);
+  line-height: 1;
+  padding: 0;
+}
+
+.ld-tag-remove:hover,
+[data-ld-tag-remove]:hover {
+  color: var(--ld-danger);
+}
+
+[data-ld-tags-input] {
+  flex: 1;
+  min-width: 100px;
+  border: none;
+  background: none;
+  font-family: var(--ld-font-family);
+  font-size: var(--ld-text-sm);
+  color: var(--ld-text);
+  outline: none;
+}
+

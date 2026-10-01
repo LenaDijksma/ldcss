@@ -1,0 +1,37 @@
+/* ==========================================================================
+   37c. Stat — ld-stat
+   ========================================================================== */
+
+.ld-stat {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ld-space-1);
+}
+
+.ld-stat-value {
+  font-size: var(--ld-text-2xl);
+  font-weight: 700;
+  line-height: 1.1;
+  color: var(--ld-text);
+}
+
+.ld-stat-label {
+  font-size: var(--ld-text-xs);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--ld-text-muted);
+}
+
+.ld-stat-delta {
+  font-size: var(--ld-text-sm);
+  font-weight: 500;
+}
+
+.ld-stat-delta[data-ld-trend='up'] {
+  color: var(--ld-accent);
+}
+
+.ld-stat-delta[data-ld-trend='down'] {
+  color: var(--ld-danger);
+}
+

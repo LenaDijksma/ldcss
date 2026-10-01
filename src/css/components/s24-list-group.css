@@ -1,0 +1,40 @@
+/* ==========================================================================
+   24. List group
+   ========================================================================== */
+
+.ld-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  border: 1px solid var(--ld-border-soft);
+  border-radius: var(--ld-radius);
+  overflow: hidden;
+}
+
+.ld-list-item {
+  padding: var(--ld-space-3) var(--ld-space-4);
+  border-bottom: 1px solid var(--ld-border-soft);
+  font-size: var(--ld-text-sm);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--ld-space-2);
+}
+
+.ld-list-item:last-child {
+  border-bottom: none;
+}
+
+.ld-list-item[data-ld-interactive='true'] {
+  cursor: pointer;
+}
+
+.ld-list-item[data-ld-interactive='true']:hover {
+  background: var(--ld-surface-raised);
+}
+
+.ld-list-item[data-ld-active='true'] {
+  background: var(--ld-accent);
+  color: var(--ld-accent-text);
+}
+

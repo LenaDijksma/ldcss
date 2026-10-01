@@ -1,0 +1,32 @@
+/* ==========================================================================
+   37d. Avatar group — ld-avatar-group
+   ========================================================================== */
+
+.ld-avatar-group {
+  display: flex;
+  align-items: center;
+}
+
+.ld-avatar-group .ld-avatar {
+  border: 2px solid var(--ld-bg);
+  margin-inline-start: -10px;
+}
+
+.ld-avatar-group .ld-avatar:first-child {
+  margin-inline-start: 0;
+}
+
+.ld-avatar-group-overflow {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: calc(var(--ld-radius) / 1.5);
+  background: var(--ld-surface-raised);
+  border: 2px solid var(--ld-bg);
+  margin-inline-start: -10px;
+  font-size: var(--ld-text-xs);
+  color: var(--ld-text-muted);
+}
+

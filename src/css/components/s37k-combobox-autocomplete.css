@@ -1,0 +1,61 @@
+/* ==========================================================================
+   37k. Combobox / autocomplete — data-ld-combobox (paired with ldcss.js)
+   Filtered, keyboard-navigable search-inline, distinct from the command
+   palette (which is search-in-a-modal) and the dropdown (which doesn't
+   filter). Wrap an .ld-input and a data-ld-combobox-list of
+   data-ld-combobox-option elements; typing filters the list, arrow
+   keys move the highlight, Enter or a click selects.
+   ========================================================================== */
+
+[data-ld-combobox] {
+  position: relative;
+}
+
+[data-ld-combobox-list] {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  right: 0;
+  background: var(--ld-surface);
+  border: var(--ld-border-width) solid var(--ld-border);
+  border-radius: var(--ld-radius);
+  box-shadow: var(--ld-shadow);
+  max-height: 240px;
+  overflow-y: auto;
+  padding: var(--ld-space-2);
+  display: none;
+  z-index: var(--ld-z-popover);
+}
+
+[data-ld-combobox-list].ld-show {
+  display: block;
+}
+
+[data-ld-combobox-option] {
+  padding: var(--ld-space-2);
+  border-radius: calc(var(--ld-radius) / 2);
+  font-size: var(--ld-text-sm);
+  color: var(--ld-text);
+  cursor: pointer;
+}
+
+[data-ld-combobox-option][data-ld-highlighted='true'] {
+  background: var(--ld-accent);
+  color: var(--ld-accent-text);
+}
+
+[data-ld-combobox-option].ld-hide {
+  display: none;
+}
+
+[data-ld-combobox-empty] {
+  padding: var(--ld-space-2) var(--ld-space-3);
+  font-size: var(--ld-text-sm);
+  color: var(--ld-text-muted);
+  display: none;
+}
+
+[data-ld-combobox-empty].ld-show {
+  display: block;
+}
+

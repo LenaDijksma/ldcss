@@ -1,0 +1,50 @@
+/* ==========================================================================
+   37h. Segmented control — data-ld-segmented (paired with ldcss.js)
+   A row of mutually exclusive options, for a value rather than a view
+   (contrast with tabs, which switch a view). Wrap items in a container
+   carrying data-ld-segmented; each option is an element carrying
+   data-ld-segment, with data-ld-active="true" marking the default —
+   the same attribute-only pattern as dropdown/accordion/tabs, no extra
+   class required. Optionally set data-ld-target="#some-input" on the
+   container to sync the active item's data-ld-value into a hidden
+   input for plain form submission.
+   ========================================================================== */
+
+[data-ld-segmented] {
+  display: inline-flex;
+  background: var(--ld-surface-raised);
+  border: var(--ld-border-width) solid var(--ld-border-soft);
+  border-radius: var(--ld-radius);
+  padding: 3px;
+  gap: 2px;
+}
+
+[data-ld-segment] {
+  font-family: var(--ld-font-family);
+  font-size: var(--ld-text-sm);
+  padding: var(--ld-space-1) var(--ld-space-3);
+  border: none;
+  border-radius: calc(var(--ld-radius) - 3px);
+  background: none;
+  color: var(--ld-text-muted);
+  cursor: pointer;
+  transition: background var(--ld-transition), color var(--ld-transition), box-shadow var(--ld-transition);
+}
+
+[data-ld-segment]:hover {
+  color: var(--ld-text);
+}
+
+[data-ld-segment][data-ld-active='true'] {
+  background: var(--ld-surface);
+  color: var(--ld-text);
+  box-shadow: var(--ld-shadow);
+  font-weight: 700;
+}
+
+[data-ld-segment]:disabled,
+[data-ld-segment][data-ld-disabled='true'] {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+

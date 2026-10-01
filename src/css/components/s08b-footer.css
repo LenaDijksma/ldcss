@@ -1,0 +1,17 @@
+/* --------------------------------------------------------------------------
+   8b. Footer — ld-footer
+   Bottom counterpart to ld-nav: same padding/surface, but border-top since
+   it sits at the end of the page instead of the start. Pair with
+   ld-shadow-up / ld-shadow-up-sm / ld-shadow-up-lg (§38) if you want a lift
+   off the page instead of (or in addition to) the border.
+   -------------------------------------------------------------------------- */
+
+.ld-footer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--ld-space-3) var(--ld-space-5);
+  background: var(--ld-surface);
+  border-top: var(--ld-border-width) solid var(--ld-border);
+}
+

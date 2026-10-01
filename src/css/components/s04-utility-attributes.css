@@ -1,0 +1,48 @@
+/* ==========================================================================
+   4. Utility attributes: shadow + border
+   ========================================================================== */
+
+[data-ld-shadow='sm'] {
+  box-shadow: 0 1px 3px rgba(20, 23, 26, 0.10);
+}
+
+[data-ld-shadow='md'] {
+  box-shadow: 0 4px 12px rgba(20, 23, 26, 0.14);
+}
+
+[data-ld-shadow='lg'] {
+  box-shadow: 0 12px 32px rgba(20, 23, 26, 0.20);
+}
+
+[data-ld-shadow='none'] {
+  box-shadow: none;
+}
+
+[data-ld-theme='dark'] [data-ld-shadow='sm'] {
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
+}
+
+[data-ld-theme='dark'] [data-ld-shadow='md'] {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.45);
+}
+
+[data-ld-theme='dark'] [data-ld-shadow='lg'] {
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.5);
+}
+
+[data-ld-border='thin'] {
+  border: 1px solid var(--ld-border-soft);
+}
+
+[data-ld-border='thick'] {
+  border: 2px solid var(--ld-border);
+}
+
+[data-ld-border='accent'] {
+  border: var(--ld-border-width) solid var(--ld-accent);
+}
+
+[data-ld-border='none'] {
+  border: none;
+}
+

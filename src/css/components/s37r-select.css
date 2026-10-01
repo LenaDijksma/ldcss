@@ -1,0 +1,30 @@
+/* ==========================================================================
+   37r. Select — arrow treatment for .ld-select
+   ------------------------------------------------------------------------
+   .ld-select (§9) previously inherited the plain .ld-input box with no
+   custom arrow — background-image is the only reliable cross-browser way
+   to draw one without a wrapper element, so the caret is baked in as a
+   data-URI SVG that reads --ld-text-muted. Native <select> can't be
+   restyled further than this (no styling the popup list itself); reach
+   for the combobox (§37k) if you need a fully custom listbox.
+   ========================================================================== */
+
+.ld-select {
+  appearance: none;
+  -webkit-appearance: none;
+  background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='%235B6560' d='M4 6l4 4 4-4H4z'/%3e%3c/svg%3e");
+  background-repeat: no-repeat;
+  background-position: right var(--ld-space-3) center;
+  background-size: 12px;
+  padding-inline-end: var(--ld-space-6);
+}
+
+[data-ld-theme='dark'] .ld-select {
+  background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='%238A928D' d='M4 6l4 4 4-4H4z'/%3e%3c/svg%3e");
+}
+
+.ld-select[multiple] {
+  background-image: none;
+  padding-inline-end: var(--ld-space-3);
+}
+

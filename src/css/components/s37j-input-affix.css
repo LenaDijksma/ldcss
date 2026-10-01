@@ -1,0 +1,37 @@
+/* ==========================================================================
+   37j. Input affix — ld-input-group
+   An icon, currency symbol, or unit alongside an .ld-input, without a
+   one-off wrapper each time. Wrap the input; add data-ld-affix='right'
+   to move the icon slot to the trailing edge (e.g. units like "kg").
+   ========================================================================== */
+
+.ld-input-group {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.ld-input-group .ld-input {
+  padding-inline-start: 34px;
+}
+
+.ld-input-group[data-ld-affix='right'] .ld-input {
+  padding-inline-start: var(--ld-space-3);
+  padding-inline-end: 34px;
+}
+
+.ld-input-affix {
+  position: absolute;
+  inset-inline-start: var(--ld-space-3);
+  display: flex;
+  align-items: center;
+  color: var(--ld-text-muted);
+  font-size: var(--ld-text-sm);
+  pointer-events: none;
+}
+
+.ld-input-group[data-ld-affix='right'] .ld-input-affix {
+  inset-inline-start: auto;
+  inset-inline-end: var(--ld-space-3);
+}
+

@@ -1,0 +1,20 @@
+/* JetBrains Mono, self-hosted (SIL Open Font License 1.1 — see fonts/JetBrainsMono-OFL.txt).
+   Latin subset, regular + bold. Weight 500 falls back to regular.
+   Nothing is requested from Google; the files load from ./fonts next to this
+   stylesheet. To preload the regular weight, add to your <head>:
+   <link rel="preload" href="fonts/JetBrainsMono-Regular.woff" as="font" type="font/woff" crossorigin> */
+@font-face {
+  font-family: 'JetBrains Mono';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('fonts/JetBrainsMono-Regular.woff') format('woff');
+}
+
+@font-face {
+  font-family: 'JetBrains Mono';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url('fonts/JetBrainsMono-Bold.woff') format('woff');
+}

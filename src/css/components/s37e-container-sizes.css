@@ -1,0 +1,15 @@
+/* ==========================================================================
+   37e. Container sizes — ld-container-{sm,wide}
+   Combined with .ld-container (specificity 0,2,0 vs 0,1,0) so these are
+   guaranteed to win over the base rule regardless of file position —
+   safer than relying on section order the way §38/39 have to.
+   ========================================================================== */
+
+.ld-container.ld-container-sm {
+  max-width: 720px;
+}
+
+.ld-container.ld-container-wide {
+  max-width: 1400px;
+}
+

@@ -1,0 +1,41 @@
+/* ==========================================================================
+   37u. Button group & split button — ld-btn-group
+   ------------------------------------------------------------------------
+   Adjacent .ld-btn elements sharing one outline instead of each drawing
+   its own border/radius/shadow. A split button is just a group with its
+   last child narrowed via [data-ld-split] — the dropdown behavior comes
+   from wrapping that last button in the existing §10 dropdown markup.
+   ========================================================================== */
+
+.ld-btn-group {
+  display: inline-flex;
+}
+
+.ld-btn-group .ld-btn {
+  border-radius: 0;
+  box-shadow: none;
+}
+
+.ld-btn-group .ld-btn:not(:first-child) {
+  border-inline-start-width: 0;
+}
+
+.ld-btn-group .ld-btn:first-child {
+  border-start-start-radius: var(--ld-radius);
+  border-end-start-radius: var(--ld-radius);
+}
+
+.ld-btn-group .ld-btn:last-child {
+  border-start-end-radius: var(--ld-radius);
+  border-end-end-radius: var(--ld-radius);
+}
+
+.ld-btn-group .ld-btn:focus-visible {
+  position: relative;
+  z-index: 1;
+}
+
+.ld-btn-group .ld-btn[data-ld-split='true'] {
+  padding-inline: var(--ld-space-2);
+}
+

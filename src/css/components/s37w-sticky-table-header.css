@@ -1,0 +1,16 @@
+/* ==========================================================================
+   37w. Sticky table header — data-ld-sticky-head
+   ------------------------------------------------------------------------
+   Add alongside .ld-table (§22) for a header row that stays pinned while
+   the table body scrolls. Requires a scrolling ancestor with a bounded
+   height (e.g. wrap the table in a div with max-height + overflow-y:auto)
+   — position:sticky has no effect without one.
+   ========================================================================== */
+
+.ld-table[data-ld-sticky-head] thead th {
+  position: sticky;
+  top: 0;
+  background: var(--ld-surface);
+  z-index: 1;
+}
+

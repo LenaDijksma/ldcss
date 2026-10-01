@@ -1,0 +1,70 @@
+/* ==========================================================================
+   11. Alerts — ld-alert
+   ========================================================================== */
+
+.ld-alert {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--ld-space-3);
+  padding: var(--ld-space-3) var(--ld-space-4);
+  background: var(--ld-surface);
+  border: var(--ld-border-width) solid var(--ld-border-soft);
+  border-inline-start: var(--ld-border-width) solid var(--ld-text-muted);
+  border-radius: var(--ld-radius);
+  font-size: var(--ld-text-sm);
+}
+
+.ld-alert-body {
+  flex: 1;
+}
+
+.ld-alert-title {
+  font-weight: 700;
+  margin-bottom: 2px;
+}
+
+.ld-alert-close {
+  background: none;
+  border: none;
+  color: var(--ld-text-muted);
+  font-size: var(--ld-text-base);
+  line-height: 1;
+  cursor: pointer;
+}
+
+.ld-alert-close:hover {
+  color: var(--ld-text);
+}
+
+.ld-alert[data-ld-variant='info'] {
+  border-left-color: var(--ld-info);
+}
+
+.ld-alert[data-ld-variant='info'] .ld-alert-title {
+  color: var(--ld-info);
+}
+
+.ld-alert[data-ld-variant='success'] {
+  border-left-color: var(--ld-success);
+}
+
+.ld-alert[data-ld-variant='success'] .ld-alert-title {
+  color: var(--ld-success);
+}
+
+.ld-alert[data-ld-variant='warning'] {
+  border-left-color: var(--ld-warning);
+}
+
+.ld-alert[data-ld-variant='warning'] .ld-alert-title {
+  color: var(--ld-warning);
+}
+
+.ld-alert[data-ld-variant='danger'] {
+  border-left-color: var(--ld-danger);
+}
+
+.ld-alert[data-ld-variant='danger'] .ld-alert-title {
+  color: var(--ld-danger);
+}
+

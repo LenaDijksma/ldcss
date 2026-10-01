@@ -1,0 +1,67 @@
+/* ==========================================================================
+   3b. Hero, section & row — ld-hero, ld-section, ld-row
+   Page-level building blocks that demo.html and cheat-sheet.html used to
+   style with local <style> rules. They live in the framework now.
+
+   <header class="ld-hero">                     (data-ld-size="sm" for compact)
+     <h1>Title</h1>
+     <p class="ld-text-muted">Intro</p>
+   </header>
+
+   <section class="ld-section" id="buttons">    (data-ld-size="sm" for compact)
+     <h2 class="ld-section-title">Buttons</h2>
+     <p class="ld-section-sub">One line about what is below</p>
+     …
+   </section>
+
+   <div class="ld-row"> … </div>                inline cluster: wraps, gapped
+   ========================================================================== */
+
+.ld-hero {
+  padding: var(--ld-space-8) 0 var(--ld-space-6);
+}
+
+.ld-hero[data-ld-size='sm'] {
+  padding: var(--ld-space-6) 0 var(--ld-space-4);
+}
+
+.ld-hero pre.ld-code {
+  margin: var(--ld-space-4) 0;
+}
+
+.ld-section {
+  padding: var(--ld-space-6) 0;
+  border-top: var(--ld-border-width) solid var(--ld-border-soft);
+}
+
+.ld-section[data-ld-size='sm'] {
+  padding: var(--ld-space-5) 0;
+}
+
+.ld-section-title {
+  font-size: var(--ld-text-xl);
+  margin-bottom: var(--ld-space-3);
+}
+
+.ld-section[data-ld-size='sm'] .ld-section-title {
+  font-size: var(--ld-text-lg);
+}
+
+/* with a subtitle right below, the title only needs a hairline of space */
+.ld-section-title:has(+ .ld-section-sub) {
+  margin-bottom: var(--ld-space-1);
+}
+
+.ld-section-sub {
+  color: var(--ld-text-muted);
+  font-size: var(--ld-text-sm);
+  margin-bottom: var(--ld-space-5);
+}
+
+.ld-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--ld-space-3);
+  align-items: center;
+}
+

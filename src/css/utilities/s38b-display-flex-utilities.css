@@ -1,0 +1,191 @@
+/* ==========================================================================
+   38b. Display & flex utilities: ld-d-*, ld-flex-*, ld-items-*, ld-justify-*
+   ========================================================================== */
+
+/* -- Display ------------------------------------------------------------------ */
+.ld-d-block {
+  display: block;
+}
+
+.ld-d-inline {
+  display: inline;
+}
+
+.ld-d-inline-block {
+  display: inline-block;
+}
+
+.ld-d-flex {
+  display: flex;
+}
+
+.ld-d-inline-flex {
+  display: inline-flex;
+}
+
+.ld-d-grid {
+  display: grid;
+}
+
+.ld-d-none {
+  display: none;
+}
+
+/* -- Flex direction / wrap ----------------------------------------------------- */
+.ld-flex-row {
+  flex-direction: row;
+}
+
+.ld-flex-row-rev {
+  flex-direction: row-reverse;
+}
+
+.ld-flex-col {
+  flex-direction: column;
+}
+
+.ld-flex-col-rev {
+  flex-direction: column-reverse;
+}
+
+.ld-flex-wrap {
+  flex-wrap: wrap;
+}
+
+.ld-flex-nowrap {
+  flex-wrap: nowrap;
+}
+
+.ld-flex-1 {
+  flex: 1 1 0%;
+}
+
+.ld-flex-auto {
+  flex: 1 1 auto;
+}
+
+.ld-flex-none {
+  flex: none;
+}
+
+/* -- Align / justify ------------------------------------------------------------ */
+.ld-items-start {
+  align-items: flex-start;
+}
+
+.ld-items-center {
+  align-items: center;
+}
+
+.ld-items-end {
+  align-items: flex-end;
+}
+
+.ld-items-stretch {
+  align-items: stretch;
+}
+
+.ld-items-baseline {
+  align-items: baseline;
+}
+
+.ld-justify-start {
+  justify-content: flex-start;
+}
+
+.ld-justify-center {
+  justify-content: center;
+}
+
+.ld-justify-end {
+  justify-content: flex-end;
+}
+
+.ld-justify-between {
+  justify-content: space-between;
+}
+
+.ld-justify-around {
+  justify-content: space-around;
+}
+
+.ld-justify-evenly {
+  justify-content: space-evenly;
+}
+
+/* -- Text align ------------------------------------------------------------------ */
+.ld-text-left {
+  text-align: left;
+}
+
+.ld-text-center {
+  text-align: center;
+}
+
+.ld-text-right {
+  text-align: right;
+}
+
+/* -- Width / max-width ------------------------------------------------------------ */
+.ld-w-25 {
+  width: 25%;
+}
+
+.ld-w-50 {
+  width: 50%;
+}
+
+.ld-w-75 {
+  width: 75%;
+}
+
+.ld-w-100 {
+  width: 100%;
+}
+
+.ld-max-w-sm {
+  max-width: 480px;
+}
+
+.ld-max-w-md {
+  max-width: 640px;
+}
+
+.ld-max-w-lg {
+  max-width: 800px;
+}
+
+.ld-max-w-xl {
+  max-width: 1000px;
+}
+
+.ld-max-w-full {
+  max-width: 100%;
+}
+
+/* -- Aspect ratio -------------------------------------------------------------------- */
+.ld-aspect-square {
+  aspect-ratio: 1 / 1;
+}
+
+.ld-aspect-video {
+  aspect-ratio: 16 / 9;
+}
+
+.ld-aspect-4-3 {
+  aspect-ratio: 4 / 3;
+}
+
+.ld-aspect-3-2 {
+  aspect-ratio: 3 / 2;
+}
+
+/* -- Link reset -----------------------------------------------------------------------
+   Strip default <a> underline/color for building a custom brand mark, card-as-link,
+   or nav item without pulling in a whole component (e.g. .ld-nav-brand, which bundles
+   this with its own "$" prefix mark). */
+.ld-link-reset {
+  text-decoration: none;
+  color: inherit;
+}
+

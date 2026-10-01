@@ -1,0 +1,55 @@
+/* ==========================================================================
+   37i. Filter chips — data-ld-chip (paired with ldcss.js)
+   Visually related to .ld-tag, but interactive and for selecting rather
+   than displaying: click to toggle a filter on or off. Each option
+   just needs data-ld-chip — no separate class, same attribute-only
+   pattern as data-ld-segment. Group chips in a container carrying
+   data-ld-chips="single" for a single-select set (like radio buttons);
+   a plain list of [data-ld-chip] elements with no such wrapper behaves
+   as independent multi-select toggles.
+   ========================================================================== */
+
+[data-ld-chip] {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: var(--ld-space-1) var(--ld-space-3);
+  border: var(--ld-border-width) solid var(--ld-border-soft);
+  border-radius: 9999px;
+  background: var(--ld-surface);
+  color: var(--ld-text-muted);
+  font-family: var(--ld-font-family);
+  font-size: var(--ld-text-sm);
+  cursor: pointer;
+  transition: background var(--ld-transition), color var(--ld-transition), border-color var(--ld-transition);
+}
+
+[data-ld-chip]:hover {
+  border-color: var(--ld-border);
+  color: var(--ld-text);
+}
+
+.ld-chip-check {
+  display: none;
+}
+
+[data-ld-chip][data-ld-active='true'] {
+  background: var(--ld-accent-fill);
+  border-color: var(--ld-accent);
+  color: var(--ld-accent-text);
+  font-weight: 700;
+}
+
+[data-ld-chip][data-ld-active='true'] .ld-chip-check {
+  display: inline;
+}
+
+/* The .ld-chip-check span is optional. If it's left out of the markup
+   (just `<button data-ld-chip>Label</button>`), this pseudo-element
+   supplies the same checkmark automatically so plain markup still looks
+   right — :has() skips this when the span is present, so no double mark. */
+[data-ld-chip][data-ld-active='true']:not(:has(.ld-chip-check))::before {
+  content: "✓";
+  line-height: 1;
+}
+

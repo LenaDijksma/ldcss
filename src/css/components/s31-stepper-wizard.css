@@ -1,0 +1,89 @@
+/* ==========================================================================
+   31. Stepper / wizard — ld-stepper
+   ========================================================================== */
+
+.ld-stepper {
+  display: flex;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.ld-step {
+  display: flex;
+  align-items: center;
+  gap: var(--ld-space-2);
+  font-size: var(--ld-text-xs);
+  color: var(--ld-text-muted);
+  flex: 1;
+}
+
+.ld-step-index {
+  width: 24px;
+  height: 24px;
+  border: var(--ld-border-width) solid var(--ld-border-soft);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  flex-shrink: 0;
+  background: var(--ld-surface);
+}
+
+.ld-step:not(:last-child)::after {
+  content: '';
+  flex: 1;
+  height: 2px;
+  background: var(--ld-border-soft);
+  margin: 0 var(--ld-space-2);
+}
+
+.ld-step[data-ld-active='true'] {
+  color: var(--ld-text);
+}
+
+.ld-step[data-ld-active='true'] .ld-step-index {
+  border-color: var(--ld-accent);
+  color: var(--ld-accent);
+}
+
+.ld-step[data-ld-complete='true'] .ld-step-index {
+  background: var(--ld-accent);
+  border-color: var(--ld-accent);
+  color: var(--ld-accent-text);
+}
+
+.ld-step[data-ld-complete='true']:not(:last-child)::after {
+  background: var(--ld-accent);
+}
+
+/* -- Interactive stepper (paired with ldcss.js) ------------------------------
+   The base .ld-stepper markup is still just a static row (fully backward
+   compatible — nothing below changes existing pages). To wire it up to
+   ldcss.js, add a bare data-ld-stepper attribute to the same <ol>/<ul>
+   that has the .ld-stepper class. From there:
+     - data-ld-clickable="true" lets people jump to a completed or
+       upcoming step directly, not just advance with next/prev buttons
+       (data-ld-toggle="step-next" / "step-prev" on any button, scoped
+       to the nearest stepper or a data-ld-target selector).
+     - data-ld-step-panels="#selector" points at a container of
+       [data-ld-step-panel] sections that show/hide with the active
+       step, the same way tabs pair with tab panels. */
+.ld-stepper[data-ld-clickable='true'] .ld-step {
+  cursor: pointer;
+}
+
+.ld-stepper[data-ld-clickable='true'] .ld-step:hover .ld-step-index {
+  border-color: var(--ld-accent);
+}
+
+[data-ld-step-panel] {
+  display: none;
+  padding: var(--ld-space-4) 0;
+}
+
+[data-ld-step-panel].ld-show {
+  display: block;
+}
+

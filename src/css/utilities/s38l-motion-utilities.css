@@ -1,0 +1,51 @@
+/* ==========================================================================
+   38l. Motion utilities
+   ------------------------------------------------------------------------
+   Generic, reusable animations — as opposed to the one-off @keyframes
+   already baked into specific components (ld-toast-in, ld-skeleton,
+   ld-blink). Respects prefers-reduced-motion via the existing global
+   rule in §2, which zeroes out all animation/transition durations.
+   ========================================================================== */
+
+.ld-animate-spin {
+  animation: ld-spin 1s linear infinite;
+}
+
+.ld-animate-pulse {
+  animation: ld-pulse 1.6s ease-in-out infinite;
+}
+
+.ld-animate-bounce {
+  animation: ld-bounce 1s ease-in-out infinite;
+}
+
+@keyframes ld-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes ld-pulse {
+
+  0%,
+  100% {
+    opacity: 1;
+  }
+
+  50% {
+    opacity: 0.5;
+  }
+}
+
+@keyframes ld-bounce {
+
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+
+  50% {
+    transform: translateY(-25%);
+  }
+}
+

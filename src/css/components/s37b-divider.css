@@ -1,0 +1,23 @@
+/* ==========================================================================
+   37b. Divider — ld-divider
+   ========================================================================== */
+
+.ld-divider {
+  border: none;
+  border-top: var(--ld-border-width) solid var(--ld-border-soft);
+  margin: var(--ld-space-5) 0;
+}
+
+.ld-divider[data-ld-variant='solid'] {
+  border-top-color: var(--ld-border);
+}
+
+/* Vertical divider — for use inside a flex row, e.g. between nav items */
+.ld-divider-v {
+  display: inline-block;
+  width: var(--ld-border-width);
+  align-self: stretch;
+  background: var(--ld-border-soft);
+  border: none;
+}
+

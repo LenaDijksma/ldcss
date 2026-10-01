@@ -1,0 +1,39 @@
+/* ==========================================================================
+   37n. Icons — ld-icon
+   A sizing convention for inline SVGs, not an icon set. Default size
+   tracks the surrounding font-size (1em), so an icon in a button or
+   badge scales with it automatically; ld-icon-sm/lg override that for
+   standalone use. Bring your own SVGs — set stroke="currentColor" (or
+   fill, for solid icons) and no width/height so this class controls
+   sizing.
+   ========================================================================== */
+
+.ld-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1em;
+  height: 1em;
+  flex-shrink: 0;
+}
+
+.ld-icon svg {
+  width: 100%;
+  height: 100%;
+  stroke: currentColor;
+  fill: none;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.ld-icon-sm {
+  width: var(--ld-text-sm);
+  height: var(--ld-text-sm);
+}
+
+.ld-icon-lg {
+  width: var(--ld-text-xl);
+  height: var(--ld-text-xl);
+}
+

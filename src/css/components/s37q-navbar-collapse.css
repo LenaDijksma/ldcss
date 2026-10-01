@@ -1,0 +1,49 @@
+/* ==========================================================================
+   37q. Navbar collapse — data-ld-navbar-collapse (paired with ldcss.js)
+   A lighter alternative to the slide-in offcanvas: content that's
+   hidden below a breakpoint and toggled open inline (dropping down
+   under the navbar), then automatically always-visible above that
+   breakpoint with no JS involvement — the classic "hamburger below,
+   inline links above" pattern. data-ld-collapse-at controls which
+   breakpoint it switches at: sm/md (default)/lg/xl.
+   ========================================================================== */
+
+[data-ld-navbar-collapse] {
+  display: none;
+  width: 100%;
+}
+
+[data-ld-navbar-collapse][data-ld-show='true'] {
+  display: block;
+}
+
+@media (min-width: 640px) {
+  [data-ld-navbar-collapse][data-ld-collapse-at='sm'] {
+    display: flex !important;
+    width: auto;
+  }
+}
+
+@media (min-width: 960px) {
+
+  [data-ld-navbar-collapse]:not([data-ld-collapse-at]),
+  [data-ld-navbar-collapse][data-ld-collapse-at='md'] {
+    display: flex !important;
+    width: auto;
+  }
+}
+
+@media (min-width: 1200px) {
+  [data-ld-navbar-collapse][data-ld-collapse-at='lg'] {
+    display: flex !important;
+    width: auto;
+  }
+}
+
+@media (min-width: 1440px) {
+  [data-ld-navbar-collapse][data-ld-collapse-at='xl'] {
+    display: flex !important;
+    width: auto;
+  }
+}
+

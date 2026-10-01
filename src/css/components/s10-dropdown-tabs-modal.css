@@ -1,0 +1,125 @@
+/* ==========================================================================
+   10. Dropdown / Tabs / Modal (paired with ldcss.js)
+   ========================================================================== */
+
+[data-ld-dropdown] {
+  position: relative;
+  display: inline-block;
+}
+
+[data-ld-dropdown-menu] {
+  position: absolute;
+  top: calc(100% + var(--ld-space-2));
+  inset-inline-start: 0;
+  min-width: 180px;
+  background: var(--ld-surface);
+  border: var(--ld-border-width) solid var(--ld-border);
+  border-radius: var(--ld-radius);
+  box-shadow: var(--ld-shadow);
+  padding: var(--ld-space-2);
+  display: none;
+  z-index: var(--ld-z-dropdown);
+}
+
+[data-ld-dropdown-menu].ld-show {
+  display: block;
+}
+
+[data-ld-dropdown-menu] a,
+[data-ld-dropdown-menu] button {
+  display: block;
+  width: 100%;
+  text-align: left;
+  padding: var(--ld-space-2);
+  background: none;
+  border: none;
+  border-radius: calc(var(--ld-radius) / 2);
+  font-family: var(--ld-font-family);
+  font-size: var(--ld-text-sm);
+  color: var(--ld-text);
+  cursor: pointer;
+}
+
+[data-ld-dropdown-menu] a:hover,
+[data-ld-dropdown-menu] button:hover {
+  background: var(--ld-surface-raised);
+}
+
+[data-ld-tabs] {
+  border-bottom: var(--ld-border-width) solid var(--ld-border);
+  display: flex;
+  gap: var(--ld-space-2);
+}
+
+[data-ld-toggle='tab'] {
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+  font-family: var(--ld-font-family);
+  font-size: var(--ld-text-sm);
+  padding: var(--ld-space-2) var(--ld-space-3);
+  color: var(--ld-text-muted);
+  cursor: pointer;
+  margin-bottom: -2px;
+}
+
+[data-ld-toggle='tab'][data-ld-active='true'] {
+  color: var(--ld-text);
+  border-color: var(--ld-accent);
+}
+
+[data-ld-tab-panel] {
+  display: none;
+  padding: var(--ld-space-4) 0;
+}
+
+[data-ld-tab-panel].ld-show {
+  display: block;
+}
+
+.ld-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(13, 15, 14, 0.6);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  z-index: var(--ld-z-modal);
+  padding: var(--ld-space-4);
+}
+
+.ld-modal-backdrop.ld-show {
+  display: flex;
+}
+
+.ld-modal {
+  background: var(--ld-surface);
+  border: var(--ld-border-width) solid var(--ld-border);
+  border-radius: var(--ld-radius);
+  box-shadow: var(--ld-shadow-lg);
+  max-width: 480px;
+  width: 100%;
+  padding: var(--ld-space-5);
+}
+
+.ld-modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--ld-space-4);
+}
+
+.ld-modal-close {
+  background: none;
+  border: none;
+  font-family: var(--ld-font-family);
+  font-size: var(--ld-text-lg);
+  cursor: pointer;
+  color: var(--ld-text-muted);
+  line-height: 1;
+}
+
+.ld-modal-close:hover {
+  color: var(--ld-text);
+}
+

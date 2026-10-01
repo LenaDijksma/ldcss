@@ -1,0 +1,89 @@
+/* ==========================================================================
+   32. Command palette — data-ld-toggle="command", ⌘K / Ctrl+K
+   ========================================================================== */
+
+.ld-command-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(13, 15, 14, 0.6);
+  display: none;
+  align-items: flex-start;
+  justify-content: center;
+  padding-top: 15vh;
+  z-index: var(--ld-z-command);
+}
+
+.ld-command-backdrop.ld-show {
+  display: flex;
+}
+
+.ld-command {
+  width: 100%;
+  max-width: 480px;
+  background: var(--ld-surface);
+  border: var(--ld-border-width) solid var(--ld-border);
+  border-radius: var(--ld-radius);
+  box-shadow: var(--ld-shadow-lg);
+  overflow: hidden;
+}
+
+.ld-command-input {
+  width: 100%;
+  padding: var(--ld-space-4);
+  border: none;
+  border-bottom: 1px solid var(--ld-border-soft);
+  background: var(--ld-surface);
+  color: var(--ld-text);
+  font-family: var(--ld-font-family);
+  font-size: var(--ld-text-base);
+}
+
+.ld-command-input:focus {
+  outline: none;
+}
+
+.ld-command-list {
+  list-style: none;
+  margin: 0;
+  padding: var(--ld-space-2);
+  max-height: 320px;
+  overflow-y: auto;
+}
+
+.ld-command-item {
+  padding: var(--ld-space-2) var(--ld-space-3);
+  font-size: var(--ld-text-sm);
+  cursor: pointer;
+  color: var(--ld-text);
+}
+
+.ld-command-item[data-ld-highlighted='true'] {
+  background: var(--ld-accent);
+  color: var(--ld-accent-text);
+}
+
+.ld-command-item.ld-hide {
+  display: none;
+}
+
+.ld-command-empty {
+  padding: var(--ld-space-3) var(--ld-space-4);
+  font-size: var(--ld-text-sm);
+  color: var(--ld-text-muted);
+  display: none;
+}
+
+.ld-command-empty.ld-show {
+  display: block;
+}
+
+.ld-command-hint {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--ld-space-2);
+  padding: var(--ld-space-2) var(--ld-space-3);
+  border-top: 1px solid var(--ld-border-soft);
+  font-size: var(--ld-text-xs);
+  color: var(--ld-text-muted);
+}
+

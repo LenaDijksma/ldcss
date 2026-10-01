@@ -1,0 +1,44 @@
+/* ==========================================================================
+   26. Avatar
+   ========================================================================== */
+
+.ld-avatar {
+  width: 40px;
+  height: 40px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--ld-surface-raised);
+  border: 1px solid var(--ld-border-soft);
+  border-radius: calc(var(--ld-radius) / 1.5);
+  color: var(--ld-text);
+  font-weight: 700;
+  font-size: var(--ld-text-sm);
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.ld-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.ld-avatar[data-ld-size='sm'] {
+  width: 28px;
+  height: 28px;
+  font-size: var(--ld-text-xs);
+}
+
+.ld-avatar[data-ld-size='lg'] {
+  width: 56px;
+  height: 56px;
+  font-size: var(--ld-text-lg);
+}
+
+.ld-avatar[data-ld-variant='accent'] {
+  background: var(--ld-accent);
+  color: var(--ld-accent-text);
+  border-color: var(--ld-accent);
+}
+

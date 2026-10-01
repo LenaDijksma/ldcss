@@ -1,0 +1,216 @@
+/* ==========================================================================
+   1. Tokens
+   ========================================================================== */
+
+/* Non-color tokens and brand. These do not change with the theme. */
+:root {
+  /* Brand */
+  --ld-accent: #f5741e;
+  --ld-accent-text: #351907;
+  --ld-accent-fill: var(--ld-accent);
+  /* override to a gradient for brand fills */
+
+  /* Scale */
+  --ld-font-sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', Inter, Roboto, 'Helvetica Neue', Arial, sans-serif;
+  --ld-font-mono: 'JetBrains Mono', ui-monospace, 'SFMono-Regular', Menlo, Consolas, monospace;
+  --ld-font-family: var(--ld-font-sans);
+  /* what body text/components use — override via ld-font-mono/ld-font-serif */
+  --ld-radius: 10px;
+  --ld-border-width: 1px;
+  --ld-shadow-offset: 4px;
+  /* only used by data-ld-shadow='hard', defined just below */
+
+  --ld-space-1: 4px;
+  --ld-space-2: 8px;
+  --ld-space-3: 12px;
+  --ld-space-4: 16px;
+  --ld-gutter: var(--ld-space-4);
+  /* .ld-grid-row column gutter — override to widen/narrow the 12-col grid independently of spacing utilities */
+  --ld-space-5: 24px;
+  --ld-space-6: 32px;
+  --ld-space-8: 48px;
+
+  --ld-sidebar-width: 15rem;
+  /* .ld-shell sidebar column; override on .ld-shell for a wider/narrower one */
+
+  --ld-text-xs: 0.75rem;
+  --ld-text-sm: 0.85rem;
+  --ld-text-base: 1rem;
+  --ld-text-lg: 1.15rem;
+  --ld-text-xl: 1.5rem;
+  --ld-text-2xl: 2rem;
+  --ld-text-3xl: 2.5rem;
+  --ld-text-4xl: 3.25rem;
+
+  /* Every component before this patch hardcoded font-weight: 700 for
+     emphasis and left line-height as either the body 1.6 or a bare 1.25
+     on headings. Tokenizing doesn't change any existing rendering — the
+     defaults below match what was already hardcoded — it just gives you
+     one place to soften "everything is bold" without touching every
+     component rule individually. */
+  --ld-weight-normal: 400;
+  --ld-weight-medium: 500;
+  --ld-weight-bold: 700;
+
+  --ld-leading-tight: 1.25;
+  --ld-leading-normal: 1.6;
+  --ld-leading-relaxed: 1.75;
+
+  /* Stacking scale. The .ld-z-* utilities in §38e already exposed these
+     as classes; components reference the same values here as custom
+     properties so overriding a layer (e.g. hoisting toasts above a
+     third-party widget) is one line in :root instead of hunting through
+     every component rule that used to hardcode the number directly. */
+  --ld-z-dropdown: 20;
+  --ld-z-popover: 25;
+  --ld-z-tooltip: 30;
+  --ld-z-modal: 50;
+  --ld-z-offcanvas: 55;
+  --ld-z-toast: 60;
+  --ld-z-command: 70;
+
+  --ld-transition: 120ms ease;
+}
+
+/* Light theme (default). The same block also powers an explicit
+   data-ld-theme='light' subtree and data-ld-notheme, so those can never
+   drift out of sync with :root again — before this, data-ld-notheme was a
+   hand-copied duplicate of these values. A property declared directly on
+   the element always beats one it would inherit from a dark ancestor,
+   which is what lets a light/notheme subtree sit inside a dark page. */
+:root,
+[data-ld-theme='light'],
+[data-ld-notheme] {
+  --ld-bg: #FAFAF7;
+  --ld-surface: #FFFFFF;
+  --ld-surface-raised: #F1F3F0;
+  --ld-text: #14171A;
+  --ld-text-muted: #5B6560;
+  --ld-border: #DADFDB;
+  /* structural component outline — soft by default, not high-contrast */
+  --ld-border-soft: #E7EAE7;
+  /* hairline dividers: table rows, card footers, list separators */
+  --ld-focus-ring: #14171A;
+  --ld-code-text: #0c297a;
+  /* dark blue — readable on light surfaces */
+  --ld-shadow-color: #14171A;
+  /* only used by data-ld-shadow='hard', defined below */
+
+  /* Semantic status. Success is its own green (not the accent), so a brand
+     color that isn't green-ish never has to also mean "success". Warning
+     and info live here rather than inline (alert §11, terminal dot §19) so
+     a theme swap or [data-ld-unstyled] subtree can reach them like every
+     other status color. */
+  --ld-danger: #E8465C;
+  --ld-danger-text: #FFFFFF;
+  --ld-success: #27bd16;
+  --ld-success-text: #0e2b0a;
+  --ld-warning: #C98A1F;
+  --ld-warning-text: #2E1D00;
+  --ld-info: #4C8EFF;
+  --ld-info-text: #04122E;
+
+  /* The soft shadow pair is tokenized so data-ld-shadow='soft' can point at
+     it from inside any theme instead of re-hardcoding both themes' values. */
+  --ld-shadow-soft: 0 1px 2px rgba(20, 23, 26, 0.06), 0 6px 16px rgba(20, 23, 26, 0.08);
+  --ld-shadow-soft-lg: 0 4px 12px rgba(20, 23, 26, 0.10), 0 16px 40px rgba(20, 23, 26, 0.16);
+  --ld-shadow: var(--ld-shadow-soft);
+  --ld-shadow-lg: var(--ld-shadow-soft-lg);
+}
+
+[data-ld-theme='dark'] {
+  --ld-bg: #080808;
+  --ld-surface: #15181A;
+  --ld-surface-raised: #1C201E;
+  --ld-text: #EDEFEC;
+  --ld-text-muted: #8A928D;
+  --ld-border: #302c2a;
+  --ld-border-soft: #222623;
+  --ld-danger: #FF6B7A;
+  --ld-danger-text: #1A0508;
+  --ld-success: #27bd16;
+  --ld-success-text: #0e2b0a;
+  --ld-warning: #E0A741;
+  --ld-warning-text: #1F1400;
+  --ld-info: #7AACFF;
+  --ld-info-text: #04122E;
+  --ld-shadow-color: var(--ld-accent);
+  --ld-focus-ring: var(--ld-accent);
+  --ld-code-text: var(--ld-accent);
+  /* full brightness reads fine on dark surfaces */
+  --ld-shadow-soft: 0 1px 2px rgba(0, 0, 0, 0.4), 0 6px 20px rgba(0, 0, 0, 0.45);
+  --ld-shadow-soft-lg: 0 4px 16px rgba(0, 0, 0, 0.5), 0 20px 48px rgba(0, 0, 0, 0.55);
+  --ld-shadow: var(--ld-shadow-soft);
+  --ld-shadow-lg: var(--ld-shadow-soft-lg);
+}
+
+/*
+ * data-ld-unstyled — the escape hatch for teams who want to do their own
+ * styling entirely. Resets the *shape* opinions (radius, shadow, border
+ * weight/color, accent fill) to neutral values that get out of the way of a
+ * stylesheet loaded after ldcss.css, without touching layout, spacing,
+ * behavior, or accessibility wiring — those still come from ldcss. This is
+ * not a full reset of every color in the framework (surfaces, text, and
+ * variant colors like primary/danger still render); it targets the specific
+ * tokens that make ldcss look like "a design system" rather than "plain
+ * elements." Apply to <html> for the whole page, or to a container to scope
+ * it to one part of the UI.
+ */
+[data-ld-unstyled] {
+  --ld-radius: 0px;
+  --ld-shadow: none;
+  --ld-shadow-lg: none;
+  --ld-border-width: 1px;
+  --ld-border: var(--ld-border-soft);
+  --ld-accent-fill: var(--ld-accent);
+}
+
+/*
+ * data-ld-shadow='hard' — brings back the original hard offset shadow
+ * (and its --ld-shadow-color, which the dark theme brightens to the accent
+ * color for a glow effect) for teams who want that look. Apply to <html> or
+ * any ancestor, the same way data-ld-theme='dark' re-skins color; 'soft' is
+ * kept as an explicit way to re-affirm the default inside a 'hard' subtree.
+ * (Hover/active states on buttons/cards use their own modern lift/press
+ * transitions regardless of this switch — hard mode only changes the resting
+ * shadow's shape, not the interaction model.)
+ */
+[data-ld-shadow='hard'] {
+  --ld-shadow: var(--ld-shadow-offset) var(--ld-shadow-offset) 0 var(--ld-shadow-color);
+  --ld-shadow-lg: calc(var(--ld-shadow-offset) * 2) calc(var(--ld-shadow-offset) * 2) 0 var(--ld-shadow-color);
+}
+
+[data-ld-shadow='soft'] {
+  --ld-shadow: var(--ld-shadow-soft);
+  --ld-shadow-lg: var(--ld-shadow-soft-lg);
+}
+
+/*
+ * data-ld-notheme — freeze a subtree at its light-theme appearance no matter
+ * what data-ld-theme is set to on an ancestor. Useful for brand marks,
+ * screenshots-in-context, embeds, etc. that shouldn't shift with the page.
+ */
+[data-ld-notheme] {
+  /* every color token comes from the shared light-theme block above */
+  background: var(--ld-bg);
+  color: var(--ld-text);
+}
+
+/*
+ * prefers-contrast: more — strengthen muted text and soft borders for
+ * people who've asked their OS/browser for higher contrast.
+ */
+@media (prefers-contrast: more) {
+  :root,
+  [data-ld-theme='light'],
+  [data-ld-notheme] {
+    --ld-text-muted: #14171A;
+    --ld-border-soft: #14171A;
+  }
+
+  [data-ld-theme='dark'] {
+    --ld-text-muted: #EDEFEC;
+    --ld-border-soft: #6B746E;
+  }
+}
+

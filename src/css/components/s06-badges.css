@@ -1,0 +1,26 @@
+/* ==========================================================================
+   6. Badges
+   ========================================================================== */
+
+.ld-badge {
+  display: inline-block;
+  font-size: var(--ld-text-xs);
+  font-weight: 700;
+  padding: 2px var(--ld-space-2);
+  border: var(--ld-border-width) solid var(--ld-border-soft);
+  border-radius: calc(var(--ld-radius) / 2);
+  color: var(--ld-text-muted);
+}
+
+.ld-badge[data-ld-variant='primary'] {
+  background: var(--ld-accent-fill);
+  color: var(--ld-accent-text);
+  border-color: var(--ld-accent);
+}
+
+.ld-badge[data-ld-variant='danger'] {
+  background: var(--ld-danger);
+  color: var(--ld-danger-text);
+  border-color: var(--ld-danger);
+}
+

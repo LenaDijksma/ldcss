@@ -1,0 +1,49 @@
+/* ==========================================================================
+   7. Cards — ld-card
+   ========================================================================== */
+
+.ld-card {
+  background: var(--ld-surface);
+  border: var(--ld-border-width) solid var(--ld-border);
+  border-radius: var(--ld-radius);
+  box-shadow: var(--ld-shadow);
+  padding: var(--ld-space-5);
+  transition: transform var(--ld-transition), box-shadow var(--ld-transition);
+}
+
+.ld-card[data-ld-interactive='true'] {
+  cursor: pointer;
+}
+
+.ld-card[data-ld-interactive='true']:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--ld-shadow-lg);
+}
+
+.ld-card-eyebrow {
+  font-size: var(--ld-text-xs);
+  color: var(--ld-accent);
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  margin-bottom: var(--ld-space-2);
+}
+
+.ld-card-title {
+  font-size: var(--ld-text-lg);
+  margin-bottom: var(--ld-space-2);
+}
+
+.ld-card-body {
+  color: var(--ld-text-muted);
+  font-size: var(--ld-text-sm);
+}
+
+.ld-card-footer {
+  margin-top: var(--ld-space-4);
+  padding-top: var(--ld-space-4);
+  border-top: 1px solid var(--ld-border-soft);
+  display: flex;
+  gap: var(--ld-space-2);
+}
+

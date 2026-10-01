@@ -4,20 +4,12 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>ldcss — Lena Dijksma CSS</title>
-<link rel="stylesheet" href="ldcss.css">
-<style>
-  .ld-hero { padding: var(--ld-space-8) 0 var(--ld-space-6); }
-  .ld-hero pre.ld-code { margin: var(--ld-space-4) 0; }
-  section { padding: var(--ld-space-6) 0; border-top: 1px solid var(--ld-border-soft); }
-  section h2 { font-size: var(--ld-text-xl); margin-bottom: var(--ld-space-1); }
-  section .ld-section-sub { color: var(--ld-text-muted); font-size: var(--ld-text-sm); margin-bottom: var(--ld-space-5); }
-  .ld-row { display: flex; flex-wrap: wrap; gap: var(--ld-space-3); align-items: center; }
-</style>
+<link rel="stylesheet" href="dist/ldcss.css">
 </head>
 <body>
 
 <nav class="ld-nav">
-  <a href="#" class="ld-nav-brand">ldcss</a>
+  <a href="#" class="ld-nav-brand" data-ld-mark="$">ldcss</a>
   <ul class="ld-nav-links" data-ld-scrollspy>
     <li><a href="#buttons" class="ld-nav-link" data-ld-active="true">buttons</a></li>
     <li><a href="#cards" class="ld-nav-link">cards</a></li>
@@ -30,6 +22,7 @@
     <li><a href="#v20" class="ld-nav-link">v2.0</a></li>
     <li><a href="#v21" class="ld-nav-link">v2.1</a></li>
     <li><a href="#v24" class="ld-nav-link">v2.4</a></li>
+    <li><a href="#v30" class="ld-nav-link">v3.0</a></li>
   </ul>
   <div class="ld-row">
     <button class="ld-btn" data-ld-size="sm" data-ld-variant="ghost" data-ld-toggle="command" data-ld-target="#demo-command">⌘K</button>
@@ -40,9 +33,9 @@
 <div class="ld-container">
 
   <header class="ld-hero">
-    <span class="ld-badge" data-ld-variant="primary">v2.4.0</span>
+    <span class="ld-badge" data-ld-variant="primary">v3.0.0</span>
     <h1>ldcss</h1>
-    <p class="ld-text-muted">A small framework built on two ideas: <span class="ld-text-accent">ld-*</span> classes for structure, <span class="ld-text-accent">data-ld-*</span> attributes for state and variants. No build step. No dependencies.</p>
+    <p class="ld-text-muted">A small framework built on two ideas: <span class="ld-text-accent">ld-*</span> classes for structure, <span class="ld-text-accent">data-ld-*</span> attributes for state and variants. No dependencies — link the prebuilt files in dist/ and go. (The build step is only for editing the framework itself.)</p>
     <pre class="ld-code">&lt;button class="ld-btn" data-ld-variant="primary" data-ld-size="lg"&gt;
   Run
 &lt;/button&gt;</pre>
@@ -52,8 +45,8 @@
     </div>
   </header>
 
-  <section id="buttons">
-    <h2>Buttons</h2>
+  <section class="ld-section" id="buttons">
+    <h2 class="ld-section-title">Buttons</h2>
     <p class="ld-section-sub">data-ld-variant: primary · outline · ghost · danger &nbsp;|&nbsp; data-ld-size: sm · md · lg</p>
     <div class="ld-row">
       <button class="ld-btn" data-ld-variant="primary">Primary</button>
@@ -69,8 +62,8 @@
     </div>
   </section>
 
-  <section id="cards">
-    <h2>Cards</h2>
+  <section class="ld-section" id="cards">
+    <h2 class="ld-section-title">Cards</h2>
     <p class="ld-section-sub">data-ld-shadow: sm · md · lg · hard &nbsp;|&nbsp; data-ld-interactive lifts the card on hover</p>
     <div class="ld-grid" data-ld-cols="3">
       <div class="ld-card" data-ld-interactive="true">
@@ -99,8 +92,8 @@
     </div>
   </section>
 
-  <section id="forms">
-    <h2>Forms</h2>
+  <section class="ld-section" id="forms">
+    <h2 class="ld-section-title">Forms</h2>
     <p class="ld-section-sub">data-ld-error flips a field into its error state</p>
     <div class="ld-grid" data-ld-cols="2">
       <div>
@@ -125,8 +118,8 @@
     </div>
   </section>
 
-  <section id="interactive">
-    <h2>Interactive</h2>
+  <section class="ld-section" id="interactive">
+    <h2 class="ld-section-title">Interactive</h2>
     <p class="ld-section-sub">Dropdown, tabs, and modal — powered by ldcss.js, wired entirely through data-ld-* attributes</p>
 
     <div class="ld-row" style="margin-bottom: var(--ld-space-6);">
@@ -155,6 +148,7 @@
         <p class="ld-text-muted">Include ldcss.css and ldcss.js. Everything else is attributes on plain HTML — no build step.</p>
       </div>
       <div id="tab-3" data-ld-tab-panel>
+        <p class="ld-text-muted"><strong>v3.0.0</strong> — <strong>breaking:</strong> ldcss.css is now built from <code class="ld-code-inline">src/</code> (<code class="ld-code-inline">npm run build</code> → <code class="ld-code-inline">dist/</code>) and sits in cascade layers (<code class="ld-code-inline">ld.tokens → ld.base → ld.components → ld.utilities → ld.escape → ld.variants</code>): utilities now beat components regardless of selector specificity, and anything you write outside a layer beats all of ldcss. <code class="ld-code-inline">.ld-nav-brand</code> no longer shows a <code class="ld-code-inline">$</code> by default — opt in with <code class="ld-code-inline">data-ld-mark="$"</code> (any text works). New: <code class="ld-code-inline">ld-shell</code>/<code class="ld-code-inline">ld-sidebar</code> (see demo-sidebar.html), <code class="ld-code-inline">ld-hero</code>, <code class="ld-code-inline">ld-section</code>, <code class="ld-code-inline">ld-row</code>, <code class="ld-code-inline">ld-hover:*</code>/<code class="ld-code-inline">ld-focus:*</code>/<code class="ld-code-inline">ld-focus-visible:*</code> variants, <code class="ld-code-inline">ld-underline</code>/<code class="ld-code-inline">ld-no-underline</code>/<code class="ld-code-inline">ld-ring</code>. Fixed: <code class="ld-code-inline">data-ld-notheme</code> is no longer a hand-copied duplicate of the light tokens (it had drifted: wrong code color and success color); JetBrains Mono is self-hosted instead of loaded from Google Fonts.</p>
         <p class="ld-text-muted"><strong>v2.4.0</strong> — a small, backward-compatible batch: <code class="ld-code-inline">ld-footer</code> is the bottom counterpart to <code class="ld-code-inline">ld-nav</code> that ldcss was missing — same padding and surface, just <code class="ld-code-inline">border-top</code> instead of <code class="ld-code-inline">border-bottom</code> since it anchors the end of the page rather than the start. New <code class="ld-code-inline">ld-shadow-up</code>/<code class="ld-code-inline">-sm</code>/<code class="ld-code-inline">-lg</code> utility trio mirrors the existing <code class="ld-code-inline">ld-shadow-soft-sm</code>/<code class="ld-code-inline">-soft</code>/<code class="ld-code-inline">-soft-lg</code> scale (same opacities, same dark-theme handling) but casts the shadow upward — built to pair with <code class="ld-code-inline">ld-footer</code>, or any other element pinned to the bottom of the viewport. And <code class="ld-code-inline">ld-bg-*</code> gains five semantic values — <code class="ld-code-inline">accent</code>/<code class="ld-code-inline">danger</code>/<code class="ld-code-inline">success</code>/<code class="ld-code-inline">warning</code>/<code class="ld-code-inline">info</code> — joining <code class="ld-code-inline">surface</code>/<code class="ld-code-inline">raised</code>/<code class="ld-code-inline">transparent</code>, reading the same tokens <code class="ld-code-inline">ld-text-danger</code> and the badge/alert variants already use.</p>
         <p class="ld-text-muted"><strong>v2.3.0</strong> — new command palette action: <code class="ld-code-inline">data-ld-command-action="goto:target"</code>. If <code class="ld-code-inline">target</code> starts with <code class="ld-code-inline">#</code> it's treated as an in-page anchor — smooth-scrolls to it (instantly under <code class="ld-code-inline">prefers-reduced-motion</code>), updates the URL via <code class="ld-code-inline">history.pushState</code> so the hash is shareable/back-button-able, and moves focus onto the target (adding <code class="ld-code-inline">tabindex="-1"</code> first if it isn't already focusable) so keyboard and screen-reader users land in the right place, same as a normal anchor-link click. Anything else — <code class="ld-code-inline">goto:/pricing</code>, a full URL — just navigates there. Before this, jumping to a page or section from the command palette meant wrapping the item in a real <code class="ld-code-inline">&lt;a href&gt;</code> (still supported, and still the right call for a plain link with no scroll/focus choreography needed) — <code class="ld-code-inline">goto</code> is for when you want an action-triggered jump instead, e.g. a "Go to pricing" result that isn't literally a link in the surrounding markup.</p>
         <p class="ld-text-muted"><strong>v2.2.0</strong> — three consistency fixes, all backward-compatible (no markup changes required). <strong>Chips:</strong> <code class="ld-code-inline">[data-ld-chip][data-ld-active="true"]</code> now shows a checkmark on its own via a <code class="ld-code-inline">:has()</code>-guarded <code class="ld-code-inline">::before</code>, so a bare <code class="ld-code-inline">&lt;button data-ld-chip&gt;Label&lt;/button&gt;</code> looks right without also hand-adding a <code class="ld-code-inline">.ld-chip-check</code> span; pages that already include the span are unaffected — <code class="ld-code-inline">:has()</code> detects it and steps aside rather than doubling the mark. <strong>Tags:</strong> <code class="ld-code-inline">data-ld-tag</code>/<code class="ld-code-inline">data-ld-tag-remove</code> are now first-class equivalents of <code class="ld-code-inline">.ld-tag</code>/<code class="ld-code-inline">.ld-tag-remove</code> in both the CSS and the click/backspace-to-remove handlers, so tag markup can follow the same attribute-for-interactive-state convention as chips/segments instead of being the one place that only had classes; JS-generated tags (typed into <code class="ld-code-inline">data-ld-tags-input</code>) now carry both the class and the attribute. <strong>Responsive utilities:</strong> <code class="ld-code-inline">order</code> joins the per-breakpoint set — <code class="ld-code-inline">ld-sm:order-*</code>/<code class="ld-code-inline">ld-md:order-*</code>/<code class="ld-code-inline">ld-lg:order-*</code>/<code class="ld-code-inline">ld-xl:order-*</code> (1–5, <code class="ld-code-inline">first</code>, <code class="ld-code-inline">last</code>), for the common case of reordering a two-column hero's text/art on mobile without a non-responsive <code class="ld-code-inline">ld-order-*</code> affecting every breakpoint at once.</p>
@@ -180,8 +174,8 @@
     </div>
   </section>
 
-  <section id="more">
-    <h2>Alerts</h2>
+  <section class="ld-section" id="more">
+    <h2 class="ld-section-title">Alerts</h2>
     <p class="ld-section-sub">data-ld-variant: info · success · warning · danger &nbsp;|&nbsp; data-ld-dismiss="alert" removes it</p>
     <div class="ld-stack">
       <div class="ld-alert" data-ld-variant="info">
@@ -202,8 +196,8 @@
     </div>
   </section>
 
-  <section>
-    <h2>Accordion</h2>
+  <section class="ld-section">
+    <h2 class="ld-section-title">Accordion</h2>
     <p class="ld-section-sub">data-ld-accordion="single" makes items mutually exclusive; omit it and they open independently</p>
     <div data-ld-accordion="single">
       <div class="ld-accordion-item">
@@ -221,8 +215,8 @@
     </div>
   </section>
 
-  <section>
-    <h2>Breadcrumbs, tooltip, progress</h2>
+  <section class="ld-section">
+    <h2 class="ld-section-title">Breadcrumbs, tooltip, progress</h2>
     <ul class="ld-breadcrumbs">
       <li><a href="#">Home</a></li>
       <li><a href="#">Docs</a></li>
@@ -239,8 +233,8 @@
     </div>
   </section>
 
-  <section>
-    <h2>data-ld-notheme</h2>
+  <section class="ld-section">
+    <h2 class="ld-section-title">data-ld-notheme</h2>
     <p class="ld-section-sub">This card ignores the page theme toggle — try it</p>
     <div class="ld-card" data-ld-notheme data-ld-border="thick">
       <div class="ld-card-eyebrow">Frozen</div>
@@ -249,8 +243,8 @@
     </div>
   </section>
 
-  <section id="batch">
-    <h2>Kbd, copy, terminal, spinner</h2>
+  <section class="ld-section" id="batch">
+    <h2 class="ld-section-title">Kbd, copy, terminal, spinner</h2>
     <p class="ld-section-sub">Press <span class="ld-kbd">⌘</span> + <span class="ld-kbd">K</span> to open the command menu.</p>
 
     <div class="ld-terminal" style="margin: var(--ld-space-4) 0;">
@@ -271,8 +265,8 @@ $ echo "linked ldcss.css and ldcss.js"</div>
     </div>
   </section>
 
-  <section>
-    <h2>Table &amp; pagination</h2>
+  <section class="ld-section">
+    <h2 class="ld-section-title">Table &amp; pagination</h2>
     <table class="ld-table" data-ld-striped="true" id="demo-table">
       <thead>
         <tr><th>Name</th><th>Role</th><th>Status</th></tr>
@@ -293,8 +287,8 @@ $ echo "linked ldcss.css and ldcss.js"</div>
     <p class="ld-form-hint" style="margin-top:var(--ld-space-2);">9 rows, 3 per page → <code class="ld-code-inline">data-ld-page-size="3"</code> on the pagination element builds 3 page buttons automatically.</p>
   </section>
 
-  <section>
-    <h2>List group, switch, avatar</h2>
+  <section class="ld-section">
+    <h2 class="ld-section-title">List group, switch, avatar</h2>
     <div class="ld-grid" data-ld-cols="2">
       <ul class="ld-list">
         <li class="ld-list-item" data-ld-interactive="true">
@@ -330,8 +324,8 @@ $ echo "linked ldcss.css and ldcss.js"</div>
     </div>
   </section>
 
-  <section>
-    <h2>Popover &amp; skeleton</h2>
+  <section class="ld-section">
+    <h2 class="ld-section-title">Popover &amp; skeleton</h2>
     <div class="ld-row" style="margin-bottom: var(--ld-space-6);">
       <div data-ld-popover>
         <button class="ld-btn" data-ld-variant="outline" data-ld-toggle="popover">Version info ▾</button>
@@ -355,8 +349,8 @@ $ echo "linked ldcss.css and ldcss.js"</div>
     </div>
   </section>
 
-  <section>
-    <h2>Escape hatches</h2>
+  <section class="ld-section">
+    <h2 class="ld-section-title">Escape hatches</h2>
     <p class="ld-section-sub">Opt individual elements out of (or back into) the rounded/soft-shadow/sans-serif defaults</p>
     <div class="ld-row" style="margin-bottom: var(--ld-space-4);">
       <div class="ld-card ld-round-none" data-ld-shadow="none" style="max-width:160px;">
@@ -384,8 +378,8 @@ $ echo "linked ldcss.css and ldcss.js"</div>
     <p class="ld-form-hint" style="margin-top:var(--ld-space-2);">ld-border-1px-dotted · ld-border-2px-dashed · ld-border-3px-solid · ld-border-2px-double</p>
   </section>
 
-  <section id="spacing">
-    <h2>Spacing &amp; display utilities</h2>
+  <section class="ld-section" id="spacing">
+    <h2 class="ld-section-title">Spacing &amp; display utilities</h2>
     <p class="ld-section-sub"><code class="ld-code-inline">ld-{pad|mar}-{a·t·r·b·l·v·h}-{0..8}</code>, plus gap/display/flex helpers</p>
     <div class="ld-row" style="margin-bottom: var(--ld-space-4);">
       <div class="ld-card ld-pad-a-2" data-ld-shadow="none" style="max-width:140px;">
@@ -413,8 +407,8 @@ $ echo "linked ldcss.css and ldcss.js"</div>
     <p class="ld-form-hint">Full pattern reference and negative-margin syntax are in the README and cheat sheet.</p>
   </section>
 
-  <section id="more-utilities">
-    <h2>Typography, color, position &amp; visibility utilities</h2>
+  <section class="ld-section" id="more-utilities">
+    <h2 class="ld-section-title">Typography, color, position &amp; visibility utilities</h2>
 
     <p class="ld-text-xl ld-font-bold ld-uppercase ld-tracking-wide ld-mar-b-1">ld-text-xl ld-font-bold ld-uppercase</p>
     <p class="ld-text-sm ld-text-muted ld-mar-b-3">ld-text-sm ld-text-muted — smaller, muted body copy</p>
@@ -451,8 +445,8 @@ $ echo "linked ldcss.css and ldcss.js"</div>
     <p class="ld-form-hint ld-mar-t-4">Resize the window past 640px/960px to see <code class="ld-code-inline">ld-sm:d-*</code> / <code class="ld-code-inline">ld-md:d-*</code> in the cheat sheet reference — they're documented there rather than demoed live here since this page doesn't have a resizable frame.</p>
   </section>
 
-  <section id="new-components">
-    <h2>Blockquote, divider, stat, avatar group</h2>
+  <section class="ld-section" id="new-components">
+    <h2 class="ld-section-title">Blockquote, divider, stat, avatar group</h2>
 
     <blockquote class="ld-blockquote ld-mar-b-4">
       Six months in, the numbers finally caught up with the intuition.
@@ -484,8 +478,8 @@ $ echo "linked ldcss.css and ldcss.js"</div>
     <p class="ld-form-hint">Also new: <code class="ld-code-inline">ld-container-sm</code>/<code class="ld-code-inline">ld-container-wide</code> (max-width variants, safe against source order — see §37e), <code class="ld-code-inline">data-ld-animate</code> entrance animations (paired with <code class="ld-code-inline">ldcss.js</code>, respects reduced-motion), <code class="ld-code-inline">ld-print-hidden</code>/<code class="ld-code-inline">ld-print-only</code>, and <code class="ld-code-inline">data-ld-success="true"</code> on inputs alongside the existing error state.</p>
   </section>
 
-  <section id="v05">
-    <h2>Offcanvas &amp; stepper</h2>
+  <section class="ld-section" id="v05">
+    <h2 class="ld-section-title">Offcanvas &amp; stepper</h2>
     <p class="ld-section-sub">Offcanvas slides in from either edge; stepper tracks progress through a flow</p>
     <div class="ld-row" style="margin-bottom: var(--ld-space-6);">
       <button class="ld-btn" data-ld-variant="outline" data-ld-toggle="offcanvas" data-ld-target="#side-left">Open left</button>
@@ -498,14 +492,14 @@ $ echo "linked ldcss.css and ldcss.js"</div>
     </ul>
   </section>
 
-  <section>
-    <h2>Command palette</h2>
+  <section class="ld-section">
+    <h2 class="ld-section-title">Command palette</h2>
     <p class="ld-section-sub">Press <span class="ld-kbd">⌘</span>/<span class="ld-kbd">Ctrl</span> + <span class="ld-kbd">K</span> anywhere on this page, or use the button in the nav</p>
     <button class="ld-btn" data-ld-toggle="command" data-ld-target="#demo-command">Open command palette</button>
   </section>
 
-  <section>
-    <h2>Range, dropzone, rating, tags</h2>
+  <section class="ld-section">
+    <h2 class="ld-section-title">Range, dropzone, rating, tags</h2>
     <div class="ld-grid" data-ld-cols="2">
       <div>
         <div class="ld-form-group">
@@ -542,8 +536,8 @@ $ echo "linked ldcss.css and ldcss.js"</div>
       </div>
     </div>
   </section>
-  <section id="v11">
-    <h2>Segmented, chips, combobox, empty state, timeline</h2>
+  <section class="ld-section" id="v11">
+    <h2 class="ld-section-title">Segmented, chips, combobox, empty state, timeline</h2>
     <p class="ld-section-sub">New in v1.1.0 — all attribute-driven, no bespoke classes to memorize beyond the ones shown here</p>
 
     <div class="ld-row" style="margin-bottom: var(--ld-space-6); align-items: flex-start;">
@@ -636,8 +630,8 @@ $ echo "linked ldcss.css and ldcss.js"</div>
       <button type="button" class="ld-btn" data-ld-size="sm" data-ld-toggle="step-next" data-ld-target="#v11 .ld-stepper">Next →</button>
     </div>
   </section>
-  <section id="v20">
-    <h2>Grid, carousel, navbar collapse, floating labels</h2>
+  <section class="ld-section" id="v20">
+    <h2 class="ld-section-title">Grid, carousel, navbar collapse, floating labels</h2>
     <p class="ld-section-sub">New in v2.0.0 — plus this whole page's nav is now a live scrollspy demo (data-ld-scrollspy), and every overlay component below fires ld:*:show/hide events you can listen for</p>
 
     <label class="ld-label">12-column grid — asymmetric, not evenly split like ld-grid</label>
@@ -711,8 +705,8 @@ $ echo "linked ldcss.css and ldcss.js"</div>
     </div>
   </section>
 
-  <section id="v21">
-    <h2>Select arrow, notification dot, input affixes, button group, sortable table</h2>
+  <section class="ld-section" id="v21">
+    <h2 class="ld-section-title">Select arrow, notification dot, input affixes, button group, sortable table</h2>
     <p class="ld-section-sub">New in v2.1.0 — plus generic motion/scrollbar/opacity/aspect-ratio utilities and a forced-colors pass (not pictured, see cheat sheet)</p>
 
     <div class="ld-grid" data-ld-cols="3" style="margin-bottom: var(--ld-space-6);">
@@ -781,8 +775,8 @@ $ echo "linked ldcss.css and ldcss.js"</div>
     </div>
   </section>
 
-  <section id="v24">
-    <h2>Footer, upward shadows, semantic backgrounds</h2>
+  <section class="ld-section" id="v24">
+    <h2 class="ld-section-title">Footer, upward shadows, semantic backgrounds</h2>
     <p class="ld-section-sub">New in v2.4.0</p>
 
     <div class="ld-grid" data-ld-cols="3">
@@ -818,6 +812,33 @@ $ echo "linked ldcss.css and ldcss.js"</div>
       </div>
     </div>
   </section>
+
+  <section class="ld-section" id="v30">
+    <h2 class="ld-section-title">Layers, state variants, hero &amp; section</h2>
+    <p class="ld-section-sub">New in v3.0.0 — the sidebar has its own page: <a href="demo-sidebar.html" class="ld-text-accent">demo-sidebar.html</a></p>
+
+    <div class="ld-grid" data-ld-cols="3">
+      <div>
+        <label class="ld-label">ld-hover:text-accent + ld-hover:underline</label>
+        <a href="#v30" class="ld-text-muted ld-no-underline ld-hover:text-accent ld-hover:underline">Hover this link</a>
+      </div>
+      <div>
+        <label class="ld-label">ld-hover:bg-raised + ld-hover:shadow-soft-lg</label>
+        <div class="ld-card ld-shadow-soft ld-hover:shadow-soft-lg ld-hover:bg-raised">Hover this card</div>
+      </div>
+      <div>
+        <label class="ld-label">ld-focus-visible:ring</label>
+        <button class="ld-btn ld-focus-visible:ring" data-ld-variant="outline">Tab to this button</button>
+      </div>
+    </div>
+
+    <div class="ld-row" style="margin-top: var(--ld-space-5);">
+      <a href="#" class="ld-nav-brand" data-ld-mark="$">data-ld-mark="$"</a>
+      <a href="#" class="ld-nav-brand" data-ld-mark="&gt;">data-ld-mark="&gt;"</a>
+      <a href="#" class="ld-nav-brand">no mark (default)</a>
+    </div>
+  </section>
+
 
 </div>
 
@@ -880,9 +901,9 @@ $ echo "linked ldcss.css and ldcss.js"</div>
 </div>
 
 <footer class="ld-footer ld-shadow-up">
-  <p class="ld-text-muted ld-text-sm">ldcss v2.4.0 · built with ldcss</p>
+  <p class="ld-text-muted ld-text-sm">ldcss v3.0.0 · built with ldcss</p>
 </footer>
 
-<script src="ldcss.js"></script>
+<script src="dist/ldcss.js"></script>
 </body>
 </html>
