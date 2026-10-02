@@ -28,7 +28,7 @@
 [data-ld-toggle='carousel-next'] {
   position: absolute;
   top: 50%;
-  transform: translateY(-50%);
+  transform: translateY(-15%);
   z-index: 5;
   border-radius: 50%;
   width: 36px;
@@ -70,4 +70,3 @@
 [data-ld-carousel-dot][data-ld-active='true'] {
   background: var(--ld-accent);
 }
-

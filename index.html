@@ -1,0 +1,249 @@
+<!doctype html>
+<html lang="en" data-ld-theme="dark">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ldcss — Lena Dijksma CSS</title>
+  <link rel="stylesheet" href="dist/ldcss.css">
+  <style>
+    .ld-hero {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: var(--ld-space-6);
+      gap: var(--ld-space-8);
+    }
+
+    .ld-hero pre.ld-code {
+      margin: var(--ld-space-4) 0;
+    }
+
+    section {
+      padding: var(--ld-space-6) 0;
+      border-top: 1px solid var(--ld-border-soft);
+    }
+
+    section h2 {
+      font-size: var(--ld-text-xl);
+      margin-bottom: var(--ld-space-1);
+    }
+
+    section .ld-section-sub {
+      color: var(--ld-text-muted);
+      font-size: var(--ld-text-sm);
+      margin-bottom: var(--ld-space-5);
+    }
+
+    .ld-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: var(--ld-space-3);
+      align-items: center;
+    }
+
+    /* Marquee strip */
+    .n-marquee {
+      border-top: 1px solid var(--ld-border-soft);
+      border-bottom: 1px solid var(--ld-border-soft);
+      overflow: hidden;
+      white-space: nowrap;
+      padding: var(--ld-space-3) 0;
+      background: var(--ld-surface);
+    }
+
+    .n-marquee-track {
+      display: inline-flex;
+      gap: var(--ld-space-3);
+      animation: n-scroll 18s linear infinite;
+      font-family: var(--ld-font-mono);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      font-size: var(--ld-text-sm);
+      color: var(--ld-text-muted);
+    }
+
+    @keyframes n-scroll {
+      from {
+        transform: translateX(0);
+      }
+
+      to {
+        transform: translateX(-50%);
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .n-marquee-track {
+        animation: none;
+      }
+    }
+
+    /* Landing hero heading */
+    .ld-hero h1 {
+      font-size: var(--ld-text-3xl);
+      text-align: center;
+      margin: 0;
+    }
+
+    .ld-hero p.ld-lead {
+      max-width: 60ch;
+      text-align: center;
+      color: var(--ld-text-muted);
+      margin: 0;
+    }
+
+    /* Destination cards (demo / cheat-sheet) */
+    .ld-dest-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: var(--ld-space-4);
+      width: 100%;
+      max-width: 720px;
+    }
+
+    @media (min-width: 640px) {
+      .ld-dest-grid {
+        grid-template-columns: 1fr 1fr;
+      }
+    }
+
+    .ld-dest-card {
+      display: flex;
+      flex-direction: column;
+      gap: var(--ld-space-2);
+    }
+
+    .ld-dest-card .ld-card-title {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+  </style>
+</head>
+
+<body>
+
+  <nav class="ld-nav">
+    <a href="#" class="ld-nav-brand">ldcss</a>
+    <span class="ld-badge" data-ld-variant="primary">Landing page</span>
+    <div class="ld-row">
+      <button class="ld-btn" data-ld-size="sm" data-ld-variant="ghost" data-ld-toggle="command"
+        data-ld-target="#demo-command">⌘K</button>
+      <button class="ld-btn" data-ld-size="sm" data-ld-toggle="theme">toggle theme</button>
+    </div>
+  </nav>
+
+  <div class="n-marquee">
+    <div class="n-marquee-track">
+      <span>FREE OPEN SOURCE FRAMEWORK · REGULAR UPDATES · FOR DEVS · FREE OPEN SOURCE FRAMEWORK · REGULAR UPDATES · FOR
+        DEVS · FREE OPEN SOURCE FRAMEWORK · REGULAR UPDATES · FOR DEVS · FREE OPEN SOURCE FRAMEWORK · REGULAR UPDATES ·
+        FOR DEVS ·</span>
+      <span aria-hidden="true">FREE OPEN SOURCE FRAMEWORK · REGULAR UPDATES · FOR DEVS · FREE OPEN SOURCE FRAMEWORK ·
+        REGULAR UPDATES · FOR DEVS ·</span>
+    </div>
+  </div>
+
+  <header class="ld-hero">
+    <span class="ld-badge" data-ld-variant="primary">local dev</span>
+    <h1>ldcss</h1>
+    <p class="ld-lead">A dependency-free CSS + JS framework, class- and attribute-driven. This page is just a jump-off
+      point while testing changes — pick a destination below.</p>
+
+    <div class="ld-dest-grid">
+      <a href="demo.html" class="ld-card ld-link-reset ld-dest-card" data-ld-interactive="true">
+        <div class="ld-card-eyebrow">Components</div>
+        <div class="ld-card-title">
+          Demo
+          <span class="ld-text-muted">→</span>
+        </div>
+        <div class="ld-card-body ld-text-muted">Every component and utility rendered live — buttons, cards, forms,
+          overlays, tabs, and the full changelog.</div>
+      </a>
+
+      <a href="cheat-sheet.html" class="ld-card ld-link-reset ld-dest-card" data-ld-interactive="true">
+        <div class="ld-card-eyebrow">Reference</div>
+        <div class="ld-card-title">
+          Cheat sheet
+          <span class="ld-text-muted">→</span>
+        </div>
+        <div class="ld-card-body ld-text-muted">A scannable, filterable table of every <code
+            class="ld-code-inline">ld-*</code> class and <code class="ld-code-inline">data-ld-*</code> attribute.</div>
+      </a>
+
+      <a href="demo-sidebar.html" class="ld-card ld-link-reset ld-dest-card" data-ld-interactive="true">
+        <div class="ld-card-eyebrow">Sidebar Demo</div>
+        <div class="ld-card-title">
+          Demo
+          <span class="ld-text-muted">→</span>
+        </div>
+        <div class="ld-card-body ld-text-muted">A showcase of the sidebar utility added in V3.0.0 <code
+            class="ld-code-inline">ld-*</code> class and <code class="ld-code-inline">data-ld-*</code> attribute.</div>
+      </a>
+    </div>
+
+    <div class="ld-row">
+      <code class="ld-code-inline">npm run dev</code>
+      <span class="ld-text-muted ld-text-sm">served via <code class="ld-code-inline">server.js</code> / <code
+          class="ld-code-inline">routes.js</code></span>
+    </div>
+  </header>
+
+  <div class="ld-container">
+    <section>
+      <h2>Files in this build</h2>
+      <p class="ld-section-sub">What's in <code class="ld-code-inline">/public</code></p>
+      <table class="ld-table" data-ld-striped="true">
+        <thead>
+          <tr>
+            <th>File</th>
+            <th>Purpose</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code class="ld-code-inline">ldcss.css</code></td>
+            <td>Core stylesheet — tokens, components, utilities</td>
+          </tr>
+          <tr>
+            <td><code class="ld-code-inline">ldcss.js</code></td>
+            <td>Behavior for toggles, overlays, scrollspy, animation, etc.</td>
+          </tr>
+          <tr>
+            <td><code class="ld-code-inline">demo.html</code></td>
+            <td>Live component gallery + version changelog</td>
+          </tr>
+          <tr>
+            <td><code class="ld-code-inline">cheat-sheet.html</code></td>
+            <td>Filterable class/attribute reference table</td>
+          </tr>
+          <tr>
+            <td><code class="ld-code-inline">README.md</code></td>
+            <td>Usage docs</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+  </div>
+
+  <!-- Command palette -->
+  <div class="ld-command-backdrop" id="demo-command">
+    <div class="ld-command">
+      <input class="ld-command-input" type="text" placeholder="Type a command or search…" data-ld-autofocus>
+      <ul class="ld-command-list" data-ld-command-list>
+        <li class="ld-command-item" data-ld-command-item data-ld-command-action="theme">Toggle theme</li>
+        <li class="ld-command-item" data-ld-command-item data-ld-command-action="goto:/cheat-sheet">Open the cheat sheet
+        </li>
+        <li class="ld-command-item" data-ld-command-item data-ld-command-action="goto:/demo">Open the Demo page</li>
+      </ul>
+      <div class="ld-command-empty">No matching commands.</div>
+      <div class="ld-command-hint"><span class="ld-kbd">↑↓</span> navigate <span class="ld-kbd">↵</span> select <span
+          class="ld-kbd">esc</span> close</div>
+    </div>
+  </div>
+
+  <script src="dist/ldcss.js"></script>
+</body>
+
+</html>
