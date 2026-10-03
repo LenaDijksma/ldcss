@@ -1,0 +1,105 @@
+/* ==========================================================================
+   37za. Resizable panels (paired with ldcss.js)
+   Give the container a height (vertical layouts need one) — panels share
+   whatever room the handles leave, as flex ratios.
+   ========================================================================== */
+
+.ld-resizable {
+  display: flex;
+  width: 100%;
+  min-height: 0;
+  border: var(--ld-border-width) solid var(--ld-border-soft);
+  border-radius: var(--ld-radius);
+  overflow: hidden;
+}
+
+.ld-resizable[data-ld-direction='vertical'] {
+  flex-direction: column;
+}
+
+.ld-panel {
+  flex: 1 1 0%;
+  min-width: 0;
+  min-height: 0;
+  overflow: auto;
+}
+
+/* 9px hit area with a 1px line in the middle; the line thickens and turns
+   accent on hover, focus and while dragging (no glow) */
+.ld-resize-handle {
+  position: relative;
+  flex: none;
+  width: 9px;
+  background: var(--ld-surface);
+  cursor: col-resize;
+  touch-action: none;
+  user-select: none;
+  outline-offset: -2px;
+}
+
+.ld-resize-handle::before {
+  content: '';
+  position: absolute;
+  inset-block: 0;
+  inset-inline-start: 50%;
+  width: 1px;
+  transform: translateX(-50%);
+  background: var(--ld-border);
+  transition: width var(--ld-transition), background var(--ld-transition);
+}
+
+.ld-resize-handle:hover::before,
+.ld-resize-handle:focus-visible::before,
+.ld-resizable[data-ld-resizing='true'] > .ld-resize-handle::before {
+  width: 3px;
+  background: var(--ld-accent);
+}
+
+.ld-resizable[data-ld-direction='vertical'] > .ld-resize-handle {
+  width: auto;
+  height: 9px;
+  cursor: row-resize;
+}
+
+.ld-resizable[data-ld-direction='vertical'] > .ld-resize-handle::before {
+  inset-block: auto;
+  inset-inline: 0;
+  inset-block-start: 50%;
+  width: auto;
+  height: 1px;
+  transform: translateY(-50%);
+  transition: height var(--ld-transition), background var(--ld-transition);
+}
+
+.ld-resizable[data-ld-direction='vertical'] > .ld-resize-handle:hover::before,
+.ld-resizable[data-ld-direction='vertical'] > .ld-resize-handle:focus-visible::before,
+.ld-resizable[data-ld-direction='vertical'][data-ld-resizing='true'] > .ld-resize-handle::before {
+  width: auto;
+  height: 3px;
+}
+
+/* while dragging: keep the resize cursor everywhere and stop text selection */
+html.ld-resizing {
+  cursor: col-resize;
+  user-select: none;
+}
+
+html.ld-resizing[data-ld-resize-axis='vertical'] {
+  cursor: row-resize;
+}
+
+html.ld-resizing iframe {
+  pointer-events: none;
+}
+
+@media (forced-colors: active) {
+  .ld-resize-handle::before {
+    background: CanvasText;
+  }
+
+  .ld-resize-handle:hover::before,
+  .ld-resize-handle:focus-visible::before {
+    background: Highlight;
+  }
+}
+

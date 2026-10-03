@@ -1,0 +1,201 @@
+/* ==========================================================================
+   37z. Toast extras & notification centre (paired with ldcss.js)
+   ========================================================================== */
+
+.ld-toast {
+  position: relative;
+  overflow: hidden;
+}
+
+.ld-toast-title {
+  font-weight: var(--ld-weight-bold);
+  margin-bottom: 2px;
+}
+
+.ld-toast-actions {
+  display: flex;
+  gap: var(--ld-space-2);
+  margin-top: var(--ld-space-2);
+}
+
+.ld-toast[data-ld-variant='warning'] {
+  border-left: var(--ld-border-width) solid var(--ld-warning);
+}
+
+.ld-toast[data-ld-variant='info'] {
+  border-left: var(--ld-border-width) solid var(--ld-info);
+}
+
+.ld-toast-leaving {
+  animation: ld-toast-out 160ms ease forwards;
+}
+
+@keyframes ld-toast-out {
+  to {
+    transform: translateX(8px);
+    opacity: 0;
+  }
+}
+
+/* countdown bar; hovering/focusing a toast pauses the timer, so pause this too */
+.ld-toast-progress {
+  position: absolute;
+  inset: auto 0 0 0;
+  height: 3px;
+  background: var(--ld-accent);
+  transform-origin: left;
+  animation: ld-toast-countdown linear forwards;
+}
+
+.ld-toast[data-ld-variant='danger'] .ld-toast-progress {
+  background: var(--ld-danger);
+}
+
+.ld-toast[data-ld-paused='true'] .ld-toast-progress {
+  animation-play-state: paused;
+}
+
+@keyframes ld-toast-countdown {
+  from {
+    transform: scaleX(1);
+  }
+
+  to {
+    transform: scaleX(0);
+  }
+}
+
+/* -- Notification centre ----------------------------------------------------- */
+.ld-nc {
+  display: flex;
+  flex-direction: column;
+  width: min(24rem, calc(100vw - 2rem));
+  max-height: min(28rem, 70vh);
+  outline: none;
+}
+
+.ld-nc-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--ld-space-3);
+  padding: var(--ld-space-2) var(--ld-space-3);
+  border-bottom: var(--ld-border-width) solid var(--ld-border-soft);
+}
+
+.ld-nc-tools {
+  display: flex;
+  gap: var(--ld-space-1);
+}
+
+.ld-nc-list {
+  list-style: none;
+  margin: 0;
+  padding: var(--ld-space-1);
+  overflow-y: auto;
+}
+
+.ld-nc-item {
+  display: flex;
+  align-items: flex-start;
+  border-radius: calc(var(--ld-radius) / 2);
+}
+
+.ld-nc-item:hover {
+  background: var(--ld-surface-raised);
+}
+
+.ld-nc-main {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--ld-space-2);
+  flex: 1;
+  min-width: 0;
+  padding: var(--ld-space-2) var(--ld-space-2);
+  background: none;
+  border: none;
+  font: inherit;
+  color: inherit;
+  text-align: start;
+  cursor: pointer;
+}
+
+.ld-nc-dot {
+  flex: none;
+  width: 8px;
+  height: 8px;
+  margin-top: 0.4em;
+  border-radius: 50%;
+  background: transparent;
+}
+
+.ld-nc-item[data-ld-unread='true'] .ld-nc-dot {
+  background: var(--ld-accent);
+}
+
+.ld-nc-item[data-ld-variant='danger'][data-ld-unread='true'] .ld-nc-dot {
+  background: var(--ld-danger);
+}
+
+.ld-nc-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+  font-size: var(--ld-text-sm);
+}
+
+.ld-nc-title {
+  font-weight: var(--ld-weight-bold);
+}
+
+.ld-nc-item:not([data-ld-unread='true']) .ld-nc-title {
+  font-weight: var(--ld-weight-medium);
+}
+
+.ld-nc-message {
+  color: var(--ld-text-muted);
+  overflow-wrap: anywhere;
+}
+
+.ld-nc-time {
+  font-size: var(--ld-text-xs);
+  color: var(--ld-text-muted);
+}
+
+.ld-nc-dismiss {
+  flex: none;
+  align-self: flex-start;
+  min-width: 28px;
+  min-height: 28px;
+  margin: var(--ld-space-1);
+  background: none;
+  border: none;
+  border-radius: calc(var(--ld-radius) / 2);
+  color: var(--ld-text-muted);
+  font-size: var(--ld-text-lg);
+  line-height: 1;
+  cursor: pointer;
+}
+
+.ld-nc-dismiss:hover {
+  color: var(--ld-text);
+  background: var(--ld-surface-raised);
+}
+
+.ld-nc-empty {
+  margin: 0;
+  padding: var(--ld-space-6) var(--ld-space-4);
+  text-align: center;
+  font-size: var(--ld-text-sm);
+  color: var(--ld-text-muted);
+}
+
+@media (prefers-reduced-motion: reduce) {
+
+  .ld-toast-progress,
+  .ld-toast-leaving {
+    animation: none;
+  }
+}
+

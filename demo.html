@@ -11,7 +11,7 @@
 <body>
 
   <nav class="ld-nav">
-    <a href="/" class="ld-nav-brand" data-ld-mark="$">ldcss</a>
+    <a href="index.html" class="ld-nav-brand" data-ld-mark="$">ldcss</a>
     <ul class="ld-nav-links" data-ld-scrollspy>
       <li><a href="#buttons" class="ld-nav-link" data-ld-active="true">buttons</a></li>
       <li><a href="#cards" class="ld-nav-link">cards</a></li>
@@ -25,6 +25,7 @@
       <li><a href="#v21" class="ld-nav-link">v2.1</a></li>
       <li><a href="#v24" class="ld-nav-link">v2.4</a></li>
       <li><a href="#v30" class="ld-nav-link">v3.0</a></li>
+      <li><a href="#v31" class="ld-nav-link">v3.1</a></li>
     </ul>
     <div class="ld-row">
       <button class="ld-btn" data-ld-size="sm" data-ld-variant="ghost" data-ld-toggle="command"
@@ -36,7 +37,7 @@
   <div class="ld-container">
 
     <header class="ld-hero">
-      <span class="ld-badge" data-ld-variant="primary">v3.0.0</span>
+      <span class="ld-badge" data-ld-variant="primary">v3.1.0</span>
       <h1>ldcss</h1>
       <p class="ld-text-muted">A small framework built on two ideas: <span class="ld-text-accent">ld-*</span> classes
         for structure, <span class="ld-text-accent">data-ld-*</span> attributes for state and variants. No dependencies
@@ -161,7 +162,9 @@
             build step.</p>
         </div>
         <div id="tab-3" data-ld-tab-panel>
-          <p class="ld-text-muted"><strong>V3.0.1</strong> — Minor bugfixes to pages and carousel.</p>
+          <p class="ld-text-muted"><strong>v3.1.0</strong> — New: context menu (<code class="ld-code-inline">data-ld-context-menu</code>), toast queue and notification centre (<code class="ld-code-inline">ldcss.toast</code>, <code class="ld-code-inline">ldcss.notify</code>), resizable panels (<code class="ld-code-inline">data-ld-resizable</code>), general-purpose disclosure (<code class="ld-code-inline">data-ld-disclosure</code>), search bar with fuzzy matching (<code class="ld-code-inline">data-ld-search</code>, <code class="ld-code-inline">ldcss.fuzzy</code>), easy tables (<code class="ld-code-inline">data-ld-table</code>), sizing / flex / grid / transition / transform utilities, and a unified event API (<code class="ld-code-inline">ldcss.on</code>, <code class="ld-code-inline">ldcss.once</code>, <code class="ld-code-inline">ldcss.off</code>, <code class="ld-code-inline">ldcss.emit</code>, wildcard <code class="ld-code-inline">"*"</code>). The combobox gained remote sources with debounce, loading / empty / error states, request cancellation, result templates and renderers. ldcss now watches the page and initialises markup added later (<code class="ld-code-inline">data-ld-observe="false"</code> opts out). Accessibility: <code class="ld-code-inline">aria-current</code>, dropdown menu keys, <code class="ld-code-inline">inert</code> behind dialogs, tooltip names, 24px hit areas, forced-colors support, <code class="ld-code-inline">ldcss.a11y.audit()</code>. The cheat sheet was rewritten with pages, a sidebar and search.</p>
+          <p class="ld-text-muted"><strong>v3.0.2</strong> — The nav brand links to the landing page (<code class="ld-code-inline">index.html</code>) on every page. Relative, so it also works when you open the files straight from disk or host them in a sub-folder.</p>
+          <p class="ld-text-muted"><strong>v3.0.1</strong> — Minor bugfixes to pages and carousel. The carousel arrows no longer jump when pressed: they were centred with a <code class="ld-code-inline">transform</code> that the button's press nudge replaced. They are now centred with insets, so they stay centred at any carousel height; the press nudge uses <code class="ld-code-inline">translate</code> and so adds to any transform instead of replacing it. New: <code class="ld-code-inline">index.html</code> landing page.</p>
           <p class="ld-text-muted"><strong>v3.0.0</strong> — <strong>breaking:</strong> ldcss.css is now built from
             <code class="ld-code-inline">src/</code> (<code class="ld-code-inline">npm run build</code> → <code
               class="ld-code-inline">dist/</code>) and sits in cascade layers (<code
@@ -1179,8 +1182,7 @@
           <label class="ld-label">ld-dot notification badge</label>
           <div class="ld-row">
             <div class="ld-avatar" style="position: relative;">LD<span class="ld-dot" data-ld-count="3"></span></div>
-            <div class="ld-avatar" data-ld-variant="accent" style="position: relative;">JS<span class="ld-dot"
-                data-ld-count="1"></span>
+            <div class="ld-avatar" data-ld-variant="accent" style="position: relative;">JS<span class="ld-dot" data-ld-count="1"></span>
             </div>
           </div>
         </div>
@@ -1316,6 +1318,74 @@
       </div>
     </section>
 
+    <section class="ld-section" id="v31">
+      <h2 class="ld-section-title">Context menu, queue, panels, search &amp; tables</h2>
+      <p class="ld-section-sub">New in v3.1.0 — the full reference is in the new cheat sheet</p>
+
+      <div class="ld-grid" data-ld-cols="2">
+        <div>
+          <label class="ld-label">Context menu</label>
+          <div data-ld-context-menu="#v31-ctx" tabindex="0" class="ld-card">Right-click, long-press, or Shift+F10</div>
+          <div class="ld-context-menu" id="v31-ctx">
+            <button class="ld-context-item" data-ld-value="copy">Copy <span class="ld-context-shortcut">Ctrl C</span></button>
+            <button class="ld-context-item" data-ld-value="rename">Rename</button>
+            <div class="ld-context-separator"></div>
+            <button class="ld-context-item" data-ld-variant="danger" data-ld-value="delete">Delete</button>
+          </div>
+        </div>
+        <div>
+          <label class="ld-label">Toast queue (5 visible at a time) and notification centre</label>
+          <div class="ld-row">
+            <button class="ld-btn" id="v31-queue">Queue 8 toasts</button>
+            <div data-ld-popover>
+              <button class="ld-btn" data-ld-toggle="popover">Notifications <span class="ld-badge" data-ld-variant="primary" data-ld-notification-count hidden></span></button>
+              <div data-ld-popover-content style="padding:0"><div data-ld-notification-center data-ld-mark-read="open"></div></div>
+            </div>
+            <button class="ld-btn" id="v31-notify">Add one</button>
+          </div>
+        </div>
+      </div>
+
+      <label class="ld-label ld-mar-t-4">Resizable panels</label>
+      <div data-ld-resizable style="height: 120px">
+        <div class="ld-panel ld-pad-a-3" data-ld-size="30" data-ld-min="15%">Drag the divider or use the arrow keys</div>
+        <div class="ld-panel ld-pad-a-3">Middle</div>
+        <div class="ld-panel ld-pad-a-3" data-ld-size="25" data-ld-min="100px">Min 100px</div>
+      </div>
+
+      <div class="ld-grid ld-mar-t-4" data-ld-cols="2">
+        <div>
+          <label class="ld-label">Disclosure</label>
+          <button class="ld-btn ld-disclosure-trigger" data-ld-disclosure="#v31-more" data-ld-text-open="Show less" data-ld-text-closed="Show more">Show more</button>
+          <div class="ld-disclosure" id="v31-more"><div class="ld-disclosure-inner"><p class="ld-pad-a-3">Animated, and out of the tab order while closed.</p></div></div>
+        </div>
+        <div>
+          <label class="ld-label">Search bar filtering the cards below (fuzzy)</label>
+          <div class="ld-search" data-ld-search data-ld-search-filter="#v31-cards" data-ld-search-count="#v31-count" data-ld-shortcut="none">
+            <input placeholder="Try: brwn, mnt, ptr…">
+          </div>
+          <p class="ld-text-muted ld-text-sm ld-mar-t-1" id="v31-count" aria-hidden="true"></p>
+        </div>
+      </div>
+      <div id="v31-cards" class="ld-d-grid ld-grid-fit-xs ld-gap-2 ld-mar-t-2">
+        <article class="ld-card" data-ld-search-item>Brown bread</article><article class="ld-card" data-ld-search-item>Mint tea</article>
+        <article class="ld-card" data-ld-search-item>Pepper steak</article><article class="ld-card" data-ld-search-item>Oat porridge</article>
+        <article class="ld-card" data-ld-search-item>Peanut butter</article><article class="ld-card" data-ld-search-item>Mango lassi</article>
+      </div>
+
+      <label class="ld-label ld-mar-t-4">Easy table: sort, search, page, select</label>
+      <table class="ld-table" data-ld-table data-ld-search data-ld-page-size="4" data-ld-select data-ld-empty="No people match.">
+        <caption>People</caption>
+        <thead><tr><th>Name</th><th>Role</th><th>Age</th></tr></thead>
+        <tbody>
+          <tr><td>Zoë Martin</td><td>Designer</td><td>31</td></tr><tr><td>Alan Turner</td><td>Engineer</td><td>9</td></tr>
+          <tr><td>Bea Okafor</td><td>Manager</td><td>100</td></tr><tr><td>Dana Lee</td><td>Support</td><td>45</td></tr>
+          <tr><td>Eli Park</td><td>Designer</td><td>27</td></tr><tr><td>Fay Chen</td><td>Engineer</td><td>52</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+
 
   </div>
 
@@ -1386,10 +1456,22 @@
   </div>
 
   <footer class="ld-footer ld-shadow-up">
-    <p class="ld-text-muted ld-text-sm">ldcss v3.0.0 · built with ldcss</p>
+    <p class="ld-text-muted ld-text-sm">ldcss v3.1.0 · built with ldcss</p>
   </footer>
 
   <script src="dist/ldcss.js"></script>
+  <script>
+    document.getElementById('v31-queue').addEventListener('click', function () {
+      for (var i = 1; i <= 8; i++) ldcss.toast({ id: 'v31-' + i, message: 'Toast ' + i + ' of 8', duration: 3000, progress: true });
+    });
+    var v31n = 0;
+    document.getElementById('v31-notify').addEventListener('click', function () {
+      v31n++;
+      ldcss.notify({ title: 'Notification ' + v31n, message: 'Kept in the centre after the toast is gone', variant: 'success' });
+    });
+    ldcss.on('contextmenu:select', function (e, d) { ldcss.toast({ message: 'Chose “' + d.value + '”', duration: 1500 }); });
+  </script>
+  
 </body>
 
 </html>

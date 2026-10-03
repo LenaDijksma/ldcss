@@ -19,7 +19,8 @@ Keep `dist/fonts/` next to the CSS file (JetBrains Mono is self-hosted).
 src/css/<layer>/sNN-name.css    one file per section, one folder per cascade layer
 src/css/**/*.gen.mjs            generated CSS (sidebar breakpoints, hover:/focus: variants)
 src/css/head.css                @font-face (outside the layers)
-src/js/ldcss.js                 behavior
+src/js/ldcss.js                 core: shared helpers, original components, public API
+src/js/modules/NN-name.js       newer components, inlined into the core by the build
 src/fonts/                      JetBrains Mono (WOFF) + OFL license
 build/config.mjs                breakpoints and layer order
 build/build.mjs                 the build
@@ -63,9 +64,23 @@ See `demo-sidebar.html`. Short version:
 
 ## Pages
 
-- `demo.html` — everything, live
+- `index.html` — landing page; every page's brand link goes here
+- `demo.html` — everything, live (v3.1 section near the end)
 - `demo-sidebar.html` — the sidebar shell
-- `cheat-sheet.html` — every class and attribute
+- `cheat-sheet.html` — every class, attribute and JavaScript call, with explanations, examples and search
+
+## JavaScript
+
+```js
+ldcss.on('toast:show', (e, detail) => console.log(detail.id));   // one event system
+ldcss.toast({ message: 'Saved', variant: 'success' });
+ldcss.notify({ title: 'Build finished', message: 'main passed' });
+ldcss.fuzzy.search('btn', items, { keys: ['name'] });
+ldcss.a11y.audit();
+```
+
+Markup added after load is initialised automatically. See the cheat sheet's
+"JavaScript API & events" page.
 
 ## Upgrading from 2.x
 

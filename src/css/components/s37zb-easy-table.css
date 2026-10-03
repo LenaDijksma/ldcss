@@ -1,0 +1,160 @@
+/* ==========================================================================
+   37zb. Easy tables — table[data-ld-table] (paired with ldcss.js)
+   ========================================================================== */
+
+.ld-table-shell {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ld-space-3);
+}
+
+.ld-table-wrap {
+  overflow-x: auto;
+  border: var(--ld-border-width) solid var(--ld-border-soft);
+  border-radius: var(--ld-radius);
+}
+
+.ld-table-wrap > .ld-table {
+  margin: 0;
+}
+
+.ld-table-wrap > .ld-table tbody tr:last-child td,
+.ld-table-wrap > .ld-table tbody tr:last-child th {
+  border-bottom: 0;
+}
+
+.ld-table tbody tr[hidden] {
+  display: none;
+}
+
+.ld-table-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--ld-space-3);
+}
+
+.ld-table-toolbar .ld-input {
+  max-width: 20rem;
+}
+
+.ld-table-footer {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--ld-space-3);
+  font-size: var(--ld-text-sm);
+  color: var(--ld-text-muted);
+}
+
+.ld-table-footer-right {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--ld-space-3);
+}
+
+/* sort buttons fill the header cell and look like the header text */
+.ld-sort-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--ld-space-1);
+  padding: 0;
+  background: none;
+  border: none;
+  font: inherit;
+  letter-spacing: inherit;
+  text-transform: inherit;
+  color: inherit;
+  cursor: pointer;
+}
+
+.ld-sort-btn:hover {
+  color: var(--ld-text);
+}
+
+.ld-table th[data-ld-sort] .ld-sort-btn::after {
+  content: '↕';
+  opacity: 0.4;
+}
+
+.ld-table th[data-ld-sort][data-ld-sort-dir='asc'] .ld-sort-btn::after {
+  content: '↑';
+  opacity: 1;
+  color: var(--ld-accent);
+}
+
+.ld-table th[data-ld-sort][data-ld-sort-dir='desc'] .ld-sort-btn::after {
+  content: '↓';
+  opacity: 1;
+  color: var(--ld-accent);
+}
+
+/* the framework's own th::after arrow is replaced by the one in the button */
+.ld-table th[data-ld-sort]:has(.ld-sort-btn)::after {
+  content: none;
+}
+
+.ld-table th.ld-table-select,
+.ld-table td.ld-table-select {
+  width: 1%;
+  padding-inline-end: 0;
+}
+
+.ld-table tbody tr[data-ld-selected] {
+  background: color-mix(in srgb, var(--ld-accent) 12%, transparent);
+}
+
+.ld-table tbody tr[data-ld-table-empty] td {
+  padding: var(--ld-space-6) var(--ld-space-4);
+  text-align: center;
+  color: var(--ld-text-muted);
+}
+
+/* pager: same look as .ld-pagination, separate class so the two never fight */
+.ld-pager {
+  display: flex;
+  gap: var(--ld-space-1);
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.ld-pager button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 32px;
+  height: 32px;
+  padding: 0 var(--ld-space-2);
+  border: var(--ld-border-width) solid var(--ld-border-soft);
+  border-radius: calc(var(--ld-radius) / 2);
+  background: var(--ld-surface);
+  color: var(--ld-text);
+  font-family: var(--ld-font-family);
+  font-size: var(--ld-text-sm);
+  cursor: pointer;
+}
+
+.ld-pager button:hover:not(:disabled) {
+  background: var(--ld-surface-raised);
+}
+
+.ld-pager li[data-ld-active='true'] button {
+  background: var(--ld-accent);
+  border-color: var(--ld-accent);
+  color: var(--ld-accent-text);
+}
+
+.ld-pager button:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.ld-pager-gap {
+  display: inline-flex;
+  align-items: center;
+  padding: 0 var(--ld-space-1);
+}
+

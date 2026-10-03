@@ -1,0 +1,87 @@
+/* ==========================================================================
+   37zc. Search bar — ld-search / [data-ld-search] (paired with ldcss.js)
+   ========================================================================== */
+
+.ld-search {
+  position: relative;
+  display: block;
+}
+
+.ld-search .ld-input {
+  padding-inline-start: calc(var(--ld-space-3) + 1.25rem);
+  padding-inline-end: calc(var(--ld-space-3) + 1.5rem);
+}
+
+/* magnifier drawn with borders, so it follows currentColor and needs no icon font */
+.ld-search-icon {
+  position: absolute;
+  inset-inline-start: var(--ld-space-3);
+  top: 50%;
+  width: 0.7rem;
+  height: 0.7rem;
+  margin-top: -0.45rem;
+  border: 2px solid var(--ld-text-muted);
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+.ld-search-icon::after {
+  content: '';
+  position: absolute;
+  inset-inline-end: -0.38rem;
+  bottom: -0.3rem;
+  width: 2px;
+  height: 0.38rem;
+  background: var(--ld-text-muted);
+  transform: rotate(-45deg);
+}
+
+.ld-search-clear {
+  position: absolute;
+  inset-inline-end: var(--ld-space-2);
+  top: 50%;
+  min-width: 28px;
+  min-height: 28px;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  border-radius: calc(var(--ld-radius) / 2);
+  color: var(--ld-text-muted);
+  font-size: var(--ld-text-lg);
+  line-height: 1;
+  cursor: pointer;
+}
+
+.ld-search-clear:hover {
+  color: var(--ld-text);
+  background: var(--ld-surface-raised);
+}
+
+.ld-search-clear[hidden] {
+  display: none;
+}
+
+/* the shortcut hint sits where the clear button goes; typing swaps them */
+.ld-search-kbd {
+  position: absolute;
+  inset-inline-end: var(--ld-space-3);
+  top: 50%;
+  transform: translateY(-50%);
+  pointer-events: none;
+}
+
+.ld-search:focus-within .ld-search-kbd,
+.ld-search-clear:not([hidden]) ~ .ld-search-kbd {
+  display: none;
+}
+
+.ld-search input[type='search']::-webkit-search-decoration,
+.ld-search input[type='search']::-webkit-search-cancel-button {
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+[data-ld-search-empty][hidden] {
+  display: none;
+}
+

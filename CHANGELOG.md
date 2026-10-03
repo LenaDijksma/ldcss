@@ -1,5 +1,119 @@
 # Changelog
 
+## 3.1.0
+
+**Fixed (builds on 3.0.1)**
+
+- Carousel arrows jumped when pressed. Root cause: they were centred with
+  `transform: translateY(-50%)`, and `.ld-btn:active` sets its own `transform` for the 1px press
+  nudge, which replaced the centring. 3.0.1 hid it by hand-tuning `top: 40%` /
+  `translateY(-15%)`, which is only centred for one carousel height (14px off in a short
+  carousel, 14px off in a tall one) and still moved 6px on press. The arrows are now centred with
+  `inset-block: 0; margin-block: auto`, so they stay centred at any height and move only by the
+  intended 1px.
+- `.ld-btn:active` now nudges with `translate: 0 1px` instead of `transform`, so it adds to any
+  transform on a button (a centring transform, a hover lift) rather than replacing it.
+
+**Docs and pages**
+
+- `index.html` (your landing page) is part of the project now. It uses the framework's
+  `ld-section` classes instead of local copies, has a skip link and `<main>`, lists the files that
+  are really in the project, and the command palette links are relative (`goto:demo.html`), so they
+  work from `file://` and from any folder.
+- Demo: second notification dot shows a count, the password demo uses a longer value (your edits).
+- LICENSE added to the project.
+
+**New in 3.1.0**
+
+**New components**
+
+- Context menu: `data-ld-context-menu="#menu"`, `ld-context-menu`, `ld-context-item`. Right-click,
+  long-press and Shift+F10 / menu key; arrow keys, type-ahead, Escape returns focus.
+- Toast queue: `ldcss.toast({ title, message, variant, duration, id, actions, progress })`. At most
+  `data-ld-toast-max` visible, the rest wait; hover or focus pauses; an existing `id` updates the toast.
+- Notification centre: `ldcss.notify()`, `data-ld-notification-center`, `data-ld-notification-count`.
+  Unread count, history, mark read, dismiss, clear; optional `localStorage` persistence.
+- Resizable panels: `data-ld-resizable` with `ld-panel` children. Pointer and keyboard, min/max,
+  collapse, reset, persistence.
+- Disclosure: `data-ld-disclosure="#panel"` with `ld-disclosure` / `ld-disclosure-inner`. Animated,
+  `inert` while closed, groups, label swap.
+- Search bar: `data-ld-search` with fuzzy matching. Dropdown results (with the combobox) or
+  `data-ld-search-filter` to filter content on the page; clear button, shortcut key, result count.
+- Easy tables: `data-ld-table` adds keyboard-accessible sorting (numbers and dates detected),
+  `data-ld-search`, `data-ld-page-size`, `data-ld-select`, an empty state and announcements.
+- Fuzzy matching API: `ldcss.fuzzy.match / search / highlight`.
+
+**Combobox**
+
+- Remote sources (`data-ld-source="/api?q={q}"`), local JSON sources (`data-ld-source="#id"`) and
+  `ldcss.combobox.source()`.
+- Debounce, minimum characters, loading indicator, empty state, error state with retry.
+- Typing again aborts the request in flight; late answers to old queries are discarded; per-query cache.
+- Result templates (`data-ld-template`), `ldcss.combobox.render()`, groups, descriptions, matched-letter
+  highlighting, `data-ld-limit`, `data-ld-group-limit`.
+- Full ARIA combobox pattern: `aria-activedescendant`, `aria-busy`, a live region for result counts,
+  PageUp / PageDown, Escape closes then clears.
+
+**Utilities** (generated from `build/config.mjs` breakpoints)
+
+- Sizing: `ld-w-*` (keywords and 10-100%), `ld-h-*`, `ld-min-w/h-*`, `ld-max-w/h-*`, `ld-size-*`.
+- Flex: `ld-grow`, `ld-shrink`, `ld-basis-*`, `ld-content-*`, `ld-justify-items/self-*`, `ld-place-*`.
+- Grid: `ld-grid-cols-7..12`, `ld-grid-rows-*`, `ld-grid-fit-*` / `ld-grid-fill-*`, `ld-span-*`,
+  `ld-col-start/end-*`, `ld-row-span-*`, `ld-grid-flow-*`, `ld-auto-rows/cols-*`.
+- Transitions and transforms: `ld-transition-*`, `ld-duration-*`, `ld-delay-*`, `ld-ease-*`,
+  `ld-scale-*`, `ld-rotate-*`, `ld-translate-x/y-*`, `ld-origin-*`.
+- `ld-hover:` / `ld-focus:` variants now also cover `scale-*` and `translate-*`.
+
+**JavaScript**
+
+- Unified event API: `ldcss.on(type, fn, { target, once, root })`, `ldcss.off`, `ldcss.once`,
+  `ldcss.emit(el, name, detail, cancelable)`; `"*"` listens to every event. All events follow
+  `ld:{component}:{event}`; `before-` events are cancelable.
+- Mutation-aware initialiser: ldcss watches `<body>` and initialises markup added later.
+  `data-ld-observe="false"` and `data-ld-no-observe` opt out; `ldcss.observe()` / `ldcss.unobserve()`.
+- `ldcss.refresh(root)` now also initialises `root` itself. `ldcss.destroy()` also stops the observer
+  and carousel timers.
+- `ldcss.announce(message, politeness)` for screen-reader announcements; `ldcss.version`.
+- JavaScript is split into `src/js/modules/` and inlined by the build.
+
+**Accessibility**
+
+- `aria-current` follows `data-ld-active` on nav, sidebar and pager links.
+- Dropdown menus: `role="menu"`, arrow keys, Home / End, type-ahead.
+- Page behind a modal, offcanvas or command palette is `inert`; dialogs are named from their heading.
+- Tooltips become the accessible name or description and can be dismissed with Escape.
+- `role="progressbar"` and `aria-pressed` filled in; carousel slide labels; autoplay stops for
+  reduced motion and on focus; `aria-invalid` in `ld-validate` forms; command palette combobox roles.
+- Small controls keep their size but get a 24 x 24px hit area.
+- `forced-colors` rules for focus, borders and selected items.
+- `ldcss.a11y.audit(root?)` lists common mistakes (missing alt, names, labels, duplicate ids, broken
+  `aria-*` references, heading order, landmarks).
+
+**Docs**
+
+- `cheat-sheet.html` rewritten: 16 pages with a sidebar, sections with explanations and examples,
+  previous / next paging, live examples, and fuzzy search across every class, attribute and page
+  (`/` or Ctrl+K).
+
+**Behaviour changes**
+
+- The old `ldcss.js` toast function is replaced by the queued one; `showToast`-style calls and
+  `data-ld-toggle="toast"` still work.
+- Combobox static options now get `role="option"` and ARIA wiring automatically.
+- Sortable `th[data-ld-sort]` headers on plain tables are focusable; tables with `data-ld-table`
+  use buttons inside the header instead.
+
+## 3.0.2
+
+- The nav brand links to the landing page (`index.html`) on the demo, the sidebar demo and the
+  cheat sheet. It is a relative link rather than `/`, so it also works when the files are opened
+  straight from disk or hosted in a sub-folder.
+
+## 3.0.1
+
+- Minor fixes to the pages and the carousel arrows (see 3.1.0 for the root-cause fix).
+- New `index.html` landing page.
+
 ## 3.0.0
 
 **Breaking**

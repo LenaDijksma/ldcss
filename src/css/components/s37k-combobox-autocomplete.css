@@ -59,3 +59,83 @@
   display: block;
 }
 
+/* -- Async states, rendered rows, groups (v3.1.0) ----------------------------- */
+
+[data-ld-combobox-loading],
+[data-ld-combobox-error] {
+  display: none;
+  align-items: center;
+  gap: var(--ld-space-2);
+  padding: var(--ld-space-2) var(--ld-space-3);
+  font-size: var(--ld-text-sm);
+  color: var(--ld-text-muted);
+}
+
+[data-ld-combobox-loading].ld-show,
+[data-ld-combobox-error].ld-show {
+  display: flex;
+}
+
+[data-ld-combobox-error] {
+  justify-content: space-between;
+  color: var(--ld-danger);
+}
+
+/* while a new search is in flight, keep the old rows but dim them */
+[data-ld-combobox-list][data-ld-stale='true'] [data-ld-combobox-option] {
+  opacity: 0.5;
+  pointer-events: none;
+}
+
+[data-ld-combobox-option] .ld-combobox-label {
+  display: block;
+}
+
+[data-ld-combobox-option] .ld-combobox-desc {
+  display: block;
+  color: var(--ld-text-muted);
+  font-size: var(--ld-text-xs);
+}
+
+[data-ld-combobox-option][data-ld-highlighted='true'] .ld-combobox-desc {
+  color: inherit;
+  opacity: 0.8;
+}
+
+[data-ld-combobox-option] mark {
+  background: transparent;
+  color: inherit;
+  font-weight: var(--ld-weight-bold);
+  text-decoration: underline;
+  text-decoration-thickness: 2px;
+  text-underline-offset: 2px;
+}
+
+[data-ld-combobox-option][aria-disabled='true'] {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+[data-ld-combobox-option][aria-selected='true']::after {
+  content: '✓';
+  float: right;
+  margin-inline-start: var(--ld-space-2);
+}
+
+a[data-ld-combobox-option] {
+  display: block;
+  text-decoration: none;
+}
+
+.ld-combobox-group {
+  padding: var(--ld-space-2) var(--ld-space-2) var(--ld-space-1);
+  font-size: var(--ld-text-xs);
+  font-weight: var(--ld-weight-bold);
+  color: var(--ld-text-muted);
+}
+
+.ld-combobox-group:not(:first-child) {
+  margin-top: var(--ld-space-1);
+  border-top: var(--ld-border-width) solid var(--ld-border-soft);
+}
+

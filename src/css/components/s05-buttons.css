@@ -18,16 +18,19 @@
   cursor: pointer;
   text-decoration: none;
   box-shadow: var(--ld-shadow);
-  transition: transform var(--ld-transition), box-shadow var(--ld-transition), background var(--ld-transition);
+  transition: transform var(--ld-transition), translate var(--ld-transition), box-shadow var(--ld-transition), background var(--ld-transition);
 }
 
 .ld-btn:hover {
   background: var(--ld-surface-raised);
 }
 
+/* The 1px press nudge uses `translate`, not `transform`, so it adds to any
+   transform you or a component put on a button (a centring transform, a hover
+   lift) instead of replacing it. */
 .ld-btn:active,
 .ld-btn[data-ld-pressed='true'] {
-  transform: translateY(1px);
+  translate: 0 1px;
   box-shadow: none;
 }
 

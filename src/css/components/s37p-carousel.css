@@ -24,11 +24,15 @@
   min-width: 0;
 }
 
+/* Arrows are centred with inset + auto margins, not a transform. A transform
+   would be replaced by .ld-btn:active's press nudge, so the arrow jumped down
+   while you clicked it (v3.0.1 hid this by hand-tuning top/translate for one
+   carousel height; this version stays centred at any height). */
 [data-ld-toggle='carousel-prev'],
 [data-ld-toggle='carousel-next'] {
   position: absolute;
-  top: 40%;
-  transform: translateY(-15%);
+  inset-block: 0;
+  margin-block: auto;
   z-index: 5;
   border-radius: 50%;
   width: 36px;
@@ -70,3 +74,4 @@
 [data-ld-carousel-dot][data-ld-active='true'] {
   background: var(--ld-accent);
 }
+

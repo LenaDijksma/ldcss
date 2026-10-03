@@ -17,6 +17,7 @@ const opacity = [0, 25, 50, 75, 100].map((n) => `opacity-${n}`);
 const shadow = ['none', 'soft-sm', 'soft', 'soft-lg', 'up-sm', 'up', 'up-lg'].map((n) => `shadow-${n}`);
 const decoration = ['underline', 'no-underline'];
 const ring = ['ring'];
+const motion = ['scale-95', 'scale-100', 'scale-105', 'scale-110', 'translate-y-n1', 'translate-y-n2', 'translate-y-0', 'translate-x-1'];
 
 const VARIANTS = [
   // name,           pseudo-class,      wrapper
@@ -26,8 +27,8 @@ const VARIANTS = [
 ];
 
 const UTILITIES = {
-  hover: [...text, ...bg, ...opacity, ...shadow, ...decoration],
-  focus: [...text, ...bg, ...opacity, ...shadow, ...decoration, ...ring],
+  hover: [...text, ...bg, ...opacity, ...shadow, ...decoration, ...motion],
+  focus: [...text, ...bg, ...opacity, ...shadow, ...decoration, ...ring, ...motion.slice(0, 4)],
   'focus-visible': [...bg, ...opacity, ...shadow, ...decoration, ...ring],
 };
 

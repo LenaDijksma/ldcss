@@ -1,5 +1,5 @@
 /*!
- * ldcss v3.0.0 — Lena Dijksma CSS
+ * ldcss v3.1.0 — Lena Dijksma CSS
  * A small, opinionated framework: classes (ld-*) + custom attributes (data-ld-*)
  * License: MIT. Built from src/ — edit the files there, not this one.
  *
@@ -564,16 +564,19 @@ code.ld-code-inline {
   cursor: pointer;
   text-decoration: none;
   box-shadow: var(--ld-shadow);
-  transition: transform var(--ld-transition), box-shadow var(--ld-transition), background var(--ld-transition);
+  transition: transform var(--ld-transition), translate var(--ld-transition), box-shadow var(--ld-transition), background var(--ld-transition);
 }
 
 .ld-btn:hover {
   background: var(--ld-surface-raised);
 }
 
+/* The 1px press nudge uses `translate`, not `transform`, so it adds to any
+   transform you or a component put on a button (a centring transform, a hover
+   lift) instead of replacing it. */
 .ld-btn:active,
 .ld-btn[data-ld-pressed='true'] {
-  transform: translateY(1px);
+  translate: 0 1px;
   box-shadow: none;
 }
 
@@ -2801,6 +2804,86 @@ code.ld-code-inline {
   display: block;
 }
 
+/* -- Async states, rendered rows, groups (v3.1.0) ----------------------------- */
+
+[data-ld-combobox-loading],
+[data-ld-combobox-error] {
+  display: none;
+  align-items: center;
+  gap: var(--ld-space-2);
+  padding: var(--ld-space-2) var(--ld-space-3);
+  font-size: var(--ld-text-sm);
+  color: var(--ld-text-muted);
+}
+
+[data-ld-combobox-loading].ld-show,
+[data-ld-combobox-error].ld-show {
+  display: flex;
+}
+
+[data-ld-combobox-error] {
+  justify-content: space-between;
+  color: var(--ld-danger);
+}
+
+/* while a new search is in flight, keep the old rows but dim them */
+[data-ld-combobox-list][data-ld-stale='true'] [data-ld-combobox-option] {
+  opacity: 0.5;
+  pointer-events: none;
+}
+
+[data-ld-combobox-option] .ld-combobox-label {
+  display: block;
+}
+
+[data-ld-combobox-option] .ld-combobox-desc {
+  display: block;
+  color: var(--ld-text-muted);
+  font-size: var(--ld-text-xs);
+}
+
+[data-ld-combobox-option][data-ld-highlighted='true'] .ld-combobox-desc {
+  color: inherit;
+  opacity: 0.8;
+}
+
+[data-ld-combobox-option] mark {
+  background: transparent;
+  color: inherit;
+  font-weight: var(--ld-weight-bold);
+  text-decoration: underline;
+  text-decoration-thickness: 2px;
+  text-underline-offset: 2px;
+}
+
+[data-ld-combobox-option][aria-disabled='true'] {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+[data-ld-combobox-option][aria-selected='true']::after {
+  content: '✓';
+  float: right;
+  margin-inline-start: var(--ld-space-2);
+}
+
+a[data-ld-combobox-option] {
+  display: block;
+  text-decoration: none;
+}
+
+.ld-combobox-group {
+  padding: var(--ld-space-2) var(--ld-space-2) var(--ld-space-1);
+  font-size: var(--ld-text-xs);
+  font-weight: var(--ld-weight-bold);
+  color: var(--ld-text-muted);
+}
+
+.ld-combobox-group:not(:first-child) {
+  margin-top: var(--ld-space-1);
+  border-top: var(--ld-border-width) solid var(--ld-border-soft);
+}
+
 
 /* ==========================================================================
    37l. Empty state — ld-empty
@@ -3600,11 +3683,15 @@ code.ld-code-inline {
   min-width: 0;
 }
 
+/* Arrows are centred with inset + auto margins, not a transform. A transform
+   would be replaced by .ld-btn:active's press nudge, so the arrow jumped down
+   while you clicked it (v3.0.1 hid this by hand-tuning top/translate for one
+   carousel height; this version stays centred at any height). */
 [data-ld-toggle='carousel-prev'],
 [data-ld-toggle='carousel-next'] {
   position: absolute;
-  top: 40%;
-  transform: translateY(-15%);
+  inset-block: 0;
+  margin-block: auto;
   z-index: 5;
   border-radius: 50%;
   width: 36px;
@@ -3646,6 +3733,8 @@ code.ld-code-inline {
 [data-ld-carousel-dot][data-ld-active='true'] {
   background: var(--ld-accent);
 }
+
+
 /* ==========================================================================
    37q. Navbar collapse — data-ld-navbar-collapse (paired with ldcss.js)
    A lighter alternative to the slide-in offcanvas: content that's
@@ -3898,6 +3987,78 @@ code.ld-code-inline {
 
 .ld-skip-link:focus {
   top: var(--ld-space-3);
+}
+
+
+/* ==========================================================================
+   Accessibility additions (v3.1.0)
+   ========================================================================== */
+
+/* WCAG 2.2 target size (2.5.8): controls that are drawn smaller than 24 x 24 px
+   keep their look but get an invisible hit area that reaches 24 px. */
+[data-ld-carousel-dot],
+.ld-tag-remove,
+[data-ld-tag-remove] {
+  position: relative;
+}
+
+[data-ld-carousel-dot]::after,
+.ld-tag-remove::after,
+[data-ld-tag-remove]::after {
+  content: '';
+  position: absolute;
+  inset: 50% auto auto 50%;
+  width: max(100%, 24px);
+  height: max(100%, 24px);
+  transform: translate(-50%, -50%);
+}
+
+.ld-toast-close,
+.ld-search-clear,
+.ld-nc-dismiss {
+  min-width: 24px;
+  min-height: 24px;
+}
+
+/* a tooltip the person dismissed with Esc stays hidden until they leave */
+[data-ld-tooltip][data-ld-tooltip-dismissed]::after {
+  display: none;
+}
+
+/* the focus indicator must survive forced-colors / Windows High Contrast */
+@media (forced-colors: active) {
+
+  .ld-input:focus,
+  .ld-textarea:focus,
+  .ld-select:focus {
+    outline: 2px solid Highlight;
+    outline-offset: 1px;
+  }
+
+  .ld-btn,
+  .ld-badge,
+  .ld-card,
+  .ld-toast,
+  .ld-context-menu,
+  [data-ld-combobox-list],
+  [data-ld-dropdown-menu] {
+    border: 1px solid CanvasText;
+  }
+
+  [data-ld-combobox-option][data-ld-highlighted='true'],
+  .ld-context-item:focus-visible,
+  .ld-context-item:hover,
+  .ld-sidebar-link[data-ld-active='true'],
+  .ld-pager li[data-ld-active='true'] button {
+    background: Highlight;
+    color: HighlightText;
+    forced-color-adjust: none;
+  }
+
+  [data-ld-progress] {
+    background: Highlight;
+    forced-color-adjust: none;
+  }
 }
 
 
@@ -4231,6 +4392,704 @@ code.ld-code-inline {
     scroll-margin-top: 0;
   }
 }
+
+/* ==========================================================================
+   37y. Disclosure & context menu (paired with ldcss.js)
+   ========================================================================== */
+
+/* -- Disclosure: animated show/hide for any block ---------------------------
+   Grid rows animate 0fr → 1fr, so the height is never measured in JS. The
+   closed panel is also visibility:hidden (JS adds inert), so nothing inside
+   it can be tabbed to. */
+.ld-disclosure {
+  display: grid;
+  grid-template-rows: 0fr;
+  visibility: hidden;
+  transition: grid-template-rows 200ms ease, visibility 0s linear 200ms;
+}
+
+.ld-disclosure[data-ld-open='true'] {
+  grid-template-rows: 1fr;
+  visibility: visible;
+  transition: grid-template-rows 200ms ease, visibility 0s;
+}
+
+.ld-disclosure-inner {
+  min-height: 0;
+  overflow: hidden;
+}
+
+/* a trigger with a turning chevron (opt out: data-ld-icon="none") */
+.ld-disclosure-trigger {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--ld-space-2);
+}
+
+.ld-disclosure-trigger:not([data-ld-icon='none'])::after {
+  content: '';
+  width: 0.45em;
+  height: 0.45em;
+  border-right: 2px solid currentColor;
+  border-bottom: 2px solid currentColor;
+  transform: translateY(-0.12em) rotate(45deg);
+  transition: transform var(--ld-transition);
+}
+
+.ld-disclosure-trigger[aria-expanded='true']:not([data-ld-icon='none'])::after {
+  transform: translateY(0.1em) rotate(-135deg);
+}
+
+/* -- Context menu ------------------------------------------------------------ */
+.ld-context-menu {
+  position: fixed;
+  top: 0;
+  left: 0;
+  display: none;
+  min-width: 200px;
+  max-width: 320px;
+  padding: var(--ld-space-2);
+  background: var(--ld-surface);
+  border: var(--ld-border-width) solid var(--ld-border);
+  border-radius: var(--ld-radius);
+  box-shadow: var(--ld-shadow-lg);
+  z-index: var(--ld-z-popover);
+  outline: none;
+}
+
+.ld-context-menu.ld-show {
+  display: block;
+}
+
+.ld-context-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--ld-space-4);
+  width: 100%;
+  padding: var(--ld-space-2);
+  background: none;
+  border: none;
+  border-radius: calc(var(--ld-radius) / 2);
+  font-family: var(--ld-font-family);
+  font-size: var(--ld-text-sm);
+  color: var(--ld-text);
+  text-align: start;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.ld-context-item:hover,
+.ld-context-item:focus-visible {
+  background: var(--ld-surface-raised);
+  outline: none;
+}
+
+.ld-context-item:focus-visible {
+  box-shadow: inset 0 0 0 2px var(--ld-focus-ring);
+}
+
+.ld-context-item[data-ld-variant='danger'] {
+  color: var(--ld-danger);
+}
+
+.ld-context-item[aria-disabled='true'],
+.ld-context-item:disabled {
+  color: var(--ld-text-muted);
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.ld-context-shortcut {
+  margin-inline-start: auto;
+  font-family: var(--ld-font-mono);
+  font-size: var(--ld-text-xs);
+  color: var(--ld-text-muted);
+}
+
+.ld-context-separator {
+  height: 0;
+  margin: var(--ld-space-1) calc(var(--ld-space-2) * -1);
+  border-top: var(--ld-border-width) solid var(--ld-border-soft);
+}
+
+.ld-context-label {
+  padding: var(--ld-space-2) var(--ld-space-2) var(--ld-space-1);
+  font-size: var(--ld-text-xs);
+  font-weight: var(--ld-weight-bold);
+  color: var(--ld-text-muted);
+}
+
+/* the region itself: no text selection flash on touch long-press */
+[data-ld-context-menu] {
+  -webkit-touch-callout: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+
+  .ld-disclosure,
+  .ld-disclosure[data-ld-open='true'] {
+    transition: none;
+  }
+}
+
+
+/* ==========================================================================
+   37z. Toast extras & notification centre (paired with ldcss.js)
+   ========================================================================== */
+
+.ld-toast {
+  position: relative;
+  overflow: hidden;
+}
+
+.ld-toast-title {
+  font-weight: var(--ld-weight-bold);
+  margin-bottom: 2px;
+}
+
+.ld-toast-actions {
+  display: flex;
+  gap: var(--ld-space-2);
+  margin-top: var(--ld-space-2);
+}
+
+.ld-toast[data-ld-variant='warning'] {
+  border-left: var(--ld-border-width) solid var(--ld-warning);
+}
+
+.ld-toast[data-ld-variant='info'] {
+  border-left: var(--ld-border-width) solid var(--ld-info);
+}
+
+.ld-toast-leaving {
+  animation: ld-toast-out 160ms ease forwards;
+}
+
+@keyframes ld-toast-out {
+  to {
+    transform: translateX(8px);
+    opacity: 0;
+  }
+}
+
+/* countdown bar; hovering/focusing a toast pauses the timer, so pause this too */
+.ld-toast-progress {
+  position: absolute;
+  inset: auto 0 0 0;
+  height: 3px;
+  background: var(--ld-accent);
+  transform-origin: left;
+  animation: ld-toast-countdown linear forwards;
+}
+
+.ld-toast[data-ld-variant='danger'] .ld-toast-progress {
+  background: var(--ld-danger);
+}
+
+.ld-toast[data-ld-paused='true'] .ld-toast-progress {
+  animation-play-state: paused;
+}
+
+@keyframes ld-toast-countdown {
+  from {
+    transform: scaleX(1);
+  }
+
+  to {
+    transform: scaleX(0);
+  }
+}
+
+/* -- Notification centre ----------------------------------------------------- */
+.ld-nc {
+  display: flex;
+  flex-direction: column;
+  width: min(24rem, calc(100vw - 2rem));
+  max-height: min(28rem, 70vh);
+  outline: none;
+}
+
+.ld-nc-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--ld-space-3);
+  padding: var(--ld-space-2) var(--ld-space-3);
+  border-bottom: var(--ld-border-width) solid var(--ld-border-soft);
+}
+
+.ld-nc-tools {
+  display: flex;
+  gap: var(--ld-space-1);
+}
+
+.ld-nc-list {
+  list-style: none;
+  margin: 0;
+  padding: var(--ld-space-1);
+  overflow-y: auto;
+}
+
+.ld-nc-item {
+  display: flex;
+  align-items: flex-start;
+  border-radius: calc(var(--ld-radius) / 2);
+}
+
+.ld-nc-item:hover {
+  background: var(--ld-surface-raised);
+}
+
+.ld-nc-main {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--ld-space-2);
+  flex: 1;
+  min-width: 0;
+  padding: var(--ld-space-2) var(--ld-space-2);
+  background: none;
+  border: none;
+  font: inherit;
+  color: inherit;
+  text-align: start;
+  cursor: pointer;
+}
+
+.ld-nc-dot {
+  flex: none;
+  width: 8px;
+  height: 8px;
+  margin-top: 0.4em;
+  border-radius: 50%;
+  background: transparent;
+}
+
+.ld-nc-item[data-ld-unread='true'] .ld-nc-dot {
+  background: var(--ld-accent);
+}
+
+.ld-nc-item[data-ld-variant='danger'][data-ld-unread='true'] .ld-nc-dot {
+  background: var(--ld-danger);
+}
+
+.ld-nc-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+  font-size: var(--ld-text-sm);
+}
+
+.ld-nc-title {
+  font-weight: var(--ld-weight-bold);
+}
+
+.ld-nc-item:not([data-ld-unread='true']) .ld-nc-title {
+  font-weight: var(--ld-weight-medium);
+}
+
+.ld-nc-message {
+  color: var(--ld-text-muted);
+  overflow-wrap: anywhere;
+}
+
+.ld-nc-time {
+  font-size: var(--ld-text-xs);
+  color: var(--ld-text-muted);
+}
+
+.ld-nc-dismiss {
+  flex: none;
+  align-self: flex-start;
+  min-width: 28px;
+  min-height: 28px;
+  margin: var(--ld-space-1);
+  background: none;
+  border: none;
+  border-radius: calc(var(--ld-radius) / 2);
+  color: var(--ld-text-muted);
+  font-size: var(--ld-text-lg);
+  line-height: 1;
+  cursor: pointer;
+}
+
+.ld-nc-dismiss:hover {
+  color: var(--ld-text);
+  background: var(--ld-surface-raised);
+}
+
+.ld-nc-empty {
+  margin: 0;
+  padding: var(--ld-space-6) var(--ld-space-4);
+  text-align: center;
+  font-size: var(--ld-text-sm);
+  color: var(--ld-text-muted);
+}
+
+@media (prefers-reduced-motion: reduce) {
+
+  .ld-toast-progress,
+  .ld-toast-leaving {
+    animation: none;
+  }
+}
+
+
+/* ==========================================================================
+   37za. Resizable panels (paired with ldcss.js)
+   Give the container a height (vertical layouts need one) — panels share
+   whatever room the handles leave, as flex ratios.
+   ========================================================================== */
+
+.ld-resizable {
+  display: flex;
+  width: 100%;
+  min-height: 0;
+  border: var(--ld-border-width) solid var(--ld-border-soft);
+  border-radius: var(--ld-radius);
+  overflow: hidden;
+}
+
+.ld-resizable[data-ld-direction='vertical'] {
+  flex-direction: column;
+}
+
+.ld-panel {
+  flex: 1 1 0%;
+  min-width: 0;
+  min-height: 0;
+  overflow: auto;
+}
+
+/* 9px hit area with a 1px line in the middle; the line thickens and turns
+   accent on hover, focus and while dragging (no glow) */
+.ld-resize-handle {
+  position: relative;
+  flex: none;
+  width: 9px;
+  background: var(--ld-surface);
+  cursor: col-resize;
+  touch-action: none;
+  user-select: none;
+  outline-offset: -2px;
+}
+
+.ld-resize-handle::before {
+  content: '';
+  position: absolute;
+  inset-block: 0;
+  inset-inline-start: 50%;
+  width: 1px;
+  transform: translateX(-50%);
+  background: var(--ld-border);
+  transition: width var(--ld-transition), background var(--ld-transition);
+}
+
+.ld-resize-handle:hover::before,
+.ld-resize-handle:focus-visible::before,
+.ld-resizable[data-ld-resizing='true'] > .ld-resize-handle::before {
+  width: 3px;
+  background: var(--ld-accent);
+}
+
+.ld-resizable[data-ld-direction='vertical'] > .ld-resize-handle {
+  width: auto;
+  height: 9px;
+  cursor: row-resize;
+}
+
+.ld-resizable[data-ld-direction='vertical'] > .ld-resize-handle::before {
+  inset-block: auto;
+  inset-inline: 0;
+  inset-block-start: 50%;
+  width: auto;
+  height: 1px;
+  transform: translateY(-50%);
+  transition: height var(--ld-transition), background var(--ld-transition);
+}
+
+.ld-resizable[data-ld-direction='vertical'] > .ld-resize-handle:hover::before,
+.ld-resizable[data-ld-direction='vertical'] > .ld-resize-handle:focus-visible::before,
+.ld-resizable[data-ld-direction='vertical'][data-ld-resizing='true'] > .ld-resize-handle::before {
+  width: auto;
+  height: 3px;
+}
+
+/* while dragging: keep the resize cursor everywhere and stop text selection */
+html.ld-resizing {
+  cursor: col-resize;
+  user-select: none;
+}
+
+html.ld-resizing[data-ld-resize-axis='vertical'] {
+  cursor: row-resize;
+}
+
+html.ld-resizing iframe {
+  pointer-events: none;
+}
+
+@media (forced-colors: active) {
+  .ld-resize-handle::before {
+    background: CanvasText;
+  }
+
+  .ld-resize-handle:hover::before,
+  .ld-resize-handle:focus-visible::before {
+    background: Highlight;
+  }
+}
+
+
+/* ==========================================================================
+   37zb. Easy tables — table[data-ld-table] (paired with ldcss.js)
+   ========================================================================== */
+
+.ld-table-shell {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ld-space-3);
+}
+
+.ld-table-wrap {
+  overflow-x: auto;
+  border: var(--ld-border-width) solid var(--ld-border-soft);
+  border-radius: var(--ld-radius);
+}
+
+.ld-table-wrap > .ld-table {
+  margin: 0;
+}
+
+.ld-table-wrap > .ld-table tbody tr:last-child td,
+.ld-table-wrap > .ld-table tbody tr:last-child th {
+  border-bottom: 0;
+}
+
+.ld-table tbody tr[hidden] {
+  display: none;
+}
+
+.ld-table-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--ld-space-3);
+}
+
+.ld-table-toolbar .ld-input {
+  max-width: 20rem;
+}
+
+.ld-table-footer {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--ld-space-3);
+  font-size: var(--ld-text-sm);
+  color: var(--ld-text-muted);
+}
+
+.ld-table-footer-right {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--ld-space-3);
+}
+
+/* sort buttons fill the header cell and look like the header text */
+.ld-sort-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--ld-space-1);
+  padding: 0;
+  background: none;
+  border: none;
+  font: inherit;
+  letter-spacing: inherit;
+  text-transform: inherit;
+  color: inherit;
+  cursor: pointer;
+}
+
+.ld-sort-btn:hover {
+  color: var(--ld-text);
+}
+
+.ld-table th[data-ld-sort] .ld-sort-btn::after {
+  content: '↕';
+  opacity: 0.4;
+}
+
+.ld-table th[data-ld-sort][data-ld-sort-dir='asc'] .ld-sort-btn::after {
+  content: '↑';
+  opacity: 1;
+  color: var(--ld-accent);
+}
+
+.ld-table th[data-ld-sort][data-ld-sort-dir='desc'] .ld-sort-btn::after {
+  content: '↓';
+  opacity: 1;
+  color: var(--ld-accent);
+}
+
+/* the framework's own th::after arrow is replaced by the one in the button */
+.ld-table th[data-ld-sort]:has(.ld-sort-btn)::after {
+  content: none;
+}
+
+.ld-table th.ld-table-select,
+.ld-table td.ld-table-select {
+  width: 1%;
+  padding-inline-end: 0;
+}
+
+.ld-table tbody tr[data-ld-selected] {
+  background: color-mix(in srgb, var(--ld-accent) 12%, transparent);
+}
+
+.ld-table tbody tr[data-ld-table-empty] td {
+  padding: var(--ld-space-6) var(--ld-space-4);
+  text-align: center;
+  color: var(--ld-text-muted);
+}
+
+/* pager: same look as .ld-pagination, separate class so the two never fight */
+.ld-pager {
+  display: flex;
+  gap: var(--ld-space-1);
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.ld-pager button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 32px;
+  height: 32px;
+  padding: 0 var(--ld-space-2);
+  border: var(--ld-border-width) solid var(--ld-border-soft);
+  border-radius: calc(var(--ld-radius) / 2);
+  background: var(--ld-surface);
+  color: var(--ld-text);
+  font-family: var(--ld-font-family);
+  font-size: var(--ld-text-sm);
+  cursor: pointer;
+}
+
+.ld-pager button:hover:not(:disabled) {
+  background: var(--ld-surface-raised);
+}
+
+.ld-pager li[data-ld-active='true'] button {
+  background: var(--ld-accent);
+  border-color: var(--ld-accent);
+  color: var(--ld-accent-text);
+}
+
+.ld-pager button:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.ld-pager-gap {
+  display: inline-flex;
+  align-items: center;
+  padding: 0 var(--ld-space-1);
+}
+
+
+/* ==========================================================================
+   37zc. Search bar — ld-search / [data-ld-search] (paired with ldcss.js)
+   ========================================================================== */
+
+.ld-search {
+  position: relative;
+  display: block;
+}
+
+.ld-search .ld-input {
+  padding-inline-start: calc(var(--ld-space-3) + 1.25rem);
+  padding-inline-end: calc(var(--ld-space-3) + 1.5rem);
+}
+
+/* magnifier drawn with borders, so it follows currentColor and needs no icon font */
+.ld-search-icon {
+  position: absolute;
+  inset-inline-start: var(--ld-space-3);
+  top: 50%;
+  width: 0.7rem;
+  height: 0.7rem;
+  margin-top: -0.45rem;
+  border: 2px solid var(--ld-text-muted);
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+.ld-search-icon::after {
+  content: '';
+  position: absolute;
+  inset-inline-end: -0.38rem;
+  bottom: -0.3rem;
+  width: 2px;
+  height: 0.38rem;
+  background: var(--ld-text-muted);
+  transform: rotate(-45deg);
+}
+
+.ld-search-clear {
+  position: absolute;
+  inset-inline-end: var(--ld-space-2);
+  top: 50%;
+  min-width: 28px;
+  min-height: 28px;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  border-radius: calc(var(--ld-radius) / 2);
+  color: var(--ld-text-muted);
+  font-size: var(--ld-text-lg);
+  line-height: 1;
+  cursor: pointer;
+}
+
+.ld-search-clear:hover {
+  color: var(--ld-text);
+  background: var(--ld-surface-raised);
+}
+
+.ld-search-clear[hidden] {
+  display: none;
+}
+
+/* the shortcut hint sits where the clear button goes; typing swaps them */
+.ld-search-kbd {
+  position: absolute;
+  inset-inline-end: var(--ld-space-3);
+  top: 50%;
+  transform: translateY(-50%);
+  pointer-events: none;
+}
+
+.ld-search:focus-within .ld-search-kbd,
+.ld-search-clear:not([hidden]) ~ .ld-search-kbd {
+  display: none;
+}
+
+.ld-search input[type='search']::-webkit-search-decoration,
+.ld-search input[type='search']::-webkit-search-cancel-button {
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+[data-ld-search-empty][hidden] {
+  display: none;
+}
+
 
 }
 
@@ -6780,6 +7639,1857 @@ code.ld-code-inline {
 }
 
 
+/* generated by utilities/s38q-sizing-flex-grid-transitions.gen.mjs */
+/* ==========================================================================
+   38q. Sizing, flex, grid & transition utilities (generated)
+   w/h/min/max/size · grow/shrink/basis/content/place · cols/rows/span/start/
+   end/flow/auto-fit · transition/duration/delay/ease · scale/rotate/translate
+   ========================================================================== */
+
+.ld-w-auto {
+  width: auto;
+}
+
+.ld-w-full {
+  width: 100%;
+}
+
+.ld-w-screen {
+  width: 100vw;
+}
+
+.ld-w-min {
+  width: min-content;
+}
+
+.ld-w-max {
+  width: max-content;
+}
+
+.ld-w-fit {
+  width: fit-content;
+}
+
+.ld-h-auto {
+  height: auto;
+}
+
+.ld-h-full {
+  height: 100%;
+}
+
+.ld-h-screen {
+  height: 100vh;
+  height: 100dvh;
+}
+
+.ld-h-min {
+  height: min-content;
+}
+
+.ld-h-max {
+  height: max-content;
+}
+
+.ld-h-fit {
+  height: fit-content;
+}
+
+.ld-w-10 {
+  width: 10%;
+}
+
+.ld-w-20 {
+  width: 20%;
+}
+
+.ld-w-30 {
+  width: 30%;
+}
+
+.ld-w-33 {
+  width: 33%;
+}
+
+.ld-w-40 {
+  width: 40%;
+}
+
+.ld-w-60 {
+  width: 60%;
+}
+
+.ld-w-66 {
+  width: 66%;
+}
+
+.ld-w-70 {
+  width: 70%;
+}
+
+.ld-w-80 {
+  width: 80%;
+}
+
+.ld-w-90 {
+  width: 90%;
+}
+
+.ld-h-10 {
+  height: 10%;
+}
+
+.ld-h-20 {
+  height: 20%;
+}
+
+.ld-h-25 {
+  height: 25%;
+}
+
+.ld-h-30 {
+  height: 30%;
+}
+
+.ld-h-33 {
+  height: 33%;
+}
+
+.ld-h-40 {
+  height: 40%;
+}
+
+.ld-h-50 {
+  height: 50%;
+}
+
+.ld-h-60 {
+  height: 60%;
+}
+
+.ld-h-66 {
+  height: 66%;
+}
+
+.ld-h-70 {
+  height: 70%;
+}
+
+.ld-h-75 {
+  height: 75%;
+}
+
+.ld-h-80 {
+  height: 80%;
+}
+
+.ld-h-90 {
+  height: 90%;
+}
+
+.ld-h-100 {
+  height: 100%;
+}
+
+.ld-min-w-0 {
+  min-width: 0;
+}
+
+.ld-min-w-full {
+  min-width: 100%;
+}
+
+.ld-min-w-min {
+  min-width: min-content;
+}
+
+.ld-min-w-max {
+  min-width: max-content;
+}
+
+.ld-min-w-fit {
+  min-width: fit-content;
+}
+
+.ld-min-w-screen {
+  min-width: 100vw;
+}
+
+.ld-max-w-none {
+  max-width: none;
+}
+
+.ld-max-w-xs {
+  max-width: 320px;
+}
+
+.ld-max-w-2xl {
+  max-width: 1024px;
+}
+
+.ld-max-w-3xl {
+  max-width: 1280px;
+}
+
+.ld-max-w-prose {
+  max-width: 65ch;
+}
+
+.ld-max-w-min {
+  max-width: min-content;
+}
+
+.ld-max-w-max {
+  max-width: max-content;
+}
+
+.ld-max-w-fit {
+  max-width: fit-content;
+}
+
+.ld-max-w-screen {
+  max-width: 100vw;
+}
+
+.ld-min-h-0 {
+  min-height: 0;
+}
+
+.ld-min-h-full {
+  min-height: 100%;
+}
+
+.ld-min-h-screen {
+  min-height: 100vh;
+  min-height: 100dvh;
+}
+
+.ld-min-h-min {
+  min-height: min-content;
+}
+
+.ld-min-h-max {
+  min-height: max-content;
+}
+
+.ld-min-h-fit {
+  min-height: fit-content;
+}
+
+.ld-max-h-none {
+  max-height: none;
+}
+
+.ld-max-h-full {
+  max-height: 100%;
+}
+
+.ld-max-h-screen {
+  max-height: 100vh;
+}
+
+.ld-max-h-min {
+  max-height: min-content;
+}
+
+.ld-max-h-max {
+  max-height: max-content;
+}
+
+.ld-max-h-fit {
+  max-height: fit-content;
+}
+
+.ld-size-0 {
+  width: 0;
+  height: 0;
+}
+
+.ld-size-1 {
+  width: 4px;
+  height: 4px;
+}
+
+.ld-size-2 {
+  width: 8px;
+  height: 8px;
+}
+
+.ld-size-3 {
+  width: 12px;
+  height: 12px;
+}
+
+.ld-size-4 {
+  width: 16px;
+  height: 16px;
+}
+
+.ld-size-5 {
+  width: 24px;
+  height: 24px;
+}
+
+.ld-size-6 {
+  width: 32px;
+  height: 32px;
+}
+
+.ld-size-8 {
+  width: 48px;
+  height: 48px;
+}
+
+.ld-size-full {
+  width: 100%;
+  height: 100%;
+}
+
+.ld-size-auto {
+  width: auto;
+  height: auto;
+}
+
+.ld-grow {
+  flex-grow: 1;
+}
+
+.ld-grow-0 {
+  flex-grow: 0;
+}
+
+.ld-shrink {
+  flex-shrink: 1;
+}
+
+.ld-shrink-0 {
+  flex-shrink: 0;
+}
+
+.ld-flex-initial {
+  flex: 0 1 auto;
+}
+
+.ld-flex-wrap-reverse {
+  flex-wrap: wrap-reverse;
+}
+
+.ld-basis-0 {
+  flex-basis: 0px;
+}
+
+.ld-basis-auto {
+  flex-basis: auto;
+}
+
+.ld-basis-full {
+  flex-basis: 100%;
+}
+
+.ld-basis-25 {
+  flex-basis: 25%;
+}
+
+.ld-basis-33 {
+  flex-basis: 33%;
+}
+
+.ld-basis-50 {
+  flex-basis: 50%;
+}
+
+.ld-basis-66 {
+  flex-basis: 66%;
+}
+
+.ld-basis-75 {
+  flex-basis: 75%;
+}
+
+.ld-content-start {
+  align-content: flex-start;
+}
+
+.ld-content-center {
+  align-content: center;
+}
+
+.ld-content-end {
+  align-content: flex-end;
+}
+
+.ld-content-between {
+  align-content: space-between;
+}
+
+.ld-content-around {
+  align-content: space-around;
+}
+
+.ld-content-evenly {
+  align-content: space-evenly;
+}
+
+.ld-content-stretch {
+  align-content: stretch;
+}
+
+.ld-justify-items-start {
+  justify-items: start;
+}
+
+.ld-justify-self-start {
+  justify-self: start;
+}
+
+.ld-place-items-start {
+  place-items: start;
+}
+
+.ld-place-content-start {
+  place-content: start;
+}
+
+.ld-justify-items-center {
+  justify-items: center;
+}
+
+.ld-justify-self-center {
+  justify-self: center;
+}
+
+.ld-place-items-center {
+  place-items: center;
+}
+
+.ld-place-content-center {
+  place-content: center;
+}
+
+.ld-justify-items-end {
+  justify-items: end;
+}
+
+.ld-justify-self-end {
+  justify-self: end;
+}
+
+.ld-place-items-end {
+  place-items: end;
+}
+
+.ld-place-content-end {
+  place-content: end;
+}
+
+.ld-justify-items-stretch {
+  justify-items: stretch;
+}
+
+.ld-justify-self-stretch {
+  justify-self: stretch;
+}
+
+.ld-place-items-stretch {
+  place-items: stretch;
+}
+
+.ld-place-content-stretch {
+  place-content: stretch;
+}
+
+.ld-justify-self-auto {
+  justify-self: auto;
+}
+
+.ld-self-auto {
+  align-self: auto;
+}
+
+.ld-self-baseline {
+  align-self: baseline;
+}
+
+.ld-place-center {
+  place-content: center;
+  place-items: center;
+}
+
+.ld-order-0 {
+  order: 0;
+}
+
+.ld-order-none {
+  order: 0;
+}
+
+.ld-grid-cols-7 {
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+}
+
+.ld-grid-cols-8 {
+  grid-template-columns: repeat(8, minmax(0, 1fr));
+}
+
+.ld-grid-cols-9 {
+  grid-template-columns: repeat(9, minmax(0, 1fr));
+}
+
+.ld-grid-cols-10 {
+  grid-template-columns: repeat(10, minmax(0, 1fr));
+}
+
+.ld-grid-cols-11 {
+  grid-template-columns: repeat(11, minmax(0, 1fr));
+}
+
+.ld-grid-cols-12 {
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+}
+
+.ld-grid-cols-none {
+  grid-template-columns: none;
+}
+
+.ld-grid-rows-1 {
+  grid-template-rows: repeat(1, minmax(0, 1fr));
+}
+
+.ld-grid-rows-2 {
+  grid-template-rows: repeat(2, minmax(0, 1fr));
+}
+
+.ld-grid-rows-3 {
+  grid-template-rows: repeat(3, minmax(0, 1fr));
+}
+
+.ld-grid-rows-4 {
+  grid-template-rows: repeat(4, minmax(0, 1fr));
+}
+
+.ld-grid-rows-5 {
+  grid-template-rows: repeat(5, minmax(0, 1fr));
+}
+
+.ld-grid-rows-6 {
+  grid-template-rows: repeat(6, minmax(0, 1fr));
+}
+
+.ld-grid-rows-none {
+  grid-template-rows: none;
+}
+
+.ld-grid-fit-xs {
+  grid-template-columns: repeat(auto-fit, minmax(min(9rem, 100%), 1fr));
+}
+
+.ld-grid-fill-xs {
+  grid-template-columns: repeat(auto-fill, minmax(min(9rem, 100%), 1fr));
+}
+
+.ld-grid-fit-sm {
+  grid-template-columns: repeat(auto-fit, minmax(min(12rem, 100%), 1fr));
+}
+
+.ld-grid-fill-sm {
+  grid-template-columns: repeat(auto-fill, minmax(min(12rem, 100%), 1fr));
+}
+
+.ld-grid-fit-md {
+  grid-template-columns: repeat(auto-fit, minmax(min(16rem, 100%), 1fr));
+}
+
+.ld-grid-fill-md {
+  grid-template-columns: repeat(auto-fill, minmax(min(16rem, 100%), 1fr));
+}
+
+.ld-grid-fit-lg {
+  grid-template-columns: repeat(auto-fit, minmax(min(20rem, 100%), 1fr));
+}
+
+.ld-grid-fill-lg {
+  grid-template-columns: repeat(auto-fill, minmax(min(20rem, 100%), 1fr));
+}
+
+.ld-grid-fit-xl {
+  grid-template-columns: repeat(auto-fit, minmax(min(24rem, 100%), 1fr));
+}
+
+.ld-grid-fill-xl {
+  grid-template-columns: repeat(auto-fill, minmax(min(24rem, 100%), 1fr));
+}
+
+.ld-span-1 {
+  grid-column: span 1 / span 1;
+}
+
+.ld-span-2 {
+  grid-column: span 2 / span 2;
+}
+
+.ld-span-3 {
+  grid-column: span 3 / span 3;
+}
+
+.ld-span-4 {
+  grid-column: span 4 / span 4;
+}
+
+.ld-span-5 {
+  grid-column: span 5 / span 5;
+}
+
+.ld-span-6 {
+  grid-column: span 6 / span 6;
+}
+
+.ld-span-7 {
+  grid-column: span 7 / span 7;
+}
+
+.ld-span-8 {
+  grid-column: span 8 / span 8;
+}
+
+.ld-span-9 {
+  grid-column: span 9 / span 9;
+}
+
+.ld-span-10 {
+  grid-column: span 10 / span 10;
+}
+
+.ld-span-11 {
+  grid-column: span 11 / span 11;
+}
+
+.ld-span-12 {
+  grid-column: span 12 / span 12;
+}
+
+.ld-span-full {
+  grid-column: 1 / -1;
+}
+
+.ld-col-start-1 {
+  grid-column-start: 1;
+}
+
+.ld-col-end-1 {
+  grid-column-end: 1;
+}
+
+.ld-col-start-2 {
+  grid-column-start: 2;
+}
+
+.ld-col-end-2 {
+  grid-column-end: 2;
+}
+
+.ld-col-start-3 {
+  grid-column-start: 3;
+}
+
+.ld-col-end-3 {
+  grid-column-end: 3;
+}
+
+.ld-col-start-4 {
+  grid-column-start: 4;
+}
+
+.ld-col-end-4 {
+  grid-column-end: 4;
+}
+
+.ld-col-start-5 {
+  grid-column-start: 5;
+}
+
+.ld-col-end-5 {
+  grid-column-end: 5;
+}
+
+.ld-col-start-6 {
+  grid-column-start: 6;
+}
+
+.ld-col-end-6 {
+  grid-column-end: 6;
+}
+
+.ld-col-start-7 {
+  grid-column-start: 7;
+}
+
+.ld-col-end-7 {
+  grid-column-end: 7;
+}
+
+.ld-col-start-8 {
+  grid-column-start: 8;
+}
+
+.ld-col-end-8 {
+  grid-column-end: 8;
+}
+
+.ld-col-start-9 {
+  grid-column-start: 9;
+}
+
+.ld-col-end-9 {
+  grid-column-end: 9;
+}
+
+.ld-col-start-10 {
+  grid-column-start: 10;
+}
+
+.ld-col-end-10 {
+  grid-column-end: 10;
+}
+
+.ld-col-start-11 {
+  grid-column-start: 11;
+}
+
+.ld-col-end-11 {
+  grid-column-end: 11;
+}
+
+.ld-col-start-12 {
+  grid-column-start: 12;
+}
+
+.ld-col-end-12 {
+  grid-column-end: 12;
+}
+
+.ld-col-start-13 {
+  grid-column-start: 13;
+}
+
+.ld-col-end-13 {
+  grid-column-end: 13;
+}
+
+.ld-row-span-1 {
+  grid-row: span 1 / span 1;
+}
+
+.ld-row-span-2 {
+  grid-row: span 2 / span 2;
+}
+
+.ld-row-span-3 {
+  grid-row: span 3 / span 3;
+}
+
+.ld-row-span-4 {
+  grid-row: span 4 / span 4;
+}
+
+.ld-row-span-5 {
+  grid-row: span 5 / span 5;
+}
+
+.ld-row-span-6 {
+  grid-row: span 6 / span 6;
+}
+
+.ld-row-span-full {
+  grid-row: 1 / -1;
+}
+
+.ld-grid-flow-row {
+  grid-auto-flow: row;
+}
+
+.ld-grid-flow-col {
+  grid-auto-flow: column;
+}
+
+.ld-grid-flow-dense {
+  grid-auto-flow: dense;
+}
+
+.ld-grid-flow-row-dense {
+  grid-auto-flow: row dense;
+}
+
+.ld-grid-flow-col-dense {
+  grid-auto-flow: column dense;
+}
+
+.ld-auto-rows-auto {
+  grid-auto-rows: auto;
+}
+
+.ld-auto-cols-auto {
+  grid-auto-columns: auto;
+}
+
+.ld-auto-rows-min {
+  grid-auto-rows: min-content;
+}
+
+.ld-auto-cols-min {
+  grid-auto-columns: min-content;
+}
+
+.ld-auto-rows-max {
+  grid-auto-rows: max-content;
+}
+
+.ld-auto-cols-max {
+  grid-auto-columns: max-content;
+}
+
+.ld-auto-rows-fr {
+  grid-auto-rows: minmax(0, 1fr);
+}
+
+.ld-auto-cols-fr {
+  grid-auto-columns: minmax(0, 1fr);
+}
+
+.ld-transition {
+  transition-property: color, background-color, border-color, text-decoration-color, fill, stroke, opacity, box-shadow, transform, translate, scale, rotate;
+  transition-duration: var(--ld-transition-duration, 150ms);
+  transition-timing-function: var(--ld-transition-ease, ease);
+}
+
+.ld-transition-colors {
+  transition-property: color, background-color, border-color, text-decoration-color, fill, stroke;
+  transition-duration: var(--ld-transition-duration, 150ms);
+  transition-timing-function: var(--ld-transition-ease, ease);
+}
+
+.ld-transition-opacity {
+  transition-property: opacity;
+  transition-duration: var(--ld-transition-duration, 150ms);
+  transition-timing-function: var(--ld-transition-ease, ease);
+}
+
+.ld-transition-shadow {
+  transition-property: box-shadow;
+  transition-duration: var(--ld-transition-duration, 150ms);
+  transition-timing-function: var(--ld-transition-ease, ease);
+}
+
+.ld-transition-transform {
+  transition-property: transform, translate, scale, rotate;
+  transition-duration: var(--ld-transition-duration, 150ms);
+  transition-timing-function: var(--ld-transition-ease, ease);
+}
+
+.ld-transition-all {
+  transition-property: all;
+  transition-duration: var(--ld-transition-duration, 150ms);
+  transition-timing-function: var(--ld-transition-ease, ease);
+}
+
+.ld-transition-none {
+  transition-property: none;
+}
+
+.ld-duration-0 {
+  --ld-transition-duration: 0ms;
+  transition-duration: 0ms;
+}
+
+.ld-delay-0 {
+  transition-delay: 0ms;
+}
+
+.ld-duration-75 {
+  --ld-transition-duration: 75ms;
+  transition-duration: 75ms;
+}
+
+.ld-delay-75 {
+  transition-delay: 75ms;
+}
+
+.ld-duration-100 {
+  --ld-transition-duration: 100ms;
+  transition-duration: 100ms;
+}
+
+.ld-delay-100 {
+  transition-delay: 100ms;
+}
+
+.ld-duration-150 {
+  --ld-transition-duration: 150ms;
+  transition-duration: 150ms;
+}
+
+.ld-delay-150 {
+  transition-delay: 150ms;
+}
+
+.ld-duration-200 {
+  --ld-transition-duration: 200ms;
+  transition-duration: 200ms;
+}
+
+.ld-delay-200 {
+  transition-delay: 200ms;
+}
+
+.ld-duration-300 {
+  --ld-transition-duration: 300ms;
+  transition-duration: 300ms;
+}
+
+.ld-delay-300 {
+  transition-delay: 300ms;
+}
+
+.ld-duration-500 {
+  --ld-transition-duration: 500ms;
+  transition-duration: 500ms;
+}
+
+.ld-delay-500 {
+  transition-delay: 500ms;
+}
+
+.ld-duration-700 {
+  --ld-transition-duration: 700ms;
+  transition-duration: 700ms;
+}
+
+.ld-delay-700 {
+  transition-delay: 700ms;
+}
+
+.ld-duration-1000 {
+  --ld-transition-duration: 1000ms;
+  transition-duration: 1000ms;
+}
+
+.ld-delay-1000 {
+  transition-delay: 1000ms;
+}
+
+.ld-ease-linear {
+  --ld-transition-ease: linear;
+  transition-timing-function: linear;
+}
+
+.ld-ease-in {
+  --ld-transition-ease: cubic-bezier(0.4, 0, 1, 1);
+  transition-timing-function: cubic-bezier(0.4, 0, 1, 1);
+}
+
+.ld-ease-out {
+  --ld-transition-ease: cubic-bezier(0, 0, 0.2, 1);
+  transition-timing-function: cubic-bezier(0, 0, 0.2, 1);
+}
+
+.ld-ease-in-out {
+  --ld-transition-ease: cubic-bezier(0.4, 0, 0.2, 1);
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.ld-scale-0 {
+  scale: 0;
+}
+
+.ld-scale-50 {
+  scale: 0.5;
+}
+
+.ld-scale-75 {
+  scale: 0.75;
+}
+
+.ld-scale-90 {
+  scale: 0.9;
+}
+
+.ld-scale-95 {
+  scale: 0.95;
+}
+
+.ld-scale-100 {
+  scale: 1;
+}
+
+.ld-scale-105 {
+  scale: 1.05;
+}
+
+.ld-scale-110 {
+  scale: 1.1;
+}
+
+.ld-scale-125 {
+  scale: 1.25;
+}
+
+.ld-scale-150 {
+  scale: 1.5;
+}
+
+.ld-rotate-0 {
+  rotate: 0deg;
+}
+
+.ld-rotate-1 {
+  rotate: 1deg;
+}
+
+.ld-rotate-n1 {
+  rotate: -1deg;
+}
+
+.ld-rotate-2 {
+  rotate: 2deg;
+}
+
+.ld-rotate-n2 {
+  rotate: -2deg;
+}
+
+.ld-rotate-3 {
+  rotate: 3deg;
+}
+
+.ld-rotate-n3 {
+  rotate: -3deg;
+}
+
+.ld-rotate-6 {
+  rotate: 6deg;
+}
+
+.ld-rotate-n6 {
+  rotate: -6deg;
+}
+
+.ld-rotate-12 {
+  rotate: 12deg;
+}
+
+.ld-rotate-n12 {
+  rotate: -12deg;
+}
+
+.ld-rotate-45 {
+  rotate: 45deg;
+}
+
+.ld-rotate-n45 {
+  rotate: -45deg;
+}
+
+.ld-rotate-90 {
+  rotate: 90deg;
+}
+
+.ld-rotate-n90 {
+  rotate: -90deg;
+}
+
+.ld-rotate-180 {
+  rotate: 180deg;
+}
+
+.ld-rotate-n180 {
+  rotate: -180deg;
+}
+
+.ld-translate-x-0 {
+  --ld-tx: 0;
+  translate: var(--ld-tx, 0) var(--ld-ty, 0);
+}
+
+.ld-translate-y-0 {
+  --ld-ty: 0;
+  translate: var(--ld-tx, 0) var(--ld-ty, 0);
+}
+
+.ld-translate-x-1 {
+  --ld-tx: 4px;
+  translate: var(--ld-tx, 0) var(--ld-ty, 0);
+}
+
+.ld-translate-y-1 {
+  --ld-ty: 4px;
+  translate: var(--ld-tx, 0) var(--ld-ty, 0);
+}
+
+.ld-translate-x-n1 {
+  --ld-tx: -4px;
+  translate: var(--ld-tx, 0) var(--ld-ty, 0);
+}
+
+.ld-translate-y-n1 {
+  --ld-ty: -4px;
+  translate: var(--ld-tx, 0) var(--ld-ty, 0);
+}
+
+.ld-translate-x-2 {
+  --ld-tx: 8px;
+  translate: var(--ld-tx, 0) var(--ld-ty, 0);
+}
+
+.ld-translate-y-2 {
+  --ld-ty: 8px;
+  translate: var(--ld-tx, 0) var(--ld-ty, 0);
+}
+
+.ld-translate-x-n2 {
+  --ld-tx: -8px;
+  translate: var(--ld-tx, 0) var(--ld-ty, 0);
+}
+
+.ld-translate-y-n2 {
+  --ld-ty: -8px;
+  translate: var(--ld-tx, 0) var(--ld-ty, 0);
+}
+
+.ld-translate-x-3 {
+  --ld-tx: 12px;
+  translate: var(--ld-tx, 0) var(--ld-ty, 0);
+}
+
+.ld-translate-y-3 {
+  --ld-ty: 12px;
+  translate: var(--ld-tx, 0) var(--ld-ty, 0);
+}
+
+.ld-translate-x-n3 {
+  --ld-tx: -12px;
+  translate: var(--ld-tx, 0) var(--ld-ty, 0);
+}
+
+.ld-translate-y-n3 {
+  --ld-ty: -12px;
+  translate: var(--ld-tx, 0) var(--ld-ty, 0);
+}
+
+.ld-translate-x-4 {
+  --ld-tx: 16px;
+  translate: var(--ld-tx, 0) var(--ld-ty, 0);
+}
+
+.ld-translate-y-4 {
+  --ld-ty: 16px;
+  translate: var(--ld-tx, 0) var(--ld-ty, 0);
+}
+
+.ld-translate-x-n4 {
+  --ld-tx: -16px;
+  translate: var(--ld-tx, 0) var(--ld-ty, 0);
+}
+
+.ld-translate-y-n4 {
+  --ld-ty: -16px;
+  translate: var(--ld-tx, 0) var(--ld-ty, 0);
+}
+
+.ld-translate-x-5 {
+  --ld-tx: 24px;
+  translate: var(--ld-tx, 0) var(--ld-ty, 0);
+}
+
+.ld-translate-y-5 {
+  --ld-ty: 24px;
+  translate: var(--ld-tx, 0) var(--ld-ty, 0);
+}
+
+.ld-translate-x-n5 {
+  --ld-tx: -24px;
+  translate: var(--ld-tx, 0) var(--ld-ty, 0);
+}
+
+.ld-translate-y-n5 {
+  --ld-ty: -24px;
+  translate: var(--ld-tx, 0) var(--ld-ty, 0);
+}
+
+.ld-translate-x-6 {
+  --ld-tx: 32px;
+  translate: var(--ld-tx, 0) var(--ld-ty, 0);
+}
+
+.ld-translate-y-6 {
+  --ld-ty: 32px;
+  translate: var(--ld-tx, 0) var(--ld-ty, 0);
+}
+
+.ld-translate-x-n6 {
+  --ld-tx: -32px;
+  translate: var(--ld-tx, 0) var(--ld-ty, 0);
+}
+
+.ld-translate-y-n6 {
+  --ld-ty: -32px;
+  translate: var(--ld-tx, 0) var(--ld-ty, 0);
+}
+
+.ld-translate-x-8 {
+  --ld-tx: 48px;
+  translate: var(--ld-tx, 0) var(--ld-ty, 0);
+}
+
+.ld-translate-y-8 {
+  --ld-ty: 48px;
+  translate: var(--ld-tx, 0) var(--ld-ty, 0);
+}
+
+.ld-translate-x-n8 {
+  --ld-tx: -48px;
+  translate: var(--ld-tx, 0) var(--ld-ty, 0);
+}
+
+.ld-translate-y-n8 {
+  --ld-ty: -48px;
+  translate: var(--ld-tx, 0) var(--ld-ty, 0);
+}
+
+.ld-translate-x-full {
+  --ld-tx: 100%;
+  translate: var(--ld-tx, 0) var(--ld-ty, 0);
+}
+
+.ld-translate-y-full {
+  --ld-ty: 100%;
+  translate: var(--ld-tx, 0) var(--ld-ty, 0);
+}
+
+.ld-translate-x-nfull {
+  --ld-tx: -100%;
+  translate: var(--ld-tx, 0) var(--ld-ty, 0);
+}
+
+.ld-translate-y-nfull {
+  --ld-ty: -100%;
+  translate: var(--ld-tx, 0) var(--ld-ty, 0);
+}
+
+.ld-origin-center {
+  transform-origin: center;
+}
+
+.ld-origin-top {
+  transform-origin: top;
+}
+
+.ld-origin-bottom {
+  transform-origin: bottom;
+}
+
+.ld-origin-left {
+  transform-origin: left;
+}
+
+.ld-origin-right {
+  transform-origin: right;
+}
+
+.ld-will-change-transform {
+  will-change: transform;
+}
+
+.ld-will-change-opacity {
+  will-change: opacity;
+}
+
+@media (min-width: 640px) {
+  .ld-sm\:w-auto {
+  width: auto;
+}
+  .ld-sm\:w-full {
+  width: 100%;
+}
+  .ld-sm\:w-33 {
+  width: 33%;
+}
+  .ld-sm\:w-66 {
+  width: 66%;
+}
+  .ld-sm\:grow {
+  flex-grow: 1;
+}
+  .ld-sm\:grow-0 {
+  flex-grow: 0;
+}
+  .ld-sm\:shrink {
+  flex-shrink: 1;
+}
+  .ld-sm\:shrink-0 {
+  flex-shrink: 0;
+}
+  .ld-sm\:basis-0 {
+  flex-basis: 0px;
+}
+  .ld-sm\:basis-auto {
+  flex-basis: auto;
+}
+  .ld-sm\:basis-full {
+  flex-basis: 100%;
+}
+  .ld-sm\:basis-25 {
+  flex-basis: 25%;
+}
+  .ld-sm\:basis-33 {
+  flex-basis: 33%;
+}
+  .ld-sm\:basis-50 {
+  flex-basis: 50%;
+}
+  .ld-sm\:basis-66 {
+  flex-basis: 66%;
+}
+  .ld-sm\:basis-75 {
+  flex-basis: 75%;
+}
+  .ld-sm\:order-0 {
+  order: 0;
+}
+  .ld-sm\:order-none {
+  order: 0;
+}
+  .ld-sm\:grid-cols-7 {
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+}
+  .ld-sm\:grid-cols-8 {
+  grid-template-columns: repeat(8, minmax(0, 1fr));
+}
+  .ld-sm\:grid-cols-9 {
+  grid-template-columns: repeat(9, minmax(0, 1fr));
+}
+  .ld-sm\:grid-cols-10 {
+  grid-template-columns: repeat(10, minmax(0, 1fr));
+}
+  .ld-sm\:grid-cols-11 {
+  grid-template-columns: repeat(11, minmax(0, 1fr));
+}
+  .ld-sm\:grid-cols-12 {
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+}
+  .ld-sm\:grid-cols-none {
+  grid-template-columns: none;
+}
+  .ld-sm\:grid-fit-xs {
+  grid-template-columns: repeat(auto-fit, minmax(min(9rem, 100%), 1fr));
+}
+  .ld-sm\:grid-fill-xs {
+  grid-template-columns: repeat(auto-fill, minmax(min(9rem, 100%), 1fr));
+}
+  .ld-sm\:grid-fit-sm {
+  grid-template-columns: repeat(auto-fit, minmax(min(12rem, 100%), 1fr));
+}
+  .ld-sm\:grid-fill-sm {
+  grid-template-columns: repeat(auto-fill, minmax(min(12rem, 100%), 1fr));
+}
+  .ld-sm\:grid-fit-md {
+  grid-template-columns: repeat(auto-fit, minmax(min(16rem, 100%), 1fr));
+}
+  .ld-sm\:grid-fill-md {
+  grid-template-columns: repeat(auto-fill, minmax(min(16rem, 100%), 1fr));
+}
+  .ld-sm\:grid-fit-lg {
+  grid-template-columns: repeat(auto-fit, minmax(min(20rem, 100%), 1fr));
+}
+  .ld-sm\:grid-fill-lg {
+  grid-template-columns: repeat(auto-fill, minmax(min(20rem, 100%), 1fr));
+}
+  .ld-sm\:grid-fit-xl {
+  grid-template-columns: repeat(auto-fit, minmax(min(24rem, 100%), 1fr));
+}
+  .ld-sm\:grid-fill-xl {
+  grid-template-columns: repeat(auto-fill, minmax(min(24rem, 100%), 1fr));
+}
+  .ld-sm\:span-1 {
+  grid-column: span 1 / span 1;
+}
+  .ld-sm\:span-2 {
+  grid-column: span 2 / span 2;
+}
+  .ld-sm\:span-3 {
+  grid-column: span 3 / span 3;
+}
+  .ld-sm\:span-4 {
+  grid-column: span 4 / span 4;
+}
+  .ld-sm\:span-5 {
+  grid-column: span 5 / span 5;
+}
+  .ld-sm\:span-6 {
+  grid-column: span 6 / span 6;
+}
+  .ld-sm\:span-7 {
+  grid-column: span 7 / span 7;
+}
+  .ld-sm\:span-8 {
+  grid-column: span 8 / span 8;
+}
+  .ld-sm\:span-9 {
+  grid-column: span 9 / span 9;
+}
+  .ld-sm\:span-10 {
+  grid-column: span 10 / span 10;
+}
+  .ld-sm\:span-11 {
+  grid-column: span 11 / span 11;
+}
+  .ld-sm\:span-12 {
+  grid-column: span 12 / span 12;
+}
+  .ld-sm\:span-full {
+  grid-column: 1 / -1;
+}
+}
+
+@media (min-width: 960px) {
+  .ld-md\:w-auto {
+  width: auto;
+}
+  .ld-md\:w-full {
+  width: 100%;
+}
+  .ld-md\:w-33 {
+  width: 33%;
+}
+  .ld-md\:w-66 {
+  width: 66%;
+}
+  .ld-md\:grow {
+  flex-grow: 1;
+}
+  .ld-md\:grow-0 {
+  flex-grow: 0;
+}
+  .ld-md\:shrink {
+  flex-shrink: 1;
+}
+  .ld-md\:shrink-0 {
+  flex-shrink: 0;
+}
+  .ld-md\:basis-0 {
+  flex-basis: 0px;
+}
+  .ld-md\:basis-auto {
+  flex-basis: auto;
+}
+  .ld-md\:basis-full {
+  flex-basis: 100%;
+}
+  .ld-md\:basis-25 {
+  flex-basis: 25%;
+}
+  .ld-md\:basis-33 {
+  flex-basis: 33%;
+}
+  .ld-md\:basis-50 {
+  flex-basis: 50%;
+}
+  .ld-md\:basis-66 {
+  flex-basis: 66%;
+}
+  .ld-md\:basis-75 {
+  flex-basis: 75%;
+}
+  .ld-md\:order-0 {
+  order: 0;
+}
+  .ld-md\:order-none {
+  order: 0;
+}
+  .ld-md\:grid-cols-7 {
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+}
+  .ld-md\:grid-cols-8 {
+  grid-template-columns: repeat(8, minmax(0, 1fr));
+}
+  .ld-md\:grid-cols-9 {
+  grid-template-columns: repeat(9, minmax(0, 1fr));
+}
+  .ld-md\:grid-cols-10 {
+  grid-template-columns: repeat(10, minmax(0, 1fr));
+}
+  .ld-md\:grid-cols-11 {
+  grid-template-columns: repeat(11, minmax(0, 1fr));
+}
+  .ld-md\:grid-cols-12 {
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+}
+  .ld-md\:grid-cols-none {
+  grid-template-columns: none;
+}
+  .ld-md\:grid-fit-xs {
+  grid-template-columns: repeat(auto-fit, minmax(min(9rem, 100%), 1fr));
+}
+  .ld-md\:grid-fill-xs {
+  grid-template-columns: repeat(auto-fill, minmax(min(9rem, 100%), 1fr));
+}
+  .ld-md\:grid-fit-sm {
+  grid-template-columns: repeat(auto-fit, minmax(min(12rem, 100%), 1fr));
+}
+  .ld-md\:grid-fill-sm {
+  grid-template-columns: repeat(auto-fill, minmax(min(12rem, 100%), 1fr));
+}
+  .ld-md\:grid-fit-md {
+  grid-template-columns: repeat(auto-fit, minmax(min(16rem, 100%), 1fr));
+}
+  .ld-md\:grid-fill-md {
+  grid-template-columns: repeat(auto-fill, minmax(min(16rem, 100%), 1fr));
+}
+  .ld-md\:grid-fit-lg {
+  grid-template-columns: repeat(auto-fit, minmax(min(20rem, 100%), 1fr));
+}
+  .ld-md\:grid-fill-lg {
+  grid-template-columns: repeat(auto-fill, minmax(min(20rem, 100%), 1fr));
+}
+  .ld-md\:grid-fit-xl {
+  grid-template-columns: repeat(auto-fit, minmax(min(24rem, 100%), 1fr));
+}
+  .ld-md\:grid-fill-xl {
+  grid-template-columns: repeat(auto-fill, minmax(min(24rem, 100%), 1fr));
+}
+  .ld-md\:span-1 {
+  grid-column: span 1 / span 1;
+}
+  .ld-md\:span-2 {
+  grid-column: span 2 / span 2;
+}
+  .ld-md\:span-3 {
+  grid-column: span 3 / span 3;
+}
+  .ld-md\:span-4 {
+  grid-column: span 4 / span 4;
+}
+  .ld-md\:span-5 {
+  grid-column: span 5 / span 5;
+}
+  .ld-md\:span-6 {
+  grid-column: span 6 / span 6;
+}
+  .ld-md\:span-7 {
+  grid-column: span 7 / span 7;
+}
+  .ld-md\:span-8 {
+  grid-column: span 8 / span 8;
+}
+  .ld-md\:span-9 {
+  grid-column: span 9 / span 9;
+}
+  .ld-md\:span-10 {
+  grid-column: span 10 / span 10;
+}
+  .ld-md\:span-11 {
+  grid-column: span 11 / span 11;
+}
+  .ld-md\:span-12 {
+  grid-column: span 12 / span 12;
+}
+  .ld-md\:span-full {
+  grid-column: 1 / -1;
+}
+}
+
+@media (min-width: 1200px) {
+  .ld-lg\:w-auto {
+  width: auto;
+}
+  .ld-lg\:w-full {
+  width: 100%;
+}
+  .ld-lg\:w-33 {
+  width: 33%;
+}
+  .ld-lg\:w-66 {
+  width: 66%;
+}
+  .ld-lg\:grow {
+  flex-grow: 1;
+}
+  .ld-lg\:grow-0 {
+  flex-grow: 0;
+}
+  .ld-lg\:shrink {
+  flex-shrink: 1;
+}
+  .ld-lg\:shrink-0 {
+  flex-shrink: 0;
+}
+  .ld-lg\:basis-0 {
+  flex-basis: 0px;
+}
+  .ld-lg\:basis-auto {
+  flex-basis: auto;
+}
+  .ld-lg\:basis-full {
+  flex-basis: 100%;
+}
+  .ld-lg\:basis-25 {
+  flex-basis: 25%;
+}
+  .ld-lg\:basis-33 {
+  flex-basis: 33%;
+}
+  .ld-lg\:basis-50 {
+  flex-basis: 50%;
+}
+  .ld-lg\:basis-66 {
+  flex-basis: 66%;
+}
+  .ld-lg\:basis-75 {
+  flex-basis: 75%;
+}
+  .ld-lg\:order-0 {
+  order: 0;
+}
+  .ld-lg\:order-none {
+  order: 0;
+}
+  .ld-lg\:grid-cols-7 {
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+}
+  .ld-lg\:grid-cols-8 {
+  grid-template-columns: repeat(8, minmax(0, 1fr));
+}
+  .ld-lg\:grid-cols-9 {
+  grid-template-columns: repeat(9, minmax(0, 1fr));
+}
+  .ld-lg\:grid-cols-10 {
+  grid-template-columns: repeat(10, minmax(0, 1fr));
+}
+  .ld-lg\:grid-cols-11 {
+  grid-template-columns: repeat(11, minmax(0, 1fr));
+}
+  .ld-lg\:grid-cols-12 {
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+}
+  .ld-lg\:grid-cols-none {
+  grid-template-columns: none;
+}
+  .ld-lg\:grid-fit-xs {
+  grid-template-columns: repeat(auto-fit, minmax(min(9rem, 100%), 1fr));
+}
+  .ld-lg\:grid-fill-xs {
+  grid-template-columns: repeat(auto-fill, minmax(min(9rem, 100%), 1fr));
+}
+  .ld-lg\:grid-fit-sm {
+  grid-template-columns: repeat(auto-fit, minmax(min(12rem, 100%), 1fr));
+}
+  .ld-lg\:grid-fill-sm {
+  grid-template-columns: repeat(auto-fill, minmax(min(12rem, 100%), 1fr));
+}
+  .ld-lg\:grid-fit-md {
+  grid-template-columns: repeat(auto-fit, minmax(min(16rem, 100%), 1fr));
+}
+  .ld-lg\:grid-fill-md {
+  grid-template-columns: repeat(auto-fill, minmax(min(16rem, 100%), 1fr));
+}
+  .ld-lg\:grid-fit-lg {
+  grid-template-columns: repeat(auto-fit, minmax(min(20rem, 100%), 1fr));
+}
+  .ld-lg\:grid-fill-lg {
+  grid-template-columns: repeat(auto-fill, minmax(min(20rem, 100%), 1fr));
+}
+  .ld-lg\:grid-fit-xl {
+  grid-template-columns: repeat(auto-fit, minmax(min(24rem, 100%), 1fr));
+}
+  .ld-lg\:grid-fill-xl {
+  grid-template-columns: repeat(auto-fill, minmax(min(24rem, 100%), 1fr));
+}
+  .ld-lg\:span-1 {
+  grid-column: span 1 / span 1;
+}
+  .ld-lg\:span-2 {
+  grid-column: span 2 / span 2;
+}
+  .ld-lg\:span-3 {
+  grid-column: span 3 / span 3;
+}
+  .ld-lg\:span-4 {
+  grid-column: span 4 / span 4;
+}
+  .ld-lg\:span-5 {
+  grid-column: span 5 / span 5;
+}
+  .ld-lg\:span-6 {
+  grid-column: span 6 / span 6;
+}
+  .ld-lg\:span-7 {
+  grid-column: span 7 / span 7;
+}
+  .ld-lg\:span-8 {
+  grid-column: span 8 / span 8;
+}
+  .ld-lg\:span-9 {
+  grid-column: span 9 / span 9;
+}
+  .ld-lg\:span-10 {
+  grid-column: span 10 / span 10;
+}
+  .ld-lg\:span-11 {
+  grid-column: span 11 / span 11;
+}
+  .ld-lg\:span-12 {
+  grid-column: span 12 / span 12;
+}
+  .ld-lg\:span-full {
+  grid-column: 1 / -1;
+}
+}
+
+@media (min-width: 1440px) {
+  .ld-xl\:w-auto {
+  width: auto;
+}
+  .ld-xl\:w-full {
+  width: 100%;
+}
+  .ld-xl\:w-33 {
+  width: 33%;
+}
+  .ld-xl\:w-66 {
+  width: 66%;
+}
+  .ld-xl\:grow {
+  flex-grow: 1;
+}
+  .ld-xl\:grow-0 {
+  flex-grow: 0;
+}
+  .ld-xl\:shrink {
+  flex-shrink: 1;
+}
+  .ld-xl\:shrink-0 {
+  flex-shrink: 0;
+}
+  .ld-xl\:basis-0 {
+  flex-basis: 0px;
+}
+  .ld-xl\:basis-auto {
+  flex-basis: auto;
+}
+  .ld-xl\:basis-full {
+  flex-basis: 100%;
+}
+  .ld-xl\:basis-25 {
+  flex-basis: 25%;
+}
+  .ld-xl\:basis-33 {
+  flex-basis: 33%;
+}
+  .ld-xl\:basis-50 {
+  flex-basis: 50%;
+}
+  .ld-xl\:basis-66 {
+  flex-basis: 66%;
+}
+  .ld-xl\:basis-75 {
+  flex-basis: 75%;
+}
+  .ld-xl\:order-0 {
+  order: 0;
+}
+  .ld-xl\:order-none {
+  order: 0;
+}
+  .ld-xl\:grid-cols-7 {
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+}
+  .ld-xl\:grid-cols-8 {
+  grid-template-columns: repeat(8, minmax(0, 1fr));
+}
+  .ld-xl\:grid-cols-9 {
+  grid-template-columns: repeat(9, minmax(0, 1fr));
+}
+  .ld-xl\:grid-cols-10 {
+  grid-template-columns: repeat(10, minmax(0, 1fr));
+}
+  .ld-xl\:grid-cols-11 {
+  grid-template-columns: repeat(11, minmax(0, 1fr));
+}
+  .ld-xl\:grid-cols-12 {
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+}
+  .ld-xl\:grid-cols-none {
+  grid-template-columns: none;
+}
+  .ld-xl\:grid-fit-xs {
+  grid-template-columns: repeat(auto-fit, minmax(min(9rem, 100%), 1fr));
+}
+  .ld-xl\:grid-fill-xs {
+  grid-template-columns: repeat(auto-fill, minmax(min(9rem, 100%), 1fr));
+}
+  .ld-xl\:grid-fit-sm {
+  grid-template-columns: repeat(auto-fit, minmax(min(12rem, 100%), 1fr));
+}
+  .ld-xl\:grid-fill-sm {
+  grid-template-columns: repeat(auto-fill, minmax(min(12rem, 100%), 1fr));
+}
+  .ld-xl\:grid-fit-md {
+  grid-template-columns: repeat(auto-fit, minmax(min(16rem, 100%), 1fr));
+}
+  .ld-xl\:grid-fill-md {
+  grid-template-columns: repeat(auto-fill, minmax(min(16rem, 100%), 1fr));
+}
+  .ld-xl\:grid-fit-lg {
+  grid-template-columns: repeat(auto-fit, minmax(min(20rem, 100%), 1fr));
+}
+  .ld-xl\:grid-fill-lg {
+  grid-template-columns: repeat(auto-fill, minmax(min(20rem, 100%), 1fr));
+}
+  .ld-xl\:grid-fit-xl {
+  grid-template-columns: repeat(auto-fit, minmax(min(24rem, 100%), 1fr));
+}
+  .ld-xl\:grid-fill-xl {
+  grid-template-columns: repeat(auto-fill, minmax(min(24rem, 100%), 1fr));
+}
+  .ld-xl\:span-1 {
+  grid-column: span 1 / span 1;
+}
+  .ld-xl\:span-2 {
+  grid-column: span 2 / span 2;
+}
+  .ld-xl\:span-3 {
+  grid-column: span 3 / span 3;
+}
+  .ld-xl\:span-4 {
+  grid-column: span 4 / span 4;
+}
+  .ld-xl\:span-5 {
+  grid-column: span 5 / span 5;
+}
+  .ld-xl\:span-6 {
+  grid-column: span 6 / span 6;
+}
+  .ld-xl\:span-7 {
+  grid-column: span 7 / span 7;
+}
+  .ld-xl\:span-8 {
+  grid-column: span 8 / span 8;
+}
+  .ld-xl\:span-9 {
+  grid-column: span 9 / span 9;
+}
+  .ld-xl\:span-10 {
+  grid-column: span 10 / span 10;
+}
+  .ld-xl\:span-11 {
+  grid-column: span 11 / span 11;
+}
+  .ld-xl\:span-12 {
+  grid-column: span 12 / span 12;
+}
+  .ld-xl\:span-full {
+  grid-column: 1 / -1;
+}
+}
+
 }
 
 @layer ld.escape {
@@ -7221,6 +9931,42 @@ code.ld-code-inline {
   .ld-hover\:no-underline:hover {
     text-decoration: none;
   }
+  
+  .ld-hover\:scale-95:hover {
+    scale: 0.95;
+  }
+  
+  .ld-hover\:scale-100:hover {
+    scale: 1;
+  }
+  
+  .ld-hover\:scale-105:hover {
+    scale: 1.05;
+  }
+  
+  .ld-hover\:scale-110:hover {
+    scale: 1.1;
+  }
+  
+  .ld-hover\:translate-y-n1:hover {
+    --ld-ty: -4px;
+    translate: var(--ld-tx, 0) var(--ld-ty, 0);
+  }
+  
+  .ld-hover\:translate-y-n2:hover {
+    --ld-ty: -8px;
+    translate: var(--ld-tx, 0) var(--ld-ty, 0);
+  }
+  
+  .ld-hover\:translate-y-0:hover {
+    --ld-ty: 0;
+    translate: var(--ld-tx, 0) var(--ld-ty, 0);
+  }
+  
+  .ld-hover\:translate-x-1:hover {
+    --ld-tx: 4px;
+    translate: var(--ld-tx, 0) var(--ld-ty, 0);
+  }
 }
 
 .ld-focus\:text-muted:focus {
@@ -7326,6 +10072,22 @@ code.ld-code-inline {
 .ld-focus\:ring:focus {
   outline: 2px dashed var(--ld-focus-ring);
   outline-offset: 2px;
+}
+
+.ld-focus\:scale-95:focus {
+  scale: 0.95;
+}
+
+.ld-focus\:scale-100:focus {
+  scale: 1;
+}
+
+.ld-focus\:scale-105:focus {
+  scale: 1.05;
+}
+
+.ld-focus\:scale-110:focus {
+  scale: 1.1;
 }
 
 .ld-focus-visible\:bg-surface:focus-visible {

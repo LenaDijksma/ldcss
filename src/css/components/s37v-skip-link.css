@@ -28,3 +28,75 @@
   top: var(--ld-space-3);
 }
 
+
+/* ==========================================================================
+   Accessibility additions (v3.1.0)
+   ========================================================================== */
+
+/* WCAG 2.2 target size (2.5.8): controls that are drawn smaller than 24 x 24 px
+   keep their look but get an invisible hit area that reaches 24 px. */
+[data-ld-carousel-dot],
+.ld-tag-remove,
+[data-ld-tag-remove] {
+  position: relative;
+}
+
+[data-ld-carousel-dot]::after,
+.ld-tag-remove::after,
+[data-ld-tag-remove]::after {
+  content: '';
+  position: absolute;
+  inset: 50% auto auto 50%;
+  width: max(100%, 24px);
+  height: max(100%, 24px);
+  transform: translate(-50%, -50%);
+}
+
+.ld-toast-close,
+.ld-search-clear,
+.ld-nc-dismiss {
+  min-width: 24px;
+  min-height: 24px;
+}
+
+/* a tooltip the person dismissed with Esc stays hidden until they leave */
+[data-ld-tooltip][data-ld-tooltip-dismissed]::after {
+  display: none;
+}
+
+/* the focus indicator must survive forced-colors / Windows High Contrast */
+@media (forced-colors: active) {
+
+  .ld-input:focus,
+  .ld-textarea:focus,
+  .ld-select:focus {
+    outline: 2px solid Highlight;
+    outline-offset: 1px;
+  }
+
+  .ld-btn,
+  .ld-badge,
+  .ld-card,
+  .ld-toast,
+  .ld-context-menu,
+  [data-ld-combobox-list],
+  [data-ld-dropdown-menu] {
+    border: 1px solid CanvasText;
+  }
+
+  [data-ld-combobox-option][data-ld-highlighted='true'],
+  .ld-context-item:focus-visible,
+  .ld-context-item:hover,
+  .ld-sidebar-link[data-ld-active='true'],
+  .ld-pager li[data-ld-active='true'] button {
+    background: Highlight;
+    color: HighlightText;
+    forced-color-adjust: none;
+  }
+
+  [data-ld-progress] {
+    background: Highlight;
+    forced-color-adjust: none;
+  }
+}
+

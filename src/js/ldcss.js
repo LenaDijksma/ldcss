@@ -26,9 +26,113 @@
   var lastFocusedEl = null;
   var activeAnimationObservers = [];
 
-  function emit(el, name, detail) {
-    if (!el) return;
-    el.dispatchEvent(new CustomEvent(name, { bubbles: true, detail: detail || {} }));
+  /* Module registry — each file in src/js/modules/ adds an init function
+     here. They run once at load, from ldcss.refresh(root), and for every
+     element the mutation observer sees being added. */
+  var moduleInits = [];
+  var wildcardListeners = [];
+  var listenerRegistry = [];
+
+  /* matches + descendants: lets init functions see an added root itself */
+  function qsaSelf(root, selector) {
+    var scope = root || document;
+    var found = Array.prototype.slice.call(scope.querySelectorAll(selector));
+    if (scope.nodeType === 1 && scope.matches && scope.matches(selector)) found.unshift(scope);
+    return found;
+  }
+
+  /* Unified event dispatch. Every ldcss event is a bubbling CustomEvent named
+     ld:<component>:<event> whose detail carries what changed. Pass
+     cancelable = true for "before" events; the return value is false when a
+     listener called preventDefault(). */
+  function emit(el, name, detail, cancelable) {
+    if (!el) return true;
+    var evt = new CustomEvent(name, { bubbles: true, cancelable: !!cancelable, detail: detail || {} });
+    var notCancelled = el.dispatchEvent(evt);
+    wildcardListeners.slice().forEach(function (fn) {
+      try { fn(evt); } catch (err) { console.error('ldcss listener error', err); }
+    });
+    return notCancelled;
+  }
+
+  function fullEventName(type) {
+    return type.indexOf('ld:') === 0 ? type : 'ld:' + type;
+  }
+
+  function matchesTarget(e, selector) {
+    return !selector || (e.target && e.target.closest && e.target.closest(selector));
+  }
+
+  /* ldcss.on('modal:show', fn)               every modal
+     ldcss.on('toast:show', fn, {target:'#a'}) only inside #a
+     ldcss.on('*', fn)                          every ldcss event
+     Returns an unsubscribe function. */
+  function on(type, handler, options) {
+    options = options || {};
+    var entry = { type: type, handler: handler };
+    var listener = function (e) {
+      if (!matchesTarget(e, options.target)) return;
+      if (options.once) entry.off();
+      handler(e, e.detail);
+    };
+    if (type === '*') {
+      wildcardListeners.push(listener);
+      entry.off = function () {
+        var i = wildcardListeners.indexOf(listener);
+        if (i !== -1) wildcardListeners.splice(i, 1);
+      };
+    } else {
+      var name = fullEventName(type);
+      var root = options.root || document;
+      root.addEventListener(name, listener);
+      entry.off = function () { root.removeEventListener(name, listener); };
+    }
+    listenerRegistry.push(entry);
+    return entry.off;
+  }
+
+  function off(type, handler) {
+    listenerRegistry = listenerRegistry.filter(function (entry) {
+      if (entry.type !== type || (handler && entry.handler !== handler)) return true;
+      entry.off();
+      return false;
+    });
+  }
+
+  function once(type, handler, options) {
+    options = options || {};
+    options.once = true;
+    return on(type, handler, options);
+  }
+
+  /* Screen-reader announcements through two shared live regions. */
+  var liveRegions = {};
+  function announce(message, politeness) {
+    politeness = politeness === 'assertive' ? 'assertive' : 'polite';
+    var region = liveRegions[politeness];
+    if (!region || !region.isConnected) {
+      region = document.createElement('div');
+      region.className = 'ld-sr-only';
+      region.setAttribute('aria-live', politeness);
+      region.setAttribute('aria-atomic', 'true');
+      region.setAttribute('role', politeness === 'assertive' ? 'alert' : 'status');
+      document.body.appendChild(region);
+      liveRegions[politeness] = region;
+    }
+    // clear first so announcing the same sentence twice still triggers
+    region.textContent = '';
+    setTimeout(function () { region.textContent = message; }, 50);
+  }
+
+  function uid(prefix) {
+    uid.n = (uid.n || 0) + 1;
+    return (prefix || 'ld') + '-' + uid.n;
+  }
+
+  /* Make sure an element has an id (for aria-controls / aria-activedescendant). */
+  function ensureId(el, prefix) {
+    if (!el.id) el.id = uid(prefix);
+    return el.id;
   }
 
   /* ---------------------------------------------------------------------
@@ -158,7 +262,7 @@
      ------------------------------------------------------------------- */
 
   function initProgressBars(root) {
-    (root || document).querySelectorAll('[data-ld-progress]').forEach(function (bar) {
+    qsaSelf(root, '[data-ld-progress]').forEach(function (bar) {
       var val = parseFloat(bar.getAttribute('data-ld-value'));
       if (isNaN(val)) val = 0;
       val = Math.max(0, Math.min(100, val));
@@ -175,7 +279,7 @@
      ------------------------------------------------------------------- */
 
   function initAnimations(root) {
-    var els = (root || document).querySelectorAll('[data-ld-animate]');
+    var els = qsaSelf(root, '[data-ld-animate]');
     if (!els.length) return;
 
     var reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -217,6 +321,7 @@
         trigger.setAttribute('data-ld-original-label', original);
       }
       trigger.textContent = 'Copied';
+      announce('Copied to clipboard');
       trigger.setAttribute('data-ld-copied', 'true');
       clearTimeout(trigger._ldCopyTimeout);
       trigger._ldCopyTimeout = setTimeout(function () {
@@ -244,52 +349,7 @@
      Toast
      ------------------------------------------------------------------- */
 
-  function getToastContainer() {
-    var container = document.querySelector('.ld-toast-container');
-    if (!container) {
-      container = document.createElement('div');
-      container.className = 'ld-toast-container';
-      container.setAttribute('role', 'status');
-      container.setAttribute('aria-live', 'polite');
-      // Read the desired corner once, at creation time, from
-      // data-ld-toast-position on <body> (falls back to the default
-      // top-right if unset). Set it before the first toast fires.
-      var position = document.body.getAttribute('data-ld-toast-position');
-      if (position) container.setAttribute('data-ld-position', position);
-      document.body.appendChild(container);
-    }
-    return container;
-  }
-
-  function showToast(message, variant, duration) {
-    var container = getToastContainer();
-    var toast = document.createElement('div');
-    toast.className = 'ld-toast';
-    if (variant) toast.setAttribute('data-ld-variant', variant);
-
-    var body = document.createElement('div');
-    body.className = 'ld-toast-body';
-    body.textContent = message;
-    toast.appendChild(body);
-
-    var close = document.createElement('button');
-    close.className = 'ld-toast-close';
-    close.setAttribute('aria-label', 'Dismiss');
-    close.textContent = '×';
-    close.addEventListener('click', function () { toast.remove(); });
-    toast.appendChild(close);
-
-    container.appendChild(toast);
-    setTimeout(function () { toast.remove(); }, duration || 3000);
-    return toast;
-  }
-
-  function handleToastTrigger(trigger) {
-    var message = trigger.getAttribute('data-ld-toast-message') || 'Notification';
-    var variant = trigger.getAttribute('data-ld-toast-variant');
-    var duration = parseInt(trigger.getAttribute('data-ld-toast-duration'), 10);
-    showToast(message, variant, isNaN(duration) ? undefined : duration);
-  }
+  /* Toasts and the notification centre live in src/js/modules/40-toast-notifications.js */
 
   /* ---------------------------------------------------------------------
      Focus trap helper — shared by modal, offcanvas, command palette
@@ -626,7 +686,7 @@
   }
 
   function initPagination(root) {
-    (root || document).querySelectorAll('.ld-pagination').forEach(function (pagination) {
+    qsaSelf(root, '.ld-pagination').forEach(function (pagination) {
       if (pagination.getAttribute('data-ld-paginate')) {
         renderAutoPagination(pagination);
         return;
@@ -700,7 +760,7 @@
   }
 
   function initRatings(root) {
-    (root || document).querySelectorAll('[data-ld-rating]').forEach(function (wrapper) {
+    qsaSelf(root, '[data-ld-rating]').forEach(function (wrapper) {
       var value = parseInt(wrapper.getAttribute('data-ld-value'), 10) || 0;
       var stars = wrapper.querySelectorAll('[data-ld-star]');
       stars.forEach(function (s, i) {
@@ -836,7 +896,7 @@
   }
 
   function initSteppers(root) {
-    (root || document).querySelectorAll('[data-ld-stepper]').forEach(function (stepper) {
+    qsaSelf(root, '[data-ld-stepper]').forEach(function (stepper) {
       goToStep(stepper, currentStepIndex(stepper));
     });
   }
@@ -845,88 +905,7 @@
      Combobox / autocomplete
      ------------------------------------------------------------------- */
 
-  function getComboboxList(box) { return box.querySelector('[data-ld-combobox-list]'); }
-
-  function openCombobox(box) {
-    var list = getComboboxList(box);
-    if (list) list.classList.add('ld-show');
-  }
-
-  function closeCombobox(box) {
-    var list = getComboboxList(box);
-    if (list) {
-      list.classList.remove('ld-show');
-      list.querySelectorAll('[data-ld-combobox-option]').forEach(function (o) {
-        o.removeAttribute('data-ld-highlighted');
-      });
-    }
-  }
-
-  function closeAllComboboxes(except) {
-    document.querySelectorAll('[data-ld-combobox]').forEach(function (box) {
-      if (box !== except) closeCombobox(box);
-    });
-  }
-
-  function filterCombobox(box, query) {
-    var list = getComboboxList(box);
-    var empty = box.querySelector('[data-ld-combobox-empty]');
-    if (!list) return;
-    var q = query.trim().toLowerCase();
-    var visible = 0;
-    list.querySelectorAll('[data-ld-combobox-option]').forEach(function (opt) {
-      var match = !q || opt.textContent.toLowerCase().indexOf(q) !== -1;
-      opt.classList.toggle('ld-hide', !match);
-      if (match) visible++;
-    });
-    if (empty) empty.classList.toggle('ld-show', visible === 0);
-  }
-
-  function highlightComboboxOption(box, index) {
-    var options = Array.prototype.slice.call(box.querySelectorAll('[data-ld-combobox-option]:not(.ld-hide)'));
-    options.forEach(function (o) { o.removeAttribute('data-ld-highlighted'); });
-    if (options[index]) {
-      options[index].setAttribute('data-ld-highlighted', 'true');
-      options[index].scrollIntoView({ block: 'nearest' });
-    }
-    return options;
-  }
-
-  function selectComboboxOption(option) {
-    var box = option.closest('[data-ld-combobox]');
-    if (!box) return;
-    var input = box.querySelector('input');
-    if (input) {
-      input.value = option.getAttribute('data-ld-value') || option.textContent.trim();
-      input.dispatchEvent(new Event('change', { bubbles: true }));
-    }
-    closeCombobox(box);
-  }
-
-  function handleComboboxKeydown(e) {
-    var box = e.target.closest('[data-ld-combobox]');
-    if (!box) return;
-    var list = getComboboxList(box);
-    if (!list || !list.classList.contains('ld-show')) {
-      if (e.key === 'ArrowDown') { e.preventDefault(); openCombobox(box); highlightComboboxOption(box, 0); }
-      return;
-    }
-    var options = Array.prototype.slice.call(box.querySelectorAll('[data-ld-combobox-option]:not(.ld-hide)'));
-    var currentIndex = options.findIndex(function (o) { return o.getAttribute('data-ld-highlighted') === 'true'; });
-
-    if (e.key === 'ArrowDown') {
-      e.preventDefault();
-      highlightComboboxOption(box, Math.min(options.length - 1, currentIndex + 1));
-    } else if (e.key === 'ArrowUp') {
-      e.preventDefault();
-      highlightComboboxOption(box, Math.max(0, currentIndex - 1));
-    } else if (e.key === 'Enter') {
-      var chosen = options[currentIndex];
-      if (chosen) { e.preventDefault(); selectComboboxOption(chosen); }
-    } else if (e.key === 'Escape') {
-      closeCombobox(box);
-    }
-  }
+  /* The combobox (static, local-items and remote) lives in src/js/modules/45-combobox.js */
 
   /* ---------------------------------------------------------------------
      Roving tabindex — tabs and segmented control
@@ -937,13 +916,13 @@
      ------------------------------------------------------------------- */
 
   function initRovingTabindex(root) {
-    (root || document).querySelectorAll('[data-ld-tabs]').forEach(function (group) {
+    qsaSelf(root, '[data-ld-tabs]').forEach(function (group) {
       var triggers = Array.prototype.slice.call(group.querySelectorAll('[data-ld-toggle="tab"]'));
       triggers.forEach(function (t) {
         t.setAttribute('tabindex', t.getAttribute('data-ld-active') === 'true' ? '0' : '-1');
       });
     });
-    (root || document).querySelectorAll('[data-ld-segmented]').forEach(function (group) {
+    qsaSelf(root, '[data-ld-segmented]').forEach(function (group) {
       var items = Array.prototype.slice.call(group.querySelectorAll('[data-ld-segment]'));
       items.forEach(function (i) {
         i.setAttribute('tabindex', i.getAttribute('data-ld-active') === 'true' ? '0' : '-1');
@@ -986,7 +965,7 @@
      ------------------------------------------------------------------- */
 
   function initScrollspy(root) {
-    (root || document).querySelectorAll('[data-ld-scrollspy]').forEach(function (nav) {
+    qsaSelf(root, '[data-ld-scrollspy]').forEach(function (nav) {
       var links = Array.prototype.slice.call(nav.querySelectorAll('a[href^="#"]'));
       var sections = links
         .map(function (link) { return document.querySelector(link.getAttribute('href')); })
@@ -1050,7 +1029,7 @@
   }
 
   function initCarousels(root) {
-    (root || document).querySelectorAll('[data-ld-carousel]').forEach(function (carousel) {
+    qsaSelf(root, '[data-ld-carousel]').forEach(function (carousel) {
       goToSlide(carousel, 0);
       if (carousel.getAttribute('data-ld-autoplay') === 'true') {
         startCarouselAutoplay(carousel);
@@ -1110,7 +1089,7 @@
   }
 
   function initInputClear(root) {
-    (root || document).querySelectorAll('[data-ld-input-clear]').forEach(function (clearBtn) {
+    qsaSelf(root, '[data-ld-input-clear]').forEach(function (clearBtn) {
       var input = getClearTarget(clearBtn);
       if (input) syncInputClear(input);
     });
@@ -1150,7 +1129,7 @@
   }
 
   function initAutosize(root) {
-    (root || document).querySelectorAll('[data-ld-autosize]').forEach(function (el) {
+    qsaSelf(root, '[data-ld-autosize]').forEach(function (el) {
       el.style.overflowY = 'hidden';
       el.style.resize = 'none';
       autosizeTextarea(el);
@@ -1167,6 +1146,7 @@
 
   function handleSortHeaderClick(th) {
     var table = th.closest('table');
+    if (table && table.hasAttribute('data-ld-table')) { tableSortBy(table, th); return; }
     var tbody = table && table.querySelector('tbody');
     if (!tbody) return;
     var index = Array.prototype.indexOf.call(th.parentElement.children, th);
@@ -1286,7 +1266,7 @@
       } else if (kind === 'combobox') {
         e.preventDefault();
         var comboboxEl = toggleEl.closest('[data-ld-combobox]');
-        if (comboboxEl) { openCombobox(comboboxEl); filterCombobox(comboboxEl, ''); }
+        if (comboboxEl) { openCombobox(comboboxEl); onComboboxInput(comboboxEl, true); }
       } else if (kind === 'carousel-prev' || kind === 'carousel-next') {
         e.preventDefault();
         var carouselEl = toggleEl.closest('[data-ld-carousel]');
@@ -1446,10 +1426,7 @@
     }
     var comboboxInput = e.target.closest('[data-ld-combobox] input');
     if (comboboxInput) {
-      var box = comboboxInput.closest('[data-ld-combobox]');
-      openCombobox(box);
-      filterCombobox(box, comboboxInput.value);
-      highlightComboboxOption(box, 0);
+      onComboboxInput(comboboxInput.closest('[data-ld-combobox]'));
     }
 
     if (e.target.hasAttribute && e.target.hasAttribute('data-ld-autosize')) {
@@ -1486,6 +1463,11 @@
     if (trigger) trigger.focus();
   });
 
+  window.ldcss = window.ldcss || {};
+  window.ldcss.version = '__VERSION__';
+
+  /* @ldcss-modules */
+
   document.addEventListener('dragover', handleDropzoneDragOver);
   document.addEventListener('dragleave', handleDropzoneDragLeave);
   document.addEventListener('drop', handleDropzoneDrop);
@@ -1501,16 +1483,19 @@
   initCarousels();
   initInputClear();
   initAutosize();
+  moduleInits.forEach(function (fn) { fn(document); });
 
   /* ---------------------------------------------------------------------
-     Public re-init API — for content added after DOMContentLoaded
-     (fetch results, tab lazy-load, framework-patched DOM, etc).
-     Delegated listeners (clicks, keydown, dropzone change/drag) already
-     work on new elements automatically — only the one-time attribute/DOM
-     sweeps below need to be re-run, scoped to whatever you just added.
+     Mutation-aware initializer. A MutationObserver on <body> runs the same
+     setup as ldcss.refresh() on every element added to the page, so markup
+     from fetch(), innerHTML or a framework just works — no manual
+     ldcss.refresh() call. Opt out with <body data-ld-observe="false">, or
+     for one subtree with data-ld-no-observe. ldcss.unobserve() /
+     ldcss.observe() switch it off and on at runtime.
      ------------------------------------------------------------------- */
-  window.ldcss = window.ldcss || {};
-  window.ldcss.refresh = function (root) {
+  var observer = null;
+
+  function runInitializers(root) {
     initProgressBars(root);
     initRatings(root);
     initPagination(root);
@@ -1521,7 +1506,71 @@
     initCarousels(root);
     initInputClear(root);
     initAutosize(root);
-  };
+    moduleInits.forEach(function (fn) { fn(root); });
+  }
+
+  function observeDom(target) {
+    if (observer || !window.MutationObserver) return;
+    target = target || document.body;
+    if (!target) return;
+    var options = { childList: true, subtree: true };
+    observer = new MutationObserver(function (records) {
+      var added = [];
+      records.forEach(function (record) {
+        Array.prototype.forEach.call(record.addedNodes, function (node) {
+          if (node.nodeType === 1 && !node.closest('[data-ld-no-observe]')) added.push(node);
+        });
+        Array.prototype.forEach.call(record.removedNodes, function (node) {
+          if (node.nodeType === 1) qsaSelf(node, '[data-ld-carousel]').forEach(stopCarouselAutoplay);
+        });
+      });
+      // only the outermost added elements: their descendants are covered
+      added = added.filter(function (node, i) {
+        return node.isConnected && !added.some(function (other, j) { return j !== i && other.contains(node); });
+      });
+      if (!added.length) return;
+      // Initializers add DOM themselves (pagination buttons, clear buttons…).
+      // Pause while they run and drop what they caused, so it cannot loop.
+      observer.disconnect();
+      try {
+        added.forEach(function (node) {
+          runInitializers(node);
+          emit(node, 'ld:init', { root: node });
+        });
+      } finally {
+        observer.takeRecords();
+        observer.observe(target, options);
+      }
+    });
+    observer.observe(target, options);
+  }
+
+  function unobserveDom() {
+    if (observer) { observer.disconnect(); observer = null; }
+  }
+
+  function startObserver() {
+    if (document.body && document.body.getAttribute('data-ld-observe') !== 'false') observeDom();
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', startObserver);
+  else startObserver();
+
+  /* ---------------------------------------------------------------------
+     Public re-init API — for content added after DOMContentLoaded
+     (fetch results, tab lazy-load, framework-patched DOM, etc).
+     Delegated listeners (clicks, keydown, dropzone change/drag) already
+     work on new elements automatically — only the one-time attribute/DOM
+     sweeps below need to be re-run, scoped to whatever you just added.
+     ------------------------------------------------------------------- */
+  window.ldcss = window.ldcss || {};
+  window.ldcss.refresh = runInitializers;
+  window.ldcss.observe = observeDom;
+  window.ldcss.unobserve = unobserveDom;
+  window.ldcss.on = on;
+  window.ldcss.off = off;
+  window.ldcss.once = once;
+  window.ldcss.emit = emit;
+  window.ldcss.announce = announce;
 
   window.ldcss.debounce = debounce;
 
@@ -1534,5 +1583,7 @@
   window.ldcss.destroy = function () {
     activeAnimationObservers.forEach(function (observer) { observer.disconnect(); });
     activeAnimationObservers = [];
+    unobserveDom();
+    qsaSelf(document, '[data-ld-carousel]').forEach(stopCarouselAutoplay);
   };
 })();
