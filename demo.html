@@ -37,7 +37,7 @@
   <div class="ld-container">
 
     <header class="ld-hero">
-      <span class="ld-badge" data-ld-variant="primary">v3.1.0</span>
+      <span class="ld-badge" data-ld-variant="primary">v3.1.1</span>
       <h1>ldcss</h1>
       <p class="ld-text-muted">A small framework built on two ideas: <span class="ld-text-accent">ld-*</span> classes
         for structure, <span class="ld-text-accent">data-ld-*</span> attributes for state and variants. No dependencies
@@ -162,6 +162,7 @@
             build step.</p>
         </div>
         <div id="tab-3" data-ld-tab-panel>
+          <p class="ld-text-muted"><strong>v3.1.1</strong> — Search bar: the input is now styled (<code class="ld-code-inline">ld-input</code> is added for you) and the magnifier is a real button next to it, so clicking it searches just like pressing Enter. New <code class="ld-code-inline">ld:search:submit</code> event; in a <code class="ld-code-inline">&lt;form&gt;</code> the button submits the form. <code class="ld-code-inline">data-ld-search-button="false"</code> keeps the compact icon-inside style. Fixed: Escape closed the search dropdown and the browser's own "clear search" immediately reopened it.</p>
           <p class="ld-text-muted"><strong>v3.1.0</strong> — New: context menu (<code class="ld-code-inline">data-ld-context-menu</code>), toast queue and notification centre (<code class="ld-code-inline">ldcss.toast</code>, <code class="ld-code-inline">ldcss.notify</code>), resizable panels (<code class="ld-code-inline">data-ld-resizable</code>), general-purpose disclosure (<code class="ld-code-inline">data-ld-disclosure</code>), search bar with fuzzy matching (<code class="ld-code-inline">data-ld-search</code>, <code class="ld-code-inline">ldcss.fuzzy</code>), easy tables (<code class="ld-code-inline">data-ld-table</code>), sizing / flex / grid / transition / transform utilities, and a unified event API (<code class="ld-code-inline">ldcss.on</code>, <code class="ld-code-inline">ldcss.once</code>, <code class="ld-code-inline">ldcss.off</code>, <code class="ld-code-inline">ldcss.emit</code>, wildcard <code class="ld-code-inline">"*"</code>). The combobox gained remote sources with debounce, loading / empty / error states, request cancellation, result templates and renderers. ldcss now watches the page and initialises markup added later (<code class="ld-code-inline">data-ld-observe="false"</code> opts out). Accessibility: <code class="ld-code-inline">aria-current</code>, dropdown menu keys, <code class="ld-code-inline">inert</code> behind dialogs, tooltip names, 24px hit areas, forced-colors support, <code class="ld-code-inline">ldcss.a11y.audit()</code>. The cheat sheet was rewritten with pages, a sidebar and search.</p>
           <p class="ld-text-muted"><strong>v3.0.2</strong> — The nav brand links to the landing page (<code class="ld-code-inline">index.html</code>) on every page. Relative, so it also works when you open the files straight from disk or host them in a sub-folder.</p>
           <p class="ld-text-muted"><strong>v3.0.1</strong> — Minor bugfixes to pages and carousel. The carousel arrows no longer jump when pressed: they were centred with a <code class="ld-code-inline">transform</code> that the button's press nudge replaced. They are now centred with insets, so they stay centred at any carousel height; the press nudge uses <code class="ld-code-inline">translate</code> and so adds to any transform instead of replacing it. New: <code class="ld-code-inline">index.html</code> landing page.</p>
@@ -1456,7 +1457,7 @@
   </div>
 
   <footer class="ld-footer ld-shadow-up">
-    <p class="ld-text-muted ld-text-sm">ldcss v3.1.0 · built with ldcss</p>
+    <p class="ld-text-muted ld-text-sm">ldcss v3.1.1 · built with ldcss</p>
   </footer>
 
   <script src="dist/ldcss.js"></script>

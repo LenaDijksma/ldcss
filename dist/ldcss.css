@@ -1,5 +1,5 @@
 /*!
- * ldcss v3.1.0 — Lena Dijksma CSS
+ * ldcss v3.1.1 — Lena Dijksma CSS
  * A small, opinionated framework: classes (ld-*) + custom attributes (data-ld-*)
  * License: MIT. Built from src/ — edit the files there, not this one.
  *
@@ -5005,40 +5005,100 @@ html.ld-resizing iframe {
 
 /* ==========================================================================
    37zc. Search bar — ld-search / [data-ld-search] (paired with ldcss.js)
+
+   <div class="ld-search">
+     <div class="ld-search-field"> <input class="ld-input"> × kbd </div>
+     <button class="ld-btn ld-search-btn"> magnifier </button>
+   </div>
+
+   ldcss.js builds the field and the button from a bare
+   <div data-ld-search><input></div>. Field and button are one joined
+   control: shared height, shared border, one focus ring.
    ========================================================================== */
 
 .ld-search {
   position: relative;
-  display: block;
+  display: flex;
+  align-items: stretch;
+  width: 100%;
 }
 
-.ld-search .ld-input {
-  padding-inline-start: calc(var(--ld-space-3) + 1.25rem);
-  padding-inline-end: calc(var(--ld-space-3) + 1.5rem);
+.ld-search-field {
+  position: relative;
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.ld-search-field .ld-input {
+  height: 100%;
+  padding-inline-end: calc(var(--ld-space-3) + 1.75rem);
+}
+
+/* with a button next to it, field and button meet in the middle */
+.ld-search:not([data-ld-search-compact]) .ld-search-field .ld-input {
+  border-start-end-radius: 0;
+  border-end-end-radius: 0;
+}
+
+.ld-search-btn {
+  flex: none;
+  position: relative;
+  min-width: 2.75rem;
+  padding: 0 var(--ld-space-3);
+  border-start-start-radius: 0;
+  border-end-start-radius: 0;
+  margin-inline-start: calc(var(--ld-border-width) * -1);
+}
+
+.ld-search-btn:hover,
+.ld-search-btn:focus-visible {
+  z-index: 1;
+}
+
+/* keep the field's focus ring above the button's edge */
+.ld-search-field:focus-within {
+  z-index: 2;
 }
 
 /* magnifier drawn with borders, so it follows currentColor and needs no icon font */
 .ld-search-icon {
-  position: absolute;
-  inset-inline-start: var(--ld-space-3);
-  top: 50%;
+  position: relative;
+  display: block;
+  flex: none;
   width: 0.7rem;
   height: 0.7rem;
-  margin-top: -0.45rem;
-  border: 2px solid var(--ld-text-muted);
+  border: 2px solid currentColor;
   border-radius: 50%;
-  pointer-events: none;
 }
 
 .ld-search-icon::after {
   content: '';
   position: absolute;
-  inset-inline-end: -0.38rem;
-  bottom: -0.3rem;
+  inset-inline-end: -0.4rem;
+  bottom: -0.32rem;
   width: 2px;
-  height: 0.38rem;
-  background: var(--ld-text-muted);
+  height: 0.4rem;
+  background: currentColor;
   transform: rotate(-45deg);
+}
+
+.ld-search-btn .ld-search-icon {
+  /* the handle sticks out, so nudge the whole glyph to look centred */
+  margin: -0.15rem 0.15rem 0 -0.1rem;
+}
+
+/* no button: the magnifier sits inside the field, before the text */
+.ld-search[data-ld-search-compact] .ld-search-field > .ld-search-icon {
+  position: absolute;
+  inset-inline-start: var(--ld-space-3);
+  top: 50%;
+  margin-top: -0.45rem;
+  color: var(--ld-text-muted);
+  pointer-events: none;
+}
+
+.ld-search[data-ld-search-compact] .ld-input {
+  padding-inline-start: calc(var(--ld-space-3) + 1.25rem);
 }
 
 .ld-search-clear {
@@ -5066,7 +5126,7 @@ html.ld-resizing iframe {
   display: none;
 }
 
-/* the shortcut hint sits where the clear button goes; typing swaps them */
+/* the shortcut hint sits where the clear button goes; focus or typing swaps them */
 .ld-search-kbd {
   position: absolute;
   inset-inline-end: var(--ld-space-3);
@@ -5088,6 +5148,18 @@ html.ld-resizing iframe {
 
 [data-ld-search-empty][hidden] {
   display: none;
+}
+
+@media (forced-colors: active) {
+
+  .ld-search-icon,
+  .ld-search-icon::after {
+    border-color: ButtonText;
+  }
+
+  .ld-search-icon::after {
+    background: ButtonText;
+  }
 }
 
 

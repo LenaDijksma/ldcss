@@ -47,7 +47,7 @@
   <aside class="ld-sidebar">
     <div class="ld-sidebar-header">
       <a href="index.html" class="ld-nav-brand" data-ld-mark="$">ldcss</a>
-      <span class="ld-badge" data-ld-variant="primary">v3.1.0</span>
+      <span class="ld-badge" data-ld-variant="primary">v3.1.1</span>
       <button class="ld-btn ld-sidebar-toggle" data-ld-size="sm" data-ld-variant="ghost" data-ld-toggle="navbar-collapse" data-ld-target="#side-menu" aria-controls="side-menu" aria-expanded="false">Menu</button>
     </div>
     <nav class="ld-sidebar-body" id="side-menu" aria-label="Cheat sheet pages">
@@ -827,7 +827,7 @@
   <section class="ld-section" data-ld-size="sm" id="search-bar" data-cs-section>
     <h2 class="ld-section-title">Search bar <a class="cs-anchor" href="#/combobox/search-bar" aria-label="Link to Search bar">#</a></h2>
     <p class="ld-section-sub">Fuzzy search as a dropdown or as a page filter</p>
-    <div class="cs-prose"><p><code class="ld-code-inline">data-ld-search</code> adds a magnifier, a clear button that appears once there is text, a shortcut hint, and a key (like <code class="ld-code-inline">/</code>) that focuses the field. Combine it with the combobox for a dropdown of ranked results, or point it at content on the page to filter that content. This page's own search box is the first kind.</p><p>Matching is fuzzy and every word must match: <code class="ld-code-inline">btn pri</code> finds both "Button" and "primary". Letters may skip, case and accents are ignored, and matches that start a word or sit together score higher.</p></div>
+    <div class="cs-prose"><p><code class="ld-code-inline">data-ld-search</code> styles the input like any other field and puts a search button next to it, so clicking the magnifier does what Enter does. Inside the field it adds a clear button that appears once there is text, a shortcut hint, and a key (like <code class="ld-code-inline">/</code>) that focuses it. Combine it with the combobox for a dropdown of ranked results, or point it at content on the page to filter that content. This page's own search box is the first kind.</p><p>Submitting (Enter or the button) fires <code class="ld-code-inline">ld:search:submit</code>, makes sure the results are current and keeps focus in the field. With a result highlighted in an open dropdown, Enter still chooses that result. Inside a <code class="ld-code-inline">&lt;form&gt;</code> the button is a real submit button.</p><p>Matching is fuzzy and every word must match: <code class="ld-code-inline">btn pri</code> finds both "Button" and "primary". Letters may skip, case and accents are ignored, and matches that start a word or sit together score higher.</p></div>
     <pre class="ld-code" tabindex="0">&lt;!-- dropdown results --&gt;
 &lt;div data-ld-search data-ld-combobox data-ld-source="#index" data-ld-shortcut="/"&gt;
   &lt;input placeholder="Search…"&gt;&lt;div data-ld-combobox-list&gt;&lt;/div&gt;
@@ -842,7 +842,7 @@
 &lt;p data-ld-search-empty hidden&gt;Nothing found.&lt;/p&gt;</pre>
     <div class="cs-demo" role="group" aria-label="Live example">
       <p class="cs-demo-label">Live example</p>
-<div class="ld-search" data-ld-search data-ld-search-filter="#demo-cards" data-ld-search-count="#demo-count" data-ld-shortcut="none">
+<div data-ld-search data-ld-search-filter="#demo-cards" data-ld-search-count="#demo-count" data-ld-shortcut="none">
   <input placeholder="Filter the cards below (try: brwn, mnt, ptr)…">
 </div>
 <p class="ld-text-muted ld-text-sm ld-mar-t-2" id="demo-count" aria-hidden="true"></p>
@@ -857,14 +857,17 @@
       <table class="ld-table" data-ld-striped="true">
         <thead><tr><th scope="col">Class / attribute</th><th scope="col">What it does</th></tr></thead>
         <tbody>
-          <tr><td>data-ld-search</td><td>On the wrapper around the input. Adds icon, clear button and shortcut handling; Esc clears.</td></tr>
+          <tr><td>data-ld-search</td><td>On the wrapper around the input. Builds the field (the input gets <code class="ld-code-inline">ld-input</code>), the clear button, the shortcut hint and the search button; Esc clears.</td></tr>
+          <tr><td>data-ld-search-button="false"</td><td>No button: a decorative magnifier sits inside the field instead (compact toolbars).</td></tr>
+          <tr><td>data-ld-search-label, data-ld-search-variant</td><td>Accessible name of the button (default <code class="ld-code-inline">Search</code>) and its <code class="ld-code-inline">data-ld-variant</code> (for example <code class="ld-code-inline">primary</code>).</td></tr>
+          <tr><td>ld:search:submit</td><td>Event on the wrapper when Enter or the button is used: <code class="ld-code-inline">{ query, source }</code> with <code class="ld-code-inline">source</code> <code class="ld-code-inline">enter</code> or <code class="ld-code-inline">button</code>. Cancelable; cancelling also stops a surrounding form from submitting.</td></tr>
           <tr><td>data-ld-shortcut</td><td>A single key that focuses the field when you are not typing (default none; <code class="ld-code-inline">/</code> is the usual one). Shown as a hint. <code class="ld-code-inline">none</code> turns it off.</td></tr>
           <tr><td>data-ld-search-filter="#container"</td><td>Filter mode: hides (<code class="ld-code-inline">hidden</code>) children of the container that do not match. Items are the <code class="ld-code-inline">[data-ld-search-item]</code> elements, or the direct children if there are none.</td></tr>
           <tr><td>data-ld-search-text</td><td>On an item: extra words to match that are not visible.</td></tr>
           <tr><td>data-ld-search-rank="true"</td><td>Also reorder items best match first.</td></tr>
           <tr><td>data-ld-search-count, data-ld-search-empty</td><td>Element that receives "3 of 12"; element shown when nothing matches.</td></tr>
           <tr><td>ld:search:filter</td><td>Event on the wrapper: <code class="ld-code-inline">{ query, count, total }</code>.</td></tr>
-          <tr><td>ldcss.search.filter(el, q), ldcss.search.clear(el)</td><td>Filter or clear from script.</td></tr>
+          <tr><td>ldcss.search.filter(el, q), .clear(el), .submit(el)</td><td>Filter, clear or submit from script.</td></tr>
         </tbody>
       </table>
     </div>

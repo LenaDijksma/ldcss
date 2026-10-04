@@ -1,4 +1,4 @@
-/*! ldcss.js v3.1.0 — MIT */
+/*! ldcss.js v3.1.1 — MIT */
 /*!
  * ldcss.js — Lena Dijksma CSS
  * Zero-dependency behavior for data-ld-* interactive components.
@@ -1465,7 +1465,7 @@
   });
 
   window.ldcss = window.ldcss || {};
-  window.ldcss.version = '3.1.0';
+  window.ldcss.version = '3.1.1';
 
     /* =====================================================================
      Fuzzy matching — ldcss.fuzzy.match / .search / .highlight
@@ -3410,9 +3410,22 @@
          <input type="search" class="ld-input" placeholder="Search…" aria-label="Search">
        </div>
 
-     The wrapper gets a search icon, a clear (×) button that appears once
-     there is text, a keyboard hint, and a "/" (or any single key) shortcut
-     that focuses it.
+     The input is styled like any .ld-input (the class is added if you left
+     it off) and a search button sits next to it, so a click does what Enter
+     does. Inside the field: a clear (×) button that appears once there is
+     text and a keyboard hint; a "/" (or any single key) shortcut focuses it.
+
+     Submitting (Enter, or the button) emits ld:search:submit
+     { query, source: 'enter' | 'button' } on the wrapper (cancelable), makes
+     sure the results are current, and keeps focus in the field. In a
+     dropdown it opens the results; Enter with a result highlighted still
+     chooses that result. Inside a <form> the button is a real submit button,
+     so the form submits as usual.
+
+     data-ld-search-button="false"  no button; a decorative magnifier sits
+                                    inside the field instead
+     data-ld-search-label="Go"      accessible name of the button (default "Search")
+     data-ld-search-variant="primary"  data-ld-variant for the button
 
      Two ways to use it:
 
@@ -3437,11 +3450,11 @@
         must match somewhere in the item's text. data-ld-search-rank="true"
         also reorders the items best-first. data-ld-search-count="#count"
         writes "3 of 12" into that element.
-        Events (on the wrapper): ld:search:filter { query, count, total }.
 
      Shared: data-ld-shortcut="/" (set to none for no shortcut),
              Esc clears the field.
-     API: ldcss.search.filter(wrapper, query), ldcss.search.clear(wrapper)
+     Events (on the wrapper): ld:search:submit (cancelable), ld:search:filter.
+     API: ldcss.search.filter(wrapper, query), .clear(wrapper), .submit(wrapper)
      ===================================================================== */
 
   function searchInputOf(wrap) { return wrap.querySelector('input'); }
@@ -3500,13 +3513,30 @@
     input.focus();
   }
 
+  /* Enter or the search button. Returns false when a listener cancelled it. */
+  function searchSubmit(wrap, source) {
+    wrap = typeof wrap === 'string' ? document.querySelector(wrap) : wrap;
+    var input = searchInputOf(wrap);
+    if (!input) return false;
+    var query = input.value;
+    if (!emit(wrap, 'ld:search:submit', { query: query, source: source || 'button' }, true)) return false;
+    if (wrap.hasAttribute('data-ld-search-filter')) {
+      searchFilter(wrap);
+    } else if (wrap.hasAttribute('data-ld-combobox') && query.trim()) {
+      window.ldcss.combobox.search(wrap, query);
+    }
+    if (source === 'button') input.focus();
+    return true;
+  }
+
   function initSearch(root) {
     qsaSelf(root, '[data-ld-search]').forEach(function (wrap) {
       if (wrap._ldSearch) return;
-      wrap._ldSearch = true;
-      wrap.classList.add('ld-search');
       var input = searchInputOf(wrap);
       if (!input) return;
+      wrap._ldSearch = true;
+      wrap.classList.add('ld-search');
+      input.classList.add('ld-input');
       if (!input.hasAttribute('type')) input.setAttribute('type', 'search');
       if (!input.hasAttribute('autocomplete')) input.setAttribute('autocomplete', 'off');
       if (!input.hasAttribute('enterkeyhint')) input.setAttribute('enterkeyhint', 'search');
@@ -3515,10 +3545,11 @@
       }
       wrap.setAttribute('role', wrap.hasAttribute('data-ld-combobox') ? wrap.getAttribute('role') || 'search' : 'search');
 
-      var icon = document.createElement('span');
-      icon.className = 'ld-search-icon';
-      icon.setAttribute('aria-hidden', 'true');
-      wrap.insertBefore(icon, wrap.firstChild);
+      // the field: input + clear button + shortcut hint, so they sit inside the input, not over the button
+      var field = document.createElement('div');
+      field.className = 'ld-search-field';
+      input.parentNode.insertBefore(field, input);
+      field.appendChild(input);
 
       var clear = document.createElement('button');
       clear.type = 'button';
@@ -3527,7 +3558,7 @@
       clear.textContent = '×';
       clear.hidden = true;
       clear.addEventListener('click', function () { searchClear(wrap); });
-      input.insertAdjacentElement('afterend', clear);
+      field.appendChild(clear);
 
       var key = wrap.getAttribute('data-ld-shortcut');
       if (key && key !== 'none') {
@@ -3535,8 +3566,34 @@
         hint.className = 'ld-search-kbd ld-kbd';
         hint.setAttribute('aria-hidden', 'true');
         hint.textContent = key;
-        clear.insertAdjacentElement('afterend', hint);
+        field.appendChild(hint);
         input.setAttribute('aria-keyshortcuts', key);
+      }
+
+      if (wrap.getAttribute('data-ld-search-button') === 'false') {
+        wrap.setAttribute('data-ld-search-compact', '');
+        var icon = document.createElement('span');
+        icon.className = 'ld-search-icon';
+        icon.setAttribute('aria-hidden', 'true');
+        field.insertBefore(icon, input);
+      } else {
+        var button = document.createElement('button');
+        var inForm = !!wrap.closest('form');
+        button.type = inForm ? 'submit' : 'button';
+        button.className = 'ld-btn ld-search-btn';
+        var variant = wrap.getAttribute('data-ld-search-variant');
+        if (variant) button.setAttribute('data-ld-variant', variant);
+        button.setAttribute('aria-label', wrap.getAttribute('data-ld-search-label') || 'Search');
+        var glyph = document.createElement('span');
+        glyph.className = 'ld-search-icon';
+        glyph.setAttribute('aria-hidden', 'true');
+        button.appendChild(glyph);
+        // in a form the browser submits; everywhere else the click is the submit
+        button.addEventListener('click', function (e) {
+          var ok = searchSubmit(wrap, 'button');
+          if (!ok && inForm) e.preventDefault();
+        });
+        field.insertAdjacentElement('afterend', button);
       }
 
       if (wrap.hasAttribute('data-ld-search-filter')) {
@@ -3545,7 +3602,18 @@
         input.addEventListener('input', function () { searchSyncClear(wrap); });
       }
       input.addEventListener('keydown', function (e) {
-        if (e.key === 'Escape' && input.value && !wrap.hasAttribute('data-ld-combobox')) { e.preventDefault(); searchClear(wrap); }
+        if (e.key === 'Escape' && input.value && !wrap.hasAttribute('data-ld-combobox')) { e.preventDefault(); searchClear(wrap); return; }
+        if (e.key === 'Escape' && wrap.hasAttribute('data-ld-combobox')) {
+          // a search input clears itself on Escape and fires `input`, which would search again and reopen the
+          // list we are about to close; the first Escape only closes it, the second clears (combobox module)
+          var open = wrap.querySelector('[data-ld-combobox-list]');
+          if (open && open.classList.contains('ld-show')) e.preventDefault();
+        }
+        if (e.key !== 'Enter' || e.isComposing) return;
+        // a highlighted result in an open dropdown is chosen by the combobox, not submitted
+        var list = wrap.querySelector('[data-ld-combobox-list]');
+        if (list && list.classList.contains('ld-show') && list.querySelector('[data-ld-highlighted="true"]')) return;
+        searchSubmit(wrap, 'enter');
       });
       searchSyncClear(wrap);
     });
@@ -3568,7 +3636,7 @@
   });
 
   moduleInits.push(initSearch);
-  window.ldcss.search = { filter: searchFilter, clear: searchClear };
+  window.ldcss.search = { filter: searchFilter, clear: searchClear, submit: searchSubmit };
 
 
   /* =====================================================================

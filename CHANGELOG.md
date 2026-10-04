@@ -1,5 +1,24 @@
 # Changelog
 
+## 3.1.1
+
+Search bar (`data-ld-search`), one module.
+
+- The search input was unstyled when you left off `ld-input`, and the magnifier was drawn over the
+  placeholder text. The input now always gets `ld-input`.
+- The magnifier is now a search button next to the field, joined to it (same height, one border,
+  one focus ring). Clicking it does what Enter does.
+- New `ld:search:submit` event (`{ query, source: 'enter' | 'button' }`, cancelable) and
+  `ldcss.search.submit(el)`. A dropdown opens its results on submit; Enter with a result highlighted
+  still chooses it. Inside a `<form>` the button is a real submit button, so the form submits (and a
+  cancelled `ld:search:submit` stops it).
+- `data-ld-search-button="false"` keeps a compact style with the icon inside the field.
+  `data-ld-search-label` names the button (default "Search"); `data-ld-search-variant` sets its
+  `data-ld-variant`.
+- Fixed: Escape closed the dropdown and the browser's own "clear search" immediately reopened it,
+  because `type="search"` inputs clear themselves on Escape and fire `input`. The first Escape now only
+  closes the list; the second clears the field. This also affected the cheat sheet's search box.
+
 ## 3.1.0
 
 **Fixed (builds on 3.0.1)**
