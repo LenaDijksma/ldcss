@@ -29,8 +29,8 @@ h4,
 h5,
 h6 {
   font-family: var(--ld-font-family);
-  font-weight: 700;
-  line-height: 1.25;
+  font-weight: var(--ld-weight-bold);
+  line-height: var(--ld-leading-tight);
   margin: 0 0 var(--ld-space-3);
 }
 

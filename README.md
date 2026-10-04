@@ -8,8 +8,13 @@ Link the built files. No dependencies, no build needed to *use* ldcss.
 
 ```html
 <link rel="stylesheet" href="dist/ldcss.css">   <!-- or dist/ldcss.min.css -->
-<script src="dist/ldcss.js"></script>           <!-- or dist/ldcss.min.js -->
+<script src="dist/ldcss-theme.js"></script>     <!-- optional, in <head>: no theme flash -->
+<script src="dist/ldcss.js"></script>           <!-- end of <body>; or dist/ldcss.min.js -->
 ```
+
+Dark mode follows the operating system with no attribute and no JavaScript. Choose a theme with
+`data-ld-theme="light|dark"` on `<html>`, or `ldcss.theme.set('dark')` (`'auto'` goes back to the OS).
+`ldcss-theme.js` only applies a choice the visitor made earlier before the first paint.
 
 Keep `dist/fonts/` next to the CSS file (JetBrains Mono is self-hosted).
 

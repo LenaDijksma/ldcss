@@ -11,7 +11,9 @@
 //   2. Runs every *.gen.mjs file and splices in the CSS it returns (the
 //      sidebar's per-breakpoint rules, the hover:/focus: variants).
 //   3. Writes dist/ldcss.css, dist/ldcss.min.css, dist/ldcss.js,
-//      dist/ldcss.min.js and copies the fonts to dist/fonts/.
+//      dist/ldcss.min.js, dist/ldcss-theme.js and copies the fonts to dist/fonts/.
+//      Every [data-ld-theme='dark'] rule also gets a prefers-color-scheme copy
+//      (withAutoDark), so dark mode works with no JavaScript and no flash.
 //   4. JavaScript: src/js/ldcss.js is the core; every file in src/js/modules/
 //      is inlined at its `/* @ldcss-modules */` marker (so modules share the
 //      core's private helpers), in file-name order.
@@ -69,6 +71,82 @@ function indexUtilities(layers) {
   return index;
 }
 
+
+/* ---------------------------------------------------------------------------
+   Dark mode without JavaScript
+   Every rule whose selector starts with [data-ld-theme='dark'] is copied,
+   right after itself, into a prefers-color-scheme media query for pages that
+   have no data-ld-theme attribute at all. The copy uses
+   :where(:root):not([data-ld-theme]), which has the same specificity as
+   [data-ld-theme='dark'], so the cascade between rules does not change.
+   One source of truth: edit the dark rules, the automatic ones follow.
+   ------------------------------------------------------------------------- */
+
+const DARK = /\[data-ld-theme=(['"])dark\1\]/;
+const AUTO = ':where(:root):not([data-ld-theme])';
+
+function splitTopLevel(css) {
+  // → [{ prelude, body | null, raw }] where raw is the exact source text of the item
+  const items = [];
+  let i = 0;
+  const n = css.length;
+  while (i < n) {
+    const start = i;
+    let depth = 0;
+    let bodyStart = -1;
+    let preludeEnd = -1;
+    while (i < n) {
+      const c = css[i];
+      if (c === '/' && css[i + 1] === '*') { const e = css.indexOf('*/', i + 2); i = e === -1 ? n : e + 2; continue; }
+      if (c === '"' || c === "'") { let j = i + 1; while (j < n && css[j] !== c) j += css[j] === '\\' ? 2 : 1; i = j + 1; continue; }
+      if (c === '{') { if (depth === 0) { bodyStart = i + 1; preludeEnd = i; } depth++; }
+      else if (c === '}') { depth--; if (depth === 0) { i++; break; } }
+      else if (c === ';' && depth === 0) { i++; break; }
+      i++;
+    }
+    items.push({
+      raw: css.slice(start, i),
+      prelude: preludeEnd === -1 ? css.slice(start, i) : css.slice(start, preludeEnd),
+      body: bodyStart === -1 ? null : css.slice(bodyStart, i - 1),
+    });
+  }
+  return items;
+}
+
+function splitSelectors(list) {
+  const out = [];
+  let depth = 0;
+  let cur = '';
+  for (const c of list) {
+    if (c === '(' || c === '[') depth++;
+    if (c === ')' || c === ']') depth--;
+    if (c === ',' && depth === 0) { out.push(cur); cur = ''; } else cur += c;
+  }
+  out.push(cur);
+  return out;
+}
+
+export function withAutoDark(css) {
+  let out = '';
+  for (const item of splitTopLevel(css)) {
+    out += item.raw;
+    if (item.body === null) continue;
+    const prelude = item.prelude.replace(/\/\*[\s\S]*?\*\//g, '').trim();
+    if (prelude.startsWith('@')) {
+      if (/^@(media|supports|layer)\b/.test(prelude) && !/prefers-color-scheme/.test(prelude)) {
+        const inner = withAutoDark(item.body);
+        if (inner !== item.body) out = out.slice(0, out.length - item.raw.length) + item.raw.slice(0, item.raw.indexOf('{') + 1) + inner + '}';
+      }
+      continue;
+    }
+    const dark = splitSelectors(prelude).map((sel) => sel.trim()).filter((sel) => DARK.test(sel) && sel.search(DARK) === 0);
+    if (!dark.length) continue;
+    const converted = dark.map((sel) => sel.replace(DARK, AUTO)).join(',\n    ');
+    out += `\n@media (prefers-color-scheme: dark) {\n  ${converted} {${item.body}}\n}\n`;
+  }
+  return out;
+}
+
 async function buildCss(config) {
   const { breakpoints, layers } = config;
   const utilities = indexUtilities(layers);
@@ -101,7 +179,7 @@ async function buildCss(config) {
         chunks.push(read(join(dir, f)));
       }
     }
-    if (chunks.length) parts.push(`@layer ld.${layer} {\n\n${chunks.join('\n')}\n}\n`);
+    if (chunks.length) parts.push(`@layer ld.${layer} {\n\n${withAutoDark(chunks.join('\n'))}\n}\n`);
   }
   return parts.join('\n');
 }
@@ -224,12 +302,16 @@ async function build() {
   writeFileSync(join(DIST, 'ldcss.js'), js);
   writeFileSync(join(DIST, 'ldcss.min.js'), minJs);
   for (const f of files(join(SRC, 'fonts'))) copyFileSync(join(SRC, 'fonts', f), join(DIST, 'fonts', f));
+  // tiny blocking script for <head>: applies the saved theme before first paint
+  const themeInit = `/*! ldcss-theme.js v${pkg.version} — MIT */\n` + minifyJs(read(join(SRC, 'js', 'theme-init.js')));
+  writeFileSync(join(DIST, 'ldcss-theme.js'), themeInit);
 
   const rows = [
     ['ldcss.css', css],
     ['ldcss.min.css', minCss],
     ['ldcss.js', js],
     ['ldcss.min.js', minJs],
+    ['ldcss-theme.js', themeInit],
   ];
   console.log(`ldcss v${pkg.version} built in ${Math.round(performance.now() - t0)} ms`);
   for (const [name, body] of rows) console.log(`  dist/${name.padEnd(14)} ${kb(body)}  ${gz(body)}`);

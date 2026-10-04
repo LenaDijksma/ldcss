@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>ldcss — Cheat sheet</title>
 <link rel="stylesheet" href="dist/ldcss.css">
+<script src="dist/ldcss-theme.js"></script>
 <script>document.documentElement.classList.add('cs-js');</script>
 <style>
   /* page-only styles: everything else comes from ldcss */
@@ -47,7 +48,7 @@
   <aside class="ld-sidebar">
     <div class="ld-sidebar-header">
       <a href="index.html" class="ld-nav-brand" data-ld-mark="$">ldcss</a>
-      <span class="ld-badge" data-ld-variant="primary">v3.1.1</span>
+      <span class="ld-badge" data-ld-variant="primary">v3.2.0</span>
       <button class="ld-btn ld-sidebar-toggle" data-ld-size="sm" data-ld-variant="ghost" data-ld-toggle="navbar-collapse" data-ld-target="#side-menu" aria-controls="side-menu" aria-expanded="false">Menu</button>
     </div>
     <nav class="ld-sidebar-body" id="side-menu" aria-label="Cheat sheet pages">
@@ -79,11 +80,13 @@
     <p class="ld-section-sub">Two files and a fonts folder, no build step needed to use it</p>
     <div class="cs-prose"><p>Build once with <code class="ld-code-inline">npm run build</code> (or take the files from <code class="ld-code-inline">dist/</code>), then link the stylesheet and the script. Keep the <code class="ld-code-inline">fonts/</code> folder next to the CSS: JetBrains Mono is self-hosted, so ldcss never calls Google Fonts.</p><p>ldcss needs a current evergreen browser: it uses <code class="ld-code-inline">@layer</code>, <code class="ld-code-inline">:has()</code> and <code class="ld-code-inline">color-mix()</code>.</p></div>
     <pre class="ld-code" tabindex="0">&lt;link rel="stylesheet" href="dist/ldcss.css"&gt;
-&lt;script src="dist/ldcss.js"&gt;&lt;/script&gt;   &lt;!-- end of &lt;body&gt; --&gt;</pre>
+&lt;script src="dist/ldcss-theme.js"&gt;&lt;/script&gt;   &lt;!-- optional, tiny: no theme flash --&gt;
+&lt;script src="dist/ldcss.js"&gt;&lt;/script&gt;         &lt;!-- end of &lt;body&gt; --&gt;</pre>
     <div class="ld-table-wrap" role="region" tabindex="0" aria-label="Install and link reference">
       <table class="ld-table" data-ld-striped="true">
         <thead><tr><th scope="col">Class / attribute</th><th scope="col">What it does</th></tr></thead>
         <tbody>
+          <tr><td>dist/ldcss-theme.js</td><td>Optional, 0.3 KB, goes in <code class="ld-code-inline">&lt;head&gt;</code> (blocking). Applies the theme a visitor chose earlier before the first paint, so there is no flash of the wrong theme. Without it everything still works; people who chose the opposite of their OS setting just see a brief flash.</td></tr>
           <tr><td>dist/ldcss.css, dist/ldcss.min.css</td><td>The stylesheet. The <code class="ld-code-inline">.min</code> file is the same rules with comments and whitespace removed.</td></tr>
           <tr><td>dist/ldcss.js, dist/ldcss.min.js</td><td>Behaviour for every <code class="ld-code-inline">data-ld-*</code> component. Safe to load at the end of <code class="ld-code-inline">&lt;body&gt;</code>; it also starts a mutation observer so markup added later is initialised.</td></tr>
           <tr><td>dist/fonts/</td><td>JetBrains Mono (Latin subset, regular and bold, WOFF) with its OFL license. Must sit beside the CSS file.</td></tr>
@@ -142,8 +145,13 @@
     <h2 class="ld-section-title">Light, dark and unthemed <a class="cs-anchor" href="#/theming/theme-attrs" aria-label="Link to Light, dark and unthemed">#</a></h2>
     <p class="ld-section-sub">Set the theme with one attribute</p>
     <div class="cs-prose"><p><code class="ld-code-inline">data-ld-theme</code> on <code class="ld-code-inline">&lt;html&gt;</code> (or any container) switches the palette. A toggle button remembers the choice in <code class="ld-code-inline">localStorage</code> and falls back to the OS setting on a first visit. A light subtree inside a dark page works too.</p></div>
-    <pre class="ld-code" tabindex="0">&lt;html data-ld-theme="dark"&gt;
-&lt;button data-ld-toggle="theme"&gt;Toggle theme&lt;/button&gt;</pre>
+    <pre class="ld-code" tabindex="0">&lt;html&gt;                                  &lt;!-- no attribute: follows the OS, no JavaScript needed --&gt;
+&lt;html data-ld-theme="dark"&gt;             &lt;!-- or choose one --&gt;
+&lt;button data-ld-toggle="theme"&gt;Toggle theme&lt;/button&gt;
+
+ldcss.theme.get();          // 'light' | 'dark': what is showing now
+ldcss.theme.set('dark');    // choose and remember
+ldcss.theme.set('auto');    // forget the choice, follow the OS again</pre>
     <div class="ld-table-wrap" role="region" tabindex="0" aria-label="Light, dark and unthemed reference">
       <table class="ld-table" data-ld-striped="true">
         <thead><tr><th scope="col">Class / attribute</th><th scope="col">What it does</th></tr></thead>
@@ -153,6 +161,10 @@
           <tr><td><code class="ld-code-inline">data-ld-notheme</code></td><td>Freezes subtree at light appearance</td></tr>
           <tr><td><code class="ld-code-inline">data-ld-toggle="theme"</code></td><td>Click to flip theme, persists via localStorage; on a first visit with nothing saved yet, falls back to the OS/browser's <code class="ld-code-inline">prefers-color-scheme</code></td></tr>
           <tr><td><code class="ld-code-inline">data-ld-theme="light"</code></td><td>Now also works on a subtree inside a dark page, using the same shared light tokens as <code class="ld-code-inline">:root</code> and <code class="ld-code-inline">data-ld-notheme</code></td></tr>
+          <tr><td>No data-ld-theme (automatic)</td><td>With no attribute the page follows the operating system through <code class="ld-code-inline">prefers-color-scheme</code>, from the very first paint and with JavaScript off. The build copies every <code class="ld-code-inline">[data-ld-theme="dark"]</code> rule into a <code class="ld-code-inline">prefers-color-scheme: dark</code> block, so the dark-only utilities and component tweaks follow too.</td></tr>
+          <tr><td>dist/ldcss-theme.js</td><td>Put it in <code class="ld-code-inline">&lt;head&gt;</code> to apply a saved choice before the first paint.</td></tr>
+          <tr><td>ldcss.theme.get(), ldcss.theme.set("light" | "dark" | "auto")</td><td><code class="ld-code-inline">get</code> returns what is showing; <code class="ld-code-inline">set</code> chooses and remembers (in <code class="ld-code-inline">localStorage</code>), <code class="ld-code-inline">"auto"</code> forgets and follows the OS again. Fires <code class="ld-code-inline">ld:theme:change</code> with <code class="ld-code-inline">{ theme, setting }</code>.</td></tr>
+          <tr><td>color-scheme</td><td>Each theme also sets <code class="ld-code-inline">color-scheme</code>, so scrollbars and native controls match.</td></tr>
         </tbody>
       </table>
     </div>
@@ -170,8 +182,9 @@
           <tr><td>--ld-accent, --ld-accent-text, --ld-accent-fill</td><td>Brand colour, text on top of it, and the fill used by primary buttons (can be a gradient).</td></tr>
           <tr><td>--ld-bg, --ld-surface, --ld-surface-raised</td><td>Page background, card/input surface, and a raised or hovered surface.</td></tr>
           <tr><td>--ld-text, --ld-text-muted</td><td>Body text and secondary text.</td></tr>
-          <tr><td>--ld-border, --ld-border-soft, --ld-border-width</td><td>Visible borders, hairline dividers, and the border thickness.</td></tr>
-          <tr><td>--ld-focus-ring, --ld-code-text</td><td>Colour of the focus outline and of code text.</td></tr>
+          <tr><td>--ld-border, --ld-border-soft, --ld-border-width</td><td>Decorative borders, hairline dividers, and the border thickness. They are intentionally faint; do not use them to mark the edge of a control.</td></tr>
+          <tr><td>--ld-border-control</td><td>The edge of a form control (input, select, switch, range track, tag input, dropzone). 3:1 or better against the page, surface and raised surface in both themes, which is what WCAG 1.4.11 asks for.</td></tr>
+          <tr><td>--ld-focus-ring, --ld-focus-border, --ld-code-text</td><td>Colour of the focus outline; the border colour of a focused field (the accent darkened toward the focus colour so it reaches 3:1 on every surface); code text.</td></tr>
           <tr><td>--ld-danger, --ld-success, --ld-warning, --ld-info (+ <code class="ld-code-inline">-text</code>)</td><td>Status colours and the readable text colour for each.</td></tr>
           <tr><td>--ld-shadow, --ld-shadow-lg, --ld-shadow-soft, --ld-shadow-soft-lg, --ld-shadow-color, --ld-shadow-offset</td><td>Elevation. The soft pair is what <code class="ld-code-inline">data-ld-shadow="soft"</code> points at; colour and offset belong to <code class="ld-code-inline">data-ld-shadow="hard"</code>.</td></tr>
           <tr><td>--ld-radius</td><td>Corner radius for components.</td></tr>
@@ -902,7 +915,7 @@ ldcss.fuzzy.highlight('Button', [0, 3, 5])  // '&lt;mark&gt;B&lt;/mark&gt;ut&lt;
   <section class="ld-section" data-ld-size="sm" id="overlays" data-cs-section>
     <h2 class="ld-section-title">Dropdown, popover, modal, offcanvas, command palette <a class="cs-anchor" href="#/overlays/overlays" aria-label="Link to Dropdown, popover, modal, offcanvas, command palette">#</a></h2>
     <p class="ld-section-sub">Triggers and what they open</p>
-    <div class="cs-prose"><p>Every overlay is opened by a trigger carrying <code class="ld-code-inline">data-ld-toggle</code>. While a modal, offcanvas or command palette is open, the rest of the page is made <code class="ld-code-inline">inert</code> (nothing behind it can be tabbed to or read), and the dialog is named from its first heading. Dropdown menus get <code class="ld-code-inline">role="menu"</code> and arrow-key navigation.</p></div>
+    <div class="cs-prose"><p>Every overlay is opened by a trigger carrying <code class="ld-code-inline">data-ld-toggle</code>. While a modal, offcanvas or command palette is open, the rest of the page is made <code class="ld-code-inline">inert</code> (nothing behind it can be tabbed to or read), and the dialog is named from its first heading. Dropdown menus get <code class="ld-code-inline">role="menu"</code> and arrow-key navigation.</p><p>Dialogs stack properly: each one remembers what opened it and hands focus back to exactly that when it closes, Escape closes one layer at a time (a dropdown inside a modal first, then the modal; stacked modals top first), and the focus trap only visits elements that are really visible and enabled.</p></div>
     <div class="ld-table-wrap" role="region" tabindex="0" aria-label="Dropdown, popover, modal, offcanvas, command palette reference">
       <table class="ld-table" data-ld-striped="true">
         <thead><tr><th scope="col">Class / attribute</th><th scope="col">What it does</th></tr></thead>
@@ -989,7 +1002,7 @@ ldcss.fuzzy.highlight('Button', [0, 3, 5])  // '&lt;mark&gt;B&lt;/mark&gt;ut&lt;
   <section class="ld-section" data-ld-size="sm" id="toasts" data-cs-section>
     <h2 class="ld-section-title">Toasts and the queue <a class="cs-anchor" href="#/feedback/toasts" aria-label="Link to Toasts and the queue">#</a></h2>
     <p class="ld-section-sub">Short messages that stack and wait their turn</p>
-    <div class="cs-prose"><p><code class="ld-code-inline">ldcss.toast()</code> shows a toast. At most <code class="ld-code-inline">data-ld-toast-max</code> (default 5) are visible; the rest wait in a queue and appear as others close. Hovering or focusing a toast pauses its timer. Showing a toast with an <code class="ld-code-inline">id</code> that is already up updates it instead of stacking a copy. Danger toasts are announced immediately.</p></div>
+    <div class="cs-prose"><p><code class="ld-code-inline">ldcss.toast()</code> shows a toast. At most <code class="ld-code-inline">data-ld-toast-max</code> (default 5) are visible; the rest wait in a queue and appear as others close. Hovering or focusing a toast pauses its timer, and so does switching to another tab. Showing a toast with an <code class="ld-code-inline">id</code> that is already up updates it instead of stacking a copy. Danger toasts are announced immediately.</p><p>When you do not pass a <code class="ld-code-inline">duration</code>, a toast stays long enough to read: 5 seconds, plus 40 ms for every character beyond 60, plus 3 seconds when it has buttons, never more than 15 seconds. Set <code class="ld-code-inline">data-ld-toast-default-duration</code> on <code class="ld-code-inline">&lt;body&gt;</code> to use your own number (<code class="ld-code-inline">0</code> keeps toasts until dismissed).</p></div>
     <pre class="ld-code" tabindex="0">ldcss.toast({ message: 'Saved', variant: 'success' });
 
 const t = ldcss.toast({ id: 'upload', title: 'Uploading', message: '0%', duration: 0 });
@@ -1013,9 +1026,10 @@ ldcss.toast({ message: 'Item removed', progress: true,
         <tbody>
           <tr><td><code class="ld-code-inline">data-ld-toggle="toast"</code>, <code class="ld-code-inline">data-ld-toast-message/-variant/-duration</code></td><td>Values: variant: success · danger</td></tr>
           <tr><td><code class="ld-code-inline">data-ld-toast-position</code> (on &lt;body&gt;)</td><td>Values: top-left · top-center · top-right (default) · bottom-left · bottom-center · bottom-right — read once, at container-creation time</td></tr>
-          <tr><td>ldcss.toast(spec) → { id, el, dismiss(), update(patch) }</td><td><code class="ld-code-inline">spec</code>: <code class="ld-code-inline">title</code>, <code class="ld-code-inline">message</code>, <code class="ld-code-inline">variant</code> (<code class="ld-code-inline">success · danger · warning · info</code>), <code class="ld-code-inline">duration</code> (ms, <code class="ld-code-inline">0</code> keeps it), <code class="ld-code-inline">id</code>, <code class="ld-code-inline">actions</code>, <code class="ld-code-inline">progress</code>. A string works too: <code class="ld-code-inline">ldcss.toast("Saved")</code>.</td></tr>
+          <tr><td>ldcss.toast(spec) → { id, el, dismiss(), update(patch) }</td><td><code class="ld-code-inline">spec</code>: <code class="ld-code-inline">title</code>, <code class="ld-code-inline">message</code>, <code class="ld-code-inline">variant</code> (<code class="ld-code-inline">success · danger · warning · info</code>), <code class="ld-code-inline">duration</code> (ms, <code class="ld-code-inline">0</code> keeps it; default depends on the text), <code class="ld-code-inline">id</code>, <code class="ld-code-inline">actions</code>, <code class="ld-code-inline">progress</code>. A string works too: <code class="ld-code-inline">ldcss.toast("Saved")</code>.</td></tr>
           <tr><td>actions: [{ label, onClick(event, handle), dismiss }]</td><td>Buttons inside the toast. Each dismisses the toast unless <code class="ld-code-inline">dismiss: false</code>.</td></tr>
           <tr><td>data-ld-toast-max (on &lt;body&gt;)</td><td>Most toasts visible at once; default 5.</td></tr>
+          <tr><td>data-ld-toast-default-duration (on &lt;body&gt;)</td><td>Milliseconds a toast stays when it has no <code class="ld-code-inline">duration</code> of its own; <code class="ld-code-inline">0</code> = until dismissed. Without it the reading-time rule above applies.</td></tr>
           <tr><td>data-ld-toast-persist, -title, -progress</td><td>More options for the <code class="ld-code-inline">data-ld-toggle="toast"</code> trigger: no auto-dismiss, a title, a countdown bar.</td></tr>
           <tr><td>ldcss.toast.clear()</td><td>Dismiss everything, queue included.</td></tr>
           <tr><td>ld:toast:show, :hide, :action, :update</td><td>Events. <code class="ld-code-inline">hide</code> carries <code class="ld-code-inline">reason</code>: <code class="ld-code-inline">timeout</code>, <code class="ld-code-inline">dismiss</code>, <code class="ld-code-inline">action</code> or <code class="ld-code-inline">clear</code>.</td></tr>
@@ -1296,6 +1310,7 @@ off();                                                    // unsubscribe</pre>
           <tr><td>ld:table:sort, :filter, :page, :select, :render</td><td><code class="ld-code-inline">{ key, column, direction }</code>, <code class="ld-code-inline">{ query, count }</code>, <code class="ld-code-inline">{ page, pageSize, pageCount }</code>, <code class="ld-code-inline">{ count, rows }</code>, <code class="ld-code-inline">{ visible, total }</code>.</td></tr>
           <tr><td>ld:search:filter</td><td><code class="ld-code-inline">{ query, count, total }</code>.</td></tr>
           <tr><td>ld:init</td><td>Fired on an element ldcss just initialised after it was added to the page.</td></tr>
+          <tr><td>ld:theme:change</td><td>Fired on <code class="ld-code-inline">&lt;html&gt;</code> by <code class="ld-code-inline">ldcss.theme.set()</code> and the theme toggle: <code class="ld-code-inline">{ theme, setting }</code> (<code class="ld-code-inline">theme</code> is what shows, <code class="ld-code-inline">setting</code> is <code class="ld-code-inline">light</code>, <code class="ld-code-inline">dark</code> or <code class="ld-code-inline">auto</code>).</td></tr>
           <tr><td>ldcss.on(type, fn, options), ldcss.off(type, fn), ldcss.once(type, fn, options)</td><td><code class="ld-code-inline">type</code> with or without the <code class="ld-code-inline">ld:</code> prefix, or <code class="ld-code-inline">"*"</code>. Options: <code class="ld-code-inline">target</code> (selector; only events from inside it), <code class="ld-code-inline">root</code>, <code class="ld-code-inline">once</code>. <code class="ld-code-inline">on</code> returns an unsubscribe function.</td></tr>
           <tr><td>ldcss.emit(el, name, detail, cancelable)</td><td>Dispatch your own <code class="ld-code-inline">ld:</code> events through the same system; returns <code class="ld-code-inline">false</code> when cancelled.</td></tr>
         </tbody>
@@ -1364,7 +1379,10 @@ ldcss.refresh(someElement);            // manual init of one subtree</pre>
           <tr><td>Tables</td><td>Sort buttons with <code class="ld-code-inline">aria-sort</code>; status line announces sort, filter and page changes; scroll area is focusable and labelled.</td></tr>
           <tr><td>Forms in <code class="ld-code-inline">ld-validate</code></td><td><code class="ld-code-inline">aria-invalid</code> once a field has been touched.</td></tr>
           <tr><td>Toasts, copy button</td><td>Polite live region; danger toasts use <code class="ld-code-inline">role="alert"</code>; "Copied to clipboard" is announced.</td></tr>
+          <tr><td>Form controls</td><td>Edges use <code class="ld-code-inline">--ld-border-control</code> (3:1 or better). Focus shows a border colour change plus a ring, and a transparent outline that Windows High Contrast turns into a real one; the range slider shows a ring on its thumb.</td></tr>
           <tr><td>Small controls</td><td>Dots, tag remove buttons and the like keep their look but get a 24 × 24px hit area (WCAG 2.5.8).</td></tr>
+          <tr><td>Dialogs</td><td>Stacked dialogs each return focus to what opened them; Escape closes one layer at a time; the focus trap skips hidden and disabled elements; only the top dialog is reachable.</td></tr>
+          <tr><td>Keyboard events</td><td>Handlers tolerate <code class="ld-code-inline">keydown</code> events with no <code class="ld-code-inline">key</code> (sent by browser autofill) or with a non-element target.</td></tr>
           <tr><td>Context menu, resize handle</td><td><code class="ld-code-inline">role="menu"</code> with roving focus; <code class="ld-code-inline">role="separator"</code> with <code class="ld-code-inline">aria-valuenow/min/max</code>.</td></tr>
         </tbody>
       </table>
@@ -1428,6 +1446,8 @@ npm run watch     # rebuilds when src/ or build/ changes</pre>
           <tr><td>src/css/&lt;layer&gt;/sNN-name.css</td><td>One file per section, one folder per cascade layer (<code class="ld-code-inline">tokens</code>, <code class="ld-code-inline">base</code>, <code class="ld-code-inline">components</code>, <code class="ld-code-inline">utilities</code>, <code class="ld-code-inline">escape</code>, <code class="ld-code-inline">variants</code>). Files join in name order.</td></tr>
           <tr><td>src/css/**/*.gen.mjs</td><td>Generated CSS: the sidebar breakpoints, sizing/flex/grid/transition utilities, hover/focus variants. They read the breakpoint table, so a breakpoint is defined once.</td></tr>
           <tr><td>src/css/head.css</td><td><code class="ld-code-inline">@font-face</code> for the self-hosted font (outside the layers).</td></tr>
+          <tr><td>src/js/theme-init.js</td><td>Becomes <code class="ld-code-inline">dist/ldcss-theme.js</code>, the tiny <code class="ld-code-inline">&lt;head&gt;</code> script that applies a saved theme before first paint.</td></tr>
+          <tr><td>Automatic dark rules</td><td>The build copies every rule starting with <code class="ld-code-inline">[data-ld-theme="dark"]</code> into a <code class="ld-code-inline">prefers-color-scheme: dark</code> block (selector <code class="ld-code-inline">:where(:root):not([data-ld-theme])</code>, same specificity). Write dark rules once; the automatic ones follow.</td></tr>
           <tr><td>src/js/ldcss.js</td><td>The core: shared helpers, the original components and the public API.</td></tr>
           <tr><td>src/js/modules/NN-name.js</td><td>One file per newer component (fuzzy, disclosure, context menu, toasts, resizable, combobox, search, tables, accessibility). Inlined into the core in name order, so modules share its helpers.</td></tr>
           <tr><td>build/config.mjs</td><td>Breakpoints and layer order.</td></tr>
@@ -1646,7 +1666,7 @@ npm run watch     # rebuilds when src/ or build/ changes</pre>
 
   // Ctrl/⌘ + K focuses the search from anywhere
   document.addEventListener('keydown', function (e) {
-    if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') {
+    if ((e.ctrlKey || e.metaKey) && (e.key || '').toLowerCase() === 'k') {
       e.preventDefault();
       var input = searchBox.querySelector('input');
       input.focus(); input.select();

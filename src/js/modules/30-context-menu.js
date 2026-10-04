@@ -142,7 +142,7 @@
   }, true);
 
   document.addEventListener('click', function (e) {
-    var item = e.target.closest && e.target.closest('.ld-context-item');
+    var item = e.target.closest && closestOf(e.target, '.ld-context-item');
     if (!item || !contextState.menu || !contextState.menu.contains(item)) return;
     if (item.disabled || item.getAttribute('aria-disabled') === 'true') { e.preventDefault(); return; }
     var menu = contextState.menu, region = contextState.region, target = menu._ldTarget;
@@ -164,7 +164,7 @@
     else if (e.key === 'Home') { e.preventDefault(); focusContextItem(menu, items[0]); }
     else if (e.key === 'End') { e.preventDefault(); focusContextItem(menu, items[items.length - 1]); }
     else if ((e.key === 'Enter' || e.key === ' ') && index !== -1) { e.preventDefault(); items[index].click(); }
-    else if (e.key.length === 1 && !e.ctrlKey && !e.metaKey && !e.altKey) {
+    else if ((e.key || '').length === 1 && !e.ctrlKey && !e.metaKey && !e.altKey) {
       var ch = e.key.toLowerCase(), ordered = items.slice(index + 1).concat(items.slice(0, index + 1));
       var hit = ordered.filter(function (it) { return it.textContent.trim().toLowerCase().indexOf(ch) === 0; })[0];
       if (hit) focusContextItem(menu, hit);
@@ -172,7 +172,7 @@
   }, true);
 
   document.addEventListener('mouseover', function (e) {
-    var item = e.target.closest && e.target.closest('.ld-context-item');
+    var item = e.target.closest && closestOf(e.target, '.ld-context-item');
     if (item && contextState.menu && contextState.menu.contains(item) && !item.disabled && item.getAttribute('aria-disabled') !== 'true') {
       focusContextItem(contextState.menu, item);
     }

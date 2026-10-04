@@ -453,7 +453,7 @@
   }
 
   document.addEventListener('click', function (e) {
-    var pageBtn = e.target.closest && e.target.closest('[data-ld-table-page]');
+    var pageBtn = e.target.closest && closestOf(e.target, '[data-ld-table-page]');
     if (pageBtn && !pageBtn.disabled) {
       var shell = pageBtn.closest('.ld-table-shell');
       var table = shell && shell.querySelector('table[data-ld-table]');

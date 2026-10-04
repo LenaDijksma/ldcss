@@ -71,7 +71,7 @@
   flex-direction: column;
   width: min(24rem, calc(100vw - 2rem));
   max-height: min(28rem, 70vh);
-  outline: none;
+  outline: 2px solid transparent;
 }
 
 .ld-nc-head {

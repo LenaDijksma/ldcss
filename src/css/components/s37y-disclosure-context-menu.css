@@ -59,7 +59,7 @@
   border-radius: var(--ld-radius);
   box-shadow: var(--ld-shadow-lg);
   z-index: var(--ld-z-popover);
-  outline: none;
+  outline: 2px solid transparent;
 }
 
 .ld-context-menu.ld-show {
@@ -87,7 +87,9 @@
 .ld-context-item:hover,
 .ld-context-item:focus-visible {
   background: var(--ld-surface-raised);
-  outline: none;
+  /* transparent outline: shown by forced-colors, where the inset ring below is removed */
+  outline: 2px solid transparent;
+  outline-offset: -2px;
 }
 
 .ld-context-item:focus-visible {

@@ -23,8 +23,17 @@
   'use strict';
 
   var STORAGE_KEY = 'ld-theme';
-  var lastFocusedEl = null;
+  /* Open dialogs (modal, offcanvas, command palette), bottom to top. Each keeps
+     its own return-focus target, so stacked dialogs hand focus back in order. */
+  var overlayStack = [];
   var activeAnimationObservers = [];
+
+  /* element.closest() that tolerates events whose target is not an element
+     (document, window, a text node): synthetic keydown events and some
+     assistive tools dispatch those. */
+  function closestOf(node, selector) {
+    return node && typeof node.closest === 'function' ? node.closest(selector) : null;
+  }
 
   /* Module registry — each file in src/js/modules/ adds an init function
      here. They run once at load, from ldcss.refresh(root), and for every
@@ -60,7 +69,7 @@
   }
 
   function matchesTarget(e, selector) {
-    return !selector || (e.target && e.target.closest && e.target.closest(selector));
+    return !selector || (e.target && e.target.closest && closestOf(e.target, selector));
   }
 
   /* ldcss.on('modal:show', fn)               every modal
@@ -139,24 +148,41 @@
      Theme
      ------------------------------------------------------------------- */
 
+  function systemTheme() {
+    return window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+  }
+
+  /* The theme actually showing: the attribute if there is one, otherwise what
+     the operating system asks for (the CSS follows it with no attribute). */
+  function currentTheme() {
+    return document.documentElement.getAttribute('data-ld-theme') || systemTheme();
+  }
+
   function initTheme() {
+    // A saved choice is applied here (dist/ldcss-theme.js in <head> already did it
+    // before first paint). With no saved choice nothing is set: the CSS follows the
+    // OS by itself, including when the OS setting changes while the page is open.
     var saved = null;
     try { saved = localStorage.getItem(STORAGE_KEY); } catch (e) {}
-    if (saved) {
-      document.documentElement.setAttribute('data-ld-theme', saved);
-    } else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-      // No explicit choice saved yet — match the OS/browser preference.
-      // A saved choice (from toggleTheme) always wins over this on
-      // future visits, this only fires the very first time.
-      document.documentElement.setAttribute('data-ld-theme', 'dark');
+    if (saved === 'light' || saved === 'dark') document.documentElement.setAttribute('data-ld-theme', saved);
+  }
+
+  /* 'light' | 'dark' choose and remember; 'auto' forgets the choice and follows the OS again. */
+  function setTheme(theme) {
+    var root = document.documentElement;
+    if (theme === 'light' || theme === 'dark') {
+      root.setAttribute('data-ld-theme', theme);
+      try { localStorage.setItem(STORAGE_KEY, theme); } catch (e) {}
+    } else {
+      root.removeAttribute('data-ld-theme');
+      try { localStorage.removeItem(STORAGE_KEY); } catch (e) {}
+      theme = 'auto';
     }
+    emit(root, 'ld:theme:change', { theme: currentTheme(), setting: theme });
   }
 
   function toggleTheme() {
-    var current = document.documentElement.getAttribute('data-ld-theme') || 'light';
-    var next = current === 'dark' ? 'light' : 'dark';
-    document.documentElement.setAttribute('data-ld-theme', next);
-    try { localStorage.setItem(STORAGE_KEY, next); } catch (e) {}
+    setTheme(currentTheme() === 'dark' ? 'light' : 'dark');
   }
 
   /* ---------------------------------------------------------------------
@@ -355,15 +381,58 @@
      Focus trap helper — shared by modal, offcanvas, command palette
      ------------------------------------------------------------------- */
 
+  var FOCUSABLE = 'a[href], button, input:not([type="hidden"]), textarea, select, summary, iframe, [contenteditable]:not([contenteditable="false"]), [tabindex]';
+
+  /* Can this element take focus right now? Skips disabled, inert, hidden,
+     display:none and visibility:hidden (a closed disclosure, a collapsed menu,
+     a hidden tab panel), none of which can actually be focused. */
+  function isFocusable(el) {
+    if (el.disabled || el.getAttribute('tabindex') === '-1') return false;
+    if (el.closest('[inert], [hidden], [aria-hidden="true"]')) return false;
+    if (el.getClientRects().length === 0) return false;
+    return window.getComputedStyle(el).visibility !== 'hidden';
+  }
+
   function getFocusable(container) {
-    var nodes = container.querySelectorAll(
-      'a[href], button:not([disabled]), input:not([disabled]), textarea:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])'
-    );
-    return Array.prototype.slice.call(nodes);
+    return Array.prototype.filter.call(container.querySelectorAll(FOCUSABLE), isFocusable);
+  }
+
+  /* -- the stack of open dialogs -- */
+
+  /* Only the top dialog may be reachable. The accessibility module owns that
+     (it marks everything else inert); it has to run synchronously on every open
+     and close, before focus moves, because inert elements cannot take focus. */
+  function syncDialogInert() {
+    if (typeof syncInert === 'function') syncInert();
+  }
+
+  function overlayEntry(backdrop) {
+    for (var i = 0; i < overlayStack.length; i++) if (overlayStack[i].el === backdrop) return overlayStack[i];
+    return null;
+  }
+
+  function pushOverlay(backdrop, kind, trigger) {
+    var existing = overlayEntry(backdrop);
+    if (existing) overlayStack.splice(overlayStack.indexOf(existing), 1);
+    var from = trigger || document.activeElement;
+    overlayStack.push({ el: backdrop, kind: kind, returnFocus: from && from !== document.body ? from : null });
+  }
+
+  /* The dialog on top: the most recently opened one that is still showing. */
+  function topOverlay() {
+    for (var i = overlayStack.length - 1; i >= 0; i--) {
+      if (overlayStack[i].el.isConnected && overlayStack[i].el.classList.contains('ld-show')) return overlayStack[i];
+      if (!overlayStack[i].el.isConnected || !overlayStack[i].el.classList.contains('ld-show')) overlayStack.splice(i, 1);
+    }
+    return null;
   }
 
   function getOpenOverlay() {
-    return document.querySelector('.ld-modal-backdrop.ld-show, .ld-offcanvas-backdrop.ld-show, .ld-command-backdrop.ld-show');
+    var top = topOverlay();
+    if (top) return top.el;
+    // opened by something other than ldcss (a class toggled by hand): fall back to the last one in the DOM
+    var all = document.querySelectorAll('.ld-modal-backdrop.ld-show, .ld-offcanvas-backdrop.ld-show, .ld-command-backdrop.ld-show');
+    return all.length ? all[all.length - 1] : null;
   }
 
   function trapTab(e) {
@@ -371,10 +440,13 @@
     var overlay = getOpenOverlay();
     if (!overlay) return;
     var focusables = getFocusable(overlay);
-    if (!focusables.length) return;
+    if (!focusables.length) { e.preventDefault(); return; }
     var first = focusables[0];
     var last = focusables[focusables.length - 1];
-    if (e.shiftKey && document.activeElement === first) {
+    if (!overlay.contains(document.activeElement)) {
+      e.preventDefault();
+      first.focus();
+    } else if (e.shiftKey && document.activeElement === first) {
       e.preventDefault();
       last.focus();
     } else if (!e.shiftKey && document.activeElement === last) {
@@ -383,11 +455,37 @@
     }
   }
 
-  function returnFocus() {
-    if (lastFocusedEl && typeof lastFocusedEl.focus === 'function') {
-      lastFocusedEl.focus();
+  /* Close a dialog: take it off the stack and, if it was the top one, give
+     focus back to whatever opened it. A dialog closed from underneath another
+     one must not steal focus from the one that is still open. */
+  function releaseOverlay(backdrop) {
+    var entry = overlayEntry(backdrop);
+    var wasTop = !entry || topOverlay() === entry;
+    backdrop.classList.remove('ld-show');
+    if (entry) overlayStack.splice(overlayStack.indexOf(entry), 1);
+    syncDialogInert();
+    if (!wasTop) return;
+    var target = entry && entry.returnFocus;
+    if (target && target.isConnected && isFocusable(target)) {
+      target.focus();
+    } else {
+      // the opener is gone or hidden: land inside the dialog that is still open, if any
+      var below = topOverlay();
+      var fallback = below && getFocusable(below.el)[0];
+      if (fallback) fallback.focus();
     }
-    lastFocusedEl = null;
+  }
+
+  /* Move focus into a dialog that just opened. */
+  function focusInto(backdrop) {
+    var target = backdrop.querySelector('[data-ld-autofocus]');
+    if (!target || !isFocusable(target)) target = getFocusable(backdrop)[0];
+    if (!target) {
+      // nothing focusable inside: focus the dialog itself so keyboard users are not left behind it
+      target = backdrop.querySelector('[role="dialog"]') || backdrop;
+      target.setAttribute('tabindex', '-1');
+    }
+    target.focus();
   }
 
   /* ---------------------------------------------------------------------
@@ -397,26 +495,21 @@
   function openModal(targetSel, trigger) {
     var backdrop = document.querySelector(targetSel);
     if (!backdrop) return;
-    lastFocusedEl = trigger || document.activeElement;
+    pushOverlay(backdrop, 'modal', trigger);
     var box = backdrop.querySelector('.ld-modal');
     if (box) {
       box.setAttribute('role', 'dialog');
       box.setAttribute('aria-modal', 'true');
     }
     backdrop.classList.add('ld-show');
-    var focusable = backdrop.querySelector('[data-ld-autofocus]') || backdrop.querySelector('button, input, a');
-    if (focusable) focusable.focus();
+    syncDialogInert();
+    focusInto(backdrop);
     emit(backdrop, 'ld:modal:show', { trigger: trigger || null });
   }
 
   function closeModal(backdrop) {
-    backdrop.classList.remove('ld-show');
-    returnFocus();
+    releaseOverlay(backdrop);
     emit(backdrop, 'ld:modal:hide', {});
-  }
-
-  function closeAllModals() {
-    document.querySelectorAll('.ld-modal-backdrop.ld-show').forEach(closeModal);
   }
 
   /* ---------------------------------------------------------------------
@@ -426,26 +519,21 @@
   function openOffcanvas(targetSel, trigger) {
     var backdrop = document.querySelector(targetSel);
     if (!backdrop) return;
-    lastFocusedEl = trigger || document.activeElement;
+    pushOverlay(backdrop, 'offcanvas', trigger);
     var panel = backdrop.querySelector('.ld-offcanvas');
     if (panel) {
       panel.setAttribute('role', 'dialog');
       panel.setAttribute('aria-modal', 'true');
     }
     backdrop.classList.add('ld-show');
-    var focusable = backdrop.querySelector('[data-ld-autofocus]') || backdrop.querySelector('button, input, a');
-    if (focusable) focusable.focus();
+    syncDialogInert();
+    focusInto(backdrop);
     emit(backdrop, 'ld:offcanvas:show', { trigger: trigger || null });
   }
 
   function closeOffcanvas(backdrop) {
-    backdrop.classList.remove('ld-show');
-    returnFocus();
+    releaseOverlay(backdrop);
     emit(backdrop, 'ld:offcanvas:hide', {});
-  }
-
-  function closeAllOffcanvas() {
-    document.querySelectorAll('.ld-offcanvas-backdrop.ld-show').forEach(closeOffcanvas);
   }
 
   /* ---------------------------------------------------------------------
@@ -480,8 +568,9 @@
   function openCommand(targetSel, trigger) {
     var backdrop = targetSel ? document.querySelector(targetSel) : document.querySelector('.ld-command-backdrop');
     if (!backdrop) return;
-    lastFocusedEl = trigger || document.activeElement;
+    pushOverlay(backdrop, 'command', trigger);
     backdrop.classList.add('ld-show');
+    syncDialogInert();
     var input = backdrop.querySelector('.ld-command-input');
     if (input) {
       input.value = '';
@@ -492,13 +581,8 @@
   }
 
   function closeCommand(backdrop) {
-    backdrop.classList.remove('ld-show');
-    returnFocus();
+    releaseOverlay(backdrop);
     emit(backdrop, 'ld:command:hide', {});
-  }
-
-  function closeAllCommands() {
-    document.querySelectorAll('.ld-command-backdrop.ld-show').forEach(closeCommand);
   }
 
   function runCommandAction(item) {
@@ -547,7 +631,7 @@
   }
 
   function handleCommandKeydown(e) {
-    var backdrop = e.target.closest('.ld-command-backdrop');
+    var backdrop = closestOf(e.target, '.ld-command-backdrop');
     if (!backdrop) return;
     var list = backdrop.querySelector('[data-ld-command-list]');
     if (!list) return;
@@ -706,27 +790,27 @@
      ------------------------------------------------------------------- */
 
   function handleDropzoneClick(e) {
-    var zone = e.target.closest('[data-ld-dropzone]');
+    var zone = closestOf(e.target, '[data-ld-dropzone]');
     if (!zone || e.target.tagName === 'INPUT') return;
     var input = zone.querySelector('input[type="file"]');
     if (input) input.click();
   }
 
   function handleDropzoneDragOver(e) {
-    var zone = e.target.closest('[data-ld-dropzone]');
+    var zone = closestOf(e.target, '[data-ld-dropzone]');
     if (!zone) return;
     e.preventDefault();
     zone.setAttribute('data-ld-active', 'true');
   }
 
   function handleDropzoneDragLeave(e) {
-    var zone = e.target.closest('[data-ld-dropzone]');
+    var zone = closestOf(e.target, '[data-ld-dropzone]');
     if (!zone) return;
     zone.removeAttribute('data-ld-active');
   }
 
   function handleDropzoneDrop(e) {
-    var zone = e.target.closest('[data-ld-dropzone]');
+    var zone = closestOf(e.target, '[data-ld-dropzone]');
     if (!zone) return;
     e.preventDefault();
     zone.removeAttribute('data-ld-active');
@@ -799,7 +883,7 @@
   }
 
   function handleTagsKeydown(e) {
-    var input = e.target.closest('[data-ld-tags-input]');
+    var input = closestOf(e.target, '[data-ld-tags-input]');
     if (!input) return;
     if (e.key === 'Enter' || e.key === ',') {
       e.preventDefault();
@@ -936,7 +1020,7 @@
     if (!isTab && !isSegment) return;
     if (['ArrowLeft', 'ArrowRight', 'Home', 'End'].indexOf(e.key) === -1) return;
 
-    var group = isTab ? e.target.closest('[data-ld-tabs]') : e.target.closest('[data-ld-segmented]');
+    var group = isTab ? closestOf(e.target, '[data-ld-tabs]') : closestOf(e.target, '[data-ld-segmented]');
     if (!group) return;
     var selector = isTab ? '[data-ld-toggle="tab"]' : '[data-ld-segment]';
     var items = Array.prototype.slice.call(group.querySelectorAll(selector));
@@ -1190,31 +1274,31 @@
   }
 
   document.addEventListener('click', function (e) {
-    var segmentEl = e.target.closest('[data-ld-segment]');
+    var segmentEl = closestOf(e.target, '[data-ld-segment]');
     if (segmentEl) {
       handleSegmentToggle(segmentEl);
       return;
     }
 
-    var chipEl = e.target.closest('[data-ld-chip]');
+    var chipEl = closestOf(e.target, '[data-ld-chip]');
     if (chipEl) {
       handleChipToggle(chipEl);
       return;
     }
 
-    var stepEl = e.target.closest('.ld-step');
+    var stepEl = closestOf(e.target, '.ld-step');
     if (stepEl) {
       handleStepClick(stepEl);
       return;
     }
 
-    var comboboxOptionEl = e.target.closest('[data-ld-combobox-option]');
+    var comboboxOptionEl = closestOf(e.target, '[data-ld-combobox-option]');
     if (comboboxOptionEl) {
       selectComboboxOption(comboboxOptionEl);
       return;
     }
 
-    var dotEl = e.target.closest('[data-ld-carousel-dot]');
+    var dotEl = closestOf(e.target, '[data-ld-carousel-dot]');
     if (dotEl) {
       var dotCarousel = dotEl.closest('[data-ld-carousel]');
       if (dotCarousel) {
@@ -1223,7 +1307,7 @@
       }
       return;
     }
-    var toggleEl = e.target.closest('[data-ld-toggle]');
+    var toggleEl = closestOf(e.target, '[data-ld-toggle]');
     if (toggleEl) {
       var kind = toggleEl.getAttribute('data-ld-toggle');
       if (kind === 'theme') {
@@ -1281,13 +1365,13 @@
       return;
     }
 
-    var starEl = e.target.closest('[data-ld-star]');
+    var starEl = closestOf(e.target, '[data-ld-star]');
     if (starEl) {
       handleRatingClick(starEl);
       return;
     }
 
-    var commandItemEl = e.target.closest('[data-ld-command-item]');
+    var commandItemEl = closestOf(e.target, '[data-ld-command-item]');
     if (commandItemEl) {
       var cmdBackdrop = commandItemEl.closest('.ld-command-backdrop');
       if (cmdBackdrop) closeCommand(cmdBackdrop);
@@ -1295,65 +1379,65 @@
       return;
     }
 
-    var pageBtn = e.target.closest('.ld-pagination button');
+    var pageBtn = closestOf(e.target, '.ld-pagination button');
     if (pageBtn) {
       handlePaginationClick(pageBtn);
       return;
     }
 
-    var listItemEl = e.target.closest('.ld-list-item[data-ld-interactive="true"]');
+    var listItemEl = closestOf(e.target, '.ld-list-item[data-ld-interactive="true"]');
     if (listItemEl) {
       handleListItemClick(listItemEl);
       return;
     }
 
-    var inputClearEl = e.target.closest('[data-ld-input-clear]');
+    var inputClearEl = closestOf(e.target, '[data-ld-input-clear]');
     if (inputClearEl) {
       handleInputClear(inputClearEl);
       return;
     }
 
-    var passwordToggleEl = e.target.closest('[data-ld-password-toggle]');
+    var passwordToggleEl = closestOf(e.target, '[data-ld-password-toggle]');
     if (passwordToggleEl) {
       handlePasswordToggle(passwordToggleEl);
       return;
     }
 
-    var sortHeaderEl = e.target.closest('th[data-ld-sort]');
+    var sortHeaderEl = closestOf(e.target, 'th[data-ld-sort]');
     if (sortHeaderEl) {
       handleSortHeaderClick(sortHeaderEl);
       return;
     }
 
-    var tagRemoveEl = e.target.closest('.ld-tag-remove, [data-ld-tag-remove]');
+    var tagRemoveEl = closestOf(e.target, '.ld-tag-remove, [data-ld-tag-remove]');
     if (tagRemoveEl) {
       var tagEl = tagRemoveEl.closest('.ld-tag, [data-ld-tag]');
       if (tagEl) tagEl.remove();
       return;
     }
 
-    var dismissEl = e.target.closest('[data-ld-dismiss="modal"]');
+    var dismissEl = closestOf(e.target, '[data-ld-dismiss="modal"]');
     if (dismissEl) {
       var backdrop = dismissEl.closest('.ld-modal-backdrop');
       if (backdrop) closeModal(backdrop);
       return;
     }
 
-    var offcanvasDismissEl = e.target.closest('[data-ld-dismiss="offcanvas"]');
+    var offcanvasDismissEl = closestOf(e.target, '[data-ld-dismiss="offcanvas"]');
     if (offcanvasDismissEl) {
       var ocBackdrop = offcanvasDismissEl.closest('.ld-offcanvas-backdrop');
       if (ocBackdrop) closeOffcanvas(ocBackdrop);
       return;
     }
 
-    var commandDismissEl = e.target.closest('[data-ld-dismiss="command"]');
+    var commandDismissEl = closestOf(e.target, '[data-ld-dismiss="command"]');
     if (commandDismissEl) {
       var cmdDismissBackdrop = commandDismissEl.closest('.ld-command-backdrop');
       if (cmdDismissBackdrop) closeCommand(cmdDismissBackdrop);
       return;
     }
 
-    var alertDismissEl = e.target.closest('[data-ld-dismiss="alert"]');
+    var alertDismissEl = closestOf(e.target, '[data-ld-dismiss="alert"]');
     if (alertDismissEl) {
       var alertEl = alertDismissEl.closest('.ld-alert');
       if (alertEl) alertEl.remove();
@@ -1375,36 +1459,53 @@
 
     handleDropzoneClick(e);
 
-    if (!e.target.closest('[data-ld-dropdown]')) {
+    if (!closestOf(e.target, '[data-ld-dropdown]')) {
       closeAllDropdowns();
     }
-    if (!e.target.closest('[data-ld-popover]')) {
+    if (!closestOf(e.target, '[data-ld-popover]')) {
       closeAllPopovers();
     }
-    var openBox = e.target.closest('[data-ld-combobox]');
+    var openBox = closestOf(e.target, '[data-ld-combobox]');
     closeAllComboboxes(openBox);
   });
 
+  /* Escape closes one layer at a time, the one the person is in:
+       1. a dropdown / popover they are keyboard-navigating (or whose button has focus)
+       2. an open combobox list they are typing in (its own handler closes it)
+       3. the top dialog, and only that one
+       4. otherwise any open dropdown, popover or combobox list
+     A dropdown inside a modal closes first, then the modal; stacked modals close top first. */
   document.addEventListener('keydown', function (e) {
-    if (e.key === 'Escape') {
-      // Modal/offcanvas/command already restore focus themselves (see
-      // lastFocusedEl). Dropdown/popover don't trap focus the way those
-      // do, so this only needs to act when the person was actually
-      // keyboard-navigating inside the open panel — if they'd already
-      // clicked elsewhere, that click is where focus should stay.
+    var key = e.key || ''; // autofill and some assistive tech send keydown events with no key
+    if (key === 'Escape') {
+      var active = document.activeElement;
       var openFloating = document.querySelector('[data-ld-dropdown-menu].ld-show, [data-ld-popover-content].ld-show');
-      var floatingReturnEl = (openFloating && openFloating.contains(document.activeElement) && openFloating._ldTrigger) || null;
+      var floatingOwnsFocus = !!openFloating && !!active && (openFloating.contains(active) || openFloating._ldTrigger === active);
+      var comboBox = active && active.closest ? active.closest('[data-ld-combobox]') : null;
+      var comboList = comboBox && comboBox.querySelector('[data-ld-combobox-list]');
+      var comboOpen = !!comboList && comboList.classList.contains('ld-show');
 
-      closeAllDropdowns();
-      closeAllPopovers();
-      closeAllModals();
-      closeAllOffcanvas();
-      closeAllCommands();
-      closeAllComboboxes();
-
-      if (floatingReturnEl && typeof floatingReturnEl.focus === 'function') floatingReturnEl.focus();
+      if (floatingOwnsFocus) {
+        var returnEl = openFloating._ldTrigger;
+        closeAllDropdowns();
+        closeAllPopovers();
+        if (returnEl && typeof returnEl.focus === 'function') returnEl.focus();
+      } else if (comboOpen) {
+        // handleComboboxKeydown below closes the list; the dialog around it stays open
+      } else {
+        var top = topOverlay();
+        if (top) {
+          if (top.kind === 'modal') closeModal(top.el);
+          else if (top.kind === 'offcanvas') closeOffcanvas(top.el);
+          else closeCommand(top.el);
+        } else {
+          closeAllDropdowns();
+          closeAllPopovers();
+          closeAllComboboxes();
+        }
+      }
     }
-    if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') {
+    if ((e.metaKey || e.ctrlKey) && key.toLowerCase() === 'k') {
       var paletteExists = document.querySelector('.ld-command-backdrop');
       if (paletteExists) {
         e.preventDefault();
@@ -1419,12 +1520,12 @@
   });
 
   document.addEventListener('input', function (e) {
-    var commandInput = e.target.closest('.ld-command-input');
+    var commandInput = closestOf(e.target, '.ld-command-input');
     if (commandInput) {
       var backdrop = commandInput.closest('.ld-command-backdrop');
       if (backdrop) filterCommandList(backdrop, commandInput.value);
     }
-    var comboboxInput = e.target.closest('[data-ld-combobox] input');
+    var comboboxInput = closestOf(e.target, '[data-ld-combobox] input');
     if (comboboxInput) {
       onComboboxInput(comboboxInput.closest('[data-ld-combobox]'));
     }
@@ -1433,13 +1534,13 @@
       autosizeTextarea(e.target);
     }
 
-    if (e.target.closest && e.target.closest('.ld-input-group')) {
+    if (e.target.closest && closestOf(e.target, '.ld-input-group')) {
       syncInputClear(e.target);
     }
   });
 
   document.addEventListener('change', function (e) {
-    var input = e.target.closest('[data-ld-dropzone] input[type="file"]');
+    var input = closestOf(e.target, '[data-ld-dropzone] input[type="file"]');
     if (!input) return;
     var zone = input.closest('[data-ld-dropzone]');
     var labelSel = zone.getAttribute('data-ld-dropzone-label');
@@ -1452,7 +1553,7 @@
   /* Sidebar dropdown (small screens): choosing a link closes the menu, and
      Escape closes it and hands focus back to the toggle button. */
   document.addEventListener('click', function (e) {
-    var sideLink = e.target.closest && e.target.closest('.ld-sidebar-link');
+    var sideLink = e.target.closest && closestOf(e.target, '.ld-sidebar-link');
     if (sideLink) closeNavbarCollapse(sideLink.closest('.ld-sidebar-body'));
   });
 
@@ -1564,6 +1665,7 @@
      ------------------------------------------------------------------- */
   window.ldcss = window.ldcss || {};
   window.ldcss.refresh = runInitializers;
+  window.ldcss.theme = { get: currentTheme, set: setTheme };
   window.ldcss.observe = observeDom;
   window.ldcss.unobserve = unobserveDom;
   window.ldcss.on = on;

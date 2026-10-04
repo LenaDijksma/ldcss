@@ -511,7 +511,7 @@
   }
 
   function handleComboboxKeydown(e) {
-    var box = e.target.closest && e.target.closest('[data-ld-combobox]');
+    var box = e.target.closest && closestOf(e.target, '[data-ld-combobox]');
     if (!box || e.target !== comboInput(box)) return;
     var list = comboList(box);
     if (!list) return;
@@ -554,7 +554,7 @@
   document.addEventListener('keydown', function (e) {
     // second Escape on an already-closed combobox clears it
     if (e.key !== 'Escape') return;
-    var box = e.target.closest && e.target.closest('[data-ld-combobox]');
+    var box = e.target.closest && closestOf(e.target, '[data-ld-combobox]');
     var input = box && comboInput(box);
     if (input && e.target === input && input.value && !comboList(box).classList.contains('ld-show') && box.getAttribute('data-ld-escape-clear') !== 'false') {
       input.value = '';
@@ -564,7 +564,7 @@
   }, true);
 
   document.addEventListener('click', function (e) {
-    var retry = e.target.closest && e.target.closest('[data-ld-combobox-retry]');
+    var retry = e.target.closest && closestOf(e.target, '[data-ld-combobox-retry]');
     if (retry) {
       var box = retry.closest('[data-ld-combobox]');
       var input = box && comboInput(box);
@@ -574,7 +574,7 @@
 
   /* keep the input open/closed in step with the list when focus leaves */
   document.addEventListener('focusin', function (e) {
-    var box = e.target.closest && e.target.closest('[data-ld-combobox]');
+    var box = e.target.closest && closestOf(e.target, '[data-ld-combobox]');
     document.querySelectorAll('[data-ld-combobox]').forEach(function (other) {
       if (other !== box) closeCombobox(other);
     });

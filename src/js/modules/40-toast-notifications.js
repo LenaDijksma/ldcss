@@ -3,13 +3,18 @@
 
      ldcss.toast({ title, message, variant, duration, id, actions, progress })
        variant   success | danger | warning | info
-       duration  ms, default 3000; 0 keeps it until dismissed
+       duration  ms; 0 keeps it until dismissed. When you leave it out the toast
+                 stays long enough to read: 5 s, plus 40 ms per character beyond 60,
+                 plus 3 s when it has buttons, at most 15 s. Set
+                 data-ld-toast-default-duration="8000" on <body> to choose your own
+                 default (0 = until dismissed).
        id        showing a toast with an id that is already up updates it
        actions   [{ label, onClick(event, handle), dismiss: true }]
        progress  true draws a countdown bar
      Only `data-ld-toast-max` toasts (on <body>, default 5) are visible at
      once; the rest wait in a queue and appear as others close. Hovering or
-     focusing a toast pauses its timer. Danger toasts are announced
+     focusing a toast pauses its timer, and so does switching to another tab.
+     Danger toasts are announced
      assertively. Returns { id, el, dismiss(), update(spec) }.
      ldcss.toast.clear() dismisses everything, queue included.
 
@@ -52,18 +57,30 @@
     return n > 0 ? n : 5;
   }
 
+  /* How long a toast stays when nobody said. WCAG 2.2.1 wants people to have time to
+     read: a fixed 3 s is too short for anything longer than a couple of words, so the
+     time grows with the text, and a toast with buttons gets extra time to reach them. */
+  function toastDefaultDuration(spec) {
+    var configured = parseInt(document.body.getAttribute('data-ld-toast-default-duration'), 10);
+    if (!isNaN(configured)) return Math.max(0, configured);
+    var characters = spec.title.length + spec.message.length;
+    var ms = 5000 + Math.max(0, characters - 60) * 40 + (spec.actions.length ? 3000 : 0);
+    return Math.min(ms, 15000);
+  }
+
   function normalizeToastSpec(spec, variant, duration) {
     if (typeof spec === 'string') spec = { message: spec, variant: variant, duration: duration };
     spec = spec || {};
-    return {
+    var normalized = {
       id: spec.id || uid('ld-toast'),
       title: spec.title || '',
       message: spec.message == null ? '' : String(spec.message),
       variant: spec.variant || null,
-      duration: spec.duration == null || isNaN(spec.duration) ? 3000 : Math.max(0, +spec.duration),
       actions: spec.actions || [],
       progress: !!spec.progress
     };
+    normalized.duration = spec.duration == null || isNaN(spec.duration) ? toastDefaultDuration(normalized) : Math.max(0, +spec.duration);
+    return normalized;
   }
 
   function fillToast(entry) {
@@ -241,6 +258,14 @@
     }
     return renderToast(spec).handle;
   }
+
+  // a hidden tab is not reading anything: hold the timers until it is visible again
+  document.addEventListener('visibilitychange', function () {
+    toastActive.forEach(function (entry) {
+      if (document.hidden) pauseToastTimer(entry);
+      else if (!entry.el.matches(':hover') && !entry.el.contains(document.activeElement)) resumeToastTimer(entry);
+    });
+  });
 
   toast.clear = function () {
     toastQueued = [];
@@ -441,7 +466,7 @@
     if (spec.toast !== false) {
       toast({
         id: id, title: entry.title, message: entry.message, variant: entry.variant,
-        duration: spec.duration == null ? 5000 : spec.duration, actions: entry.actions, progress: spec.progress
+        duration: spec.duration, actions: entry.actions, progress: spec.progress
       });
     }
     return { id: id, markRead: function () { markNotificationRead(id); }, dismiss: function () { dismissNotification(id); } };
@@ -483,13 +508,13 @@
   }
 
   document.addEventListener('click', function (e) {
-    var notifyTrigger = e.target.closest && e.target.closest('[data-ld-notify]');
+    var notifyTrigger = e.target.closest && closestOf(e.target, '[data-ld-notify]');
     if (notifyTrigger) {
       var spec = toastSpecFromTrigger(notifyTrigger, 'notify');
       notify(spec);
       return;
     }
-    var control = e.target.closest && e.target.closest('[data-ld-notification-center] [data-ld-nc]');
+    var control = e.target.closest && closestOf(e.target, '[data-ld-notification-center] [data-ld-nc]');
     if (!control) return;
     var kind = control.getAttribute('data-ld-nc');
     var item = control.closest('[data-ld-nc-id]');

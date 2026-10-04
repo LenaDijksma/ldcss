@@ -1,5 +1,5 @@
 /*!
- * ldcss v3.1.1 — Lena Dijksma CSS
+ * ldcss v3.2.0 — Lena Dijksma CSS
  * A small, opinionated framework: classes (ld-*) + custom attributes (data-ld-*)
  * License: MIT. Built from src/ — edit the files there, not this one.
  *
@@ -114,7 +114,7 @@
    hand-copied duplicate of these values. A property declared directly on
    the element always beats one it would inherit from a dark ancestor,
    which is what lets a light/notheme subtree sit inside a dark page. */
-:root,
+:where(:root),
 [data-ld-theme='light'],
 [data-ld-notheme] {
   --ld-bg: #FAFAF7;
@@ -126,7 +126,15 @@
   /* structural component outline — soft by default, not high-contrast */
   --ld-border-soft: #E7EAE7;
   /* hairline dividers: table rows, card footers, list separators */
+  --ld-border-control: #858E88;
+  /* the boundary of a form control (input, select, switch, range track…).
+     3:1 or better against bg, surface and surface-raised, which is what
+     WCAG 1.4.11 asks of a control's edge. --ld-border and --ld-border-soft
+     are decorative dividers and are intentionally fainter. */
   --ld-focus-ring: #14171A;
+  --ld-focus-border: color-mix(in srgb, var(--ld-accent) 70%, var(--ld-focus-ring));
+  /* the accent, darkened toward the focus ring colour until it reaches 3:1
+     on every surface; used for the border of a focused field */
   --ld-code-text: #0c297a;
   /* dark blue — readable on light surfaces */
   --ld-shadow-color: #14171A;
@@ -137,8 +145,9 @@
      and info live here rather than inline (alert §11, terminal dot §19) so
      a theme swap or [data-ld-unstyled] subtree can reach them like every
      other status color. */
-  --ld-danger: #E8465C;
+  --ld-danger: #CF2F46;
   --ld-danger-text: #FFFFFF;
+  /* white on this red is 5.1:1 (it was 3.8:1 with #E8465C, under the 4.5:1 text minimum) */
   --ld-success: #27bd16;
   --ld-success-text: #0e2b0a;
   --ld-warning: #C98A1F;
@@ -152,6 +161,7 @@
   --ld-shadow-soft-lg: 0 4px 12px rgba(20, 23, 26, 0.10), 0 16px 40px rgba(20, 23, 26, 0.16);
   --ld-shadow: var(--ld-shadow-soft);
   --ld-shadow-lg: var(--ld-shadow-soft-lg);
+  color-scheme: light;
 }
 
 [data-ld-theme='dark'] {
@@ -162,6 +172,7 @@
   --ld-text-muted: #8A928D;
   --ld-border: #302c2a;
   --ld-border-soft: #222623;
+  --ld-border-control: #6A7470;
   --ld-danger: #FF6B7A;
   --ld-danger-text: #1A0508;
   --ld-success: #27bd16;
@@ -172,13 +183,46 @@
   --ld-info-text: #04122E;
   --ld-shadow-color: var(--ld-accent);
   --ld-focus-ring: var(--ld-accent);
+  --ld-focus-border: color-mix(in srgb, var(--ld-accent) 70%, var(--ld-focus-ring));
   --ld-code-text: var(--ld-accent);
   /* full brightness reads fine on dark surfaces */
   --ld-shadow-soft: 0 1px 2px rgba(0, 0, 0, 0.4), 0 6px 20px rgba(0, 0, 0, 0.45);
   --ld-shadow-soft-lg: 0 4px 16px rgba(0, 0, 0, 0.5), 0 20px 48px rgba(0, 0, 0, 0.55);
   --ld-shadow: var(--ld-shadow-soft);
   --ld-shadow-lg: var(--ld-shadow-soft-lg);
+  color-scheme: dark;
 }
+@media (prefers-color-scheme: dark) {
+  :where(:root):not([data-ld-theme]) {
+  --ld-bg: #080808;
+  --ld-surface: #15181A;
+  --ld-surface-raised: #1C201E;
+  --ld-text: #EDEFEC;
+  --ld-text-muted: #8A928D;
+  --ld-border: #302c2a;
+  --ld-border-soft: #222623;
+  --ld-border-control: #6A7470;
+  --ld-danger: #FF6B7A;
+  --ld-danger-text: #1A0508;
+  --ld-success: #27bd16;
+  --ld-success-text: #0e2b0a;
+  --ld-warning: #E0A741;
+  --ld-warning-text: #1F1400;
+  --ld-info: #7AACFF;
+  --ld-info-text: #04122E;
+  --ld-shadow-color: var(--ld-accent);
+  --ld-focus-ring: var(--ld-accent);
+  --ld-focus-border: color-mix(in srgb, var(--ld-accent) 70%, var(--ld-focus-ring));
+  --ld-code-text: var(--ld-accent);
+  /* full brightness reads fine on dark surfaces */
+  --ld-shadow-soft: 0 1px 2px rgba(0, 0, 0, 0.4), 0 6px 20px rgba(0, 0, 0, 0.45);
+  --ld-shadow-soft-lg: 0 4px 16px rgba(0, 0, 0, 0.5), 0 20px 48px rgba(0, 0, 0, 0.55);
+  --ld-shadow: var(--ld-shadow-soft);
+  --ld-shadow-lg: var(--ld-shadow-soft-lg);
+  color-scheme: dark;
+}
+}
+
 
 /*
  * data-ld-unstyled — the escape hatch for teams who want to do their own
@@ -192,7 +236,12 @@
  * elements." Apply to <html> for the whole page, or to a container to scope
  * it to one part of the UI.
  */
-[data-ld-unstyled] {
+[data-ld-unstyled],
+[data-ld-unstyled] [data-ld-theme],
+[data-ld-unstyled] [data-ld-notheme] {
+  /* The two extra selectors matter: a theme block redeclares --ld-shadow and
+     --ld-border on its own element, which would silently cancel this reset
+     for a <body data-ld-theme="dark"> inside <html data-ld-unstyled>. */
   --ld-radius: 0px;
   --ld-shadow: none;
   --ld-shadow-lg: none;
@@ -211,12 +260,19 @@
  * transitions regardless of this switch — hard mode only changes the resting
  * shadow's shape, not the interaction model.)
  */
-[data-ld-shadow='hard'] {
+[data-ld-shadow='hard'],
+[data-ld-shadow='hard'] [data-ld-theme]:not([data-ld-shadow]),
+[data-ld-shadow='hard'] [data-ld-notheme]:not([data-ld-shadow]) {
+  /* Re-declared on any themed descendant (that has no shadow style of its
+     own), so a nested theme cannot cancel the hard shadow set further up.
+     --ld-shadow-color is read on the descendant, so it uses that theme's colour. */
   --ld-shadow: var(--ld-shadow-offset) var(--ld-shadow-offset) 0 var(--ld-shadow-color);
   --ld-shadow-lg: calc(var(--ld-shadow-offset) * 2) calc(var(--ld-shadow-offset) * 2) 0 var(--ld-shadow-color);
 }
 
-[data-ld-shadow='soft'] {
+[data-ld-shadow='soft'],
+[data-ld-shadow='soft'] [data-ld-theme]:not([data-ld-shadow]),
+[data-ld-shadow='soft'] [data-ld-notheme]:not([data-ld-shadow]) {
   --ld-shadow: var(--ld-shadow-soft);
   --ld-shadow-lg: var(--ld-shadow-soft-lg);
 }
@@ -237,17 +293,27 @@
  * people who've asked their OS/browser for higher contrast.
  */
 @media (prefers-contrast: more) {
-  :root,
+  :where(:root),
   [data-ld-theme='light'],
   [data-ld-notheme] {
     --ld-text-muted: #14171A;
     --ld-border-soft: #14171A;
+    --ld-border-control: #14171A;
   }
 
   [data-ld-theme='dark'] {
     --ld-text-muted: #EDEFEC;
     --ld-border-soft: #6B746E;
+    --ld-border-control: #A8B0AB;
   }
+@media (prefers-color-scheme: dark) {
+  :where(:root):not([data-ld-theme]) {
+    --ld-text-muted: #EDEFEC;
+    --ld-border-soft: #6B746E;
+    --ld-border-control: #A8B0AB;
+  }
+}
+
 }
 
 
@@ -286,8 +352,8 @@ h4,
 h5,
 h6 {
   font-family: var(--ld-font-family);
-  font-weight: 700;
-  line-height: 1.25;
+  font-weight: var(--ld-weight-bold);
+  line-height: var(--ld-leading-tight);
   margin: 0 0 var(--ld-space-3);
 }
 
@@ -518,14 +584,32 @@ code.ld-code-inline {
 [data-ld-theme='dark'] [data-ld-shadow='sm'] {
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
 }
+@media (prefers-color-scheme: dark) {
+  :where(:root):not([data-ld-theme]) [data-ld-shadow='sm'] {
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
+}
+}
+
 
 [data-ld-theme='dark'] [data-ld-shadow='md'] {
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.45);
 }
+@media (prefers-color-scheme: dark) {
+  :where(:root):not([data-ld-theme]) [data-ld-shadow='md'] {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.45);
+}
+}
+
 
 [data-ld-theme='dark'] [data-ld-shadow='lg'] {
   box-shadow: 0 12px 32px rgba(0, 0, 0, 0.5);
 }
+@media (prefers-color-scheme: dark) {
+  :where(:root):not([data-ld-theme]) [data-ld-shadow='lg'] {
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.5);
+}
+}
+
 
 [data-ld-border='thin'] {
   border: 1px solid var(--ld-border-soft);
@@ -827,16 +911,22 @@ code.ld-code-inline {
   padding: var(--ld-space-2) var(--ld-space-3);
   background: var(--ld-surface);
   color: var(--ld-text);
-  border: var(--ld-border-width) solid var(--ld-border-soft);
+  border: var(--ld-border-width) solid var(--ld-border-control);
   border-radius: var(--ld-radius);
   transition: border-color var(--ld-transition), box-shadow var(--ld-transition);
 }
 
+/* The focus indicator is the border colour change plus the soft ring. Both
+   are removed by forced-colors / Windows High Contrast, so there is also a
+   transparent outline: it is invisible normally, and the system draws it
+   in a real colour when colours are forced. (`outline: none` would remove
+   the indicator for those people entirely.) */
 .ld-input:focus,
 .ld-textarea:focus,
 .ld-select:focus {
-  outline: none;
-  border-color: var(--ld-accent);
+  outline: 2px solid transparent;
+  outline-offset: 2px;
+  border-color: var(--ld-focus-border);
   box-shadow: 0 0 0 3px color-mix(in srgb, var(--ld-accent) 30%, transparent);
 }
 
@@ -1756,7 +1846,7 @@ code.ld-code-inline {
   width: 38px;
   height: 20px;
   background: var(--ld-surface-raised);
-  border: var(--ld-border-width) solid var(--ld-border-soft);
+  border: var(--ld-border-width) solid var(--ld-border-control);
   border-radius: 9999px;
   cursor: pointer;
   transition: background var(--ld-transition), border-color var(--ld-transition);
@@ -1993,10 +2083,22 @@ code.ld-code-inline {
 [data-ld-theme='dark'] .ld-offcanvas {
   box-shadow: 16px 0 32px rgba(0, 0, 0, 0.45);
 }
+@media (prefers-color-scheme: dark) {
+  :where(:root):not([data-ld-theme]) .ld-offcanvas {
+  box-shadow: 16px 0 32px rgba(0, 0, 0, 0.45);
+}
+}
+
 
 [data-ld-theme='dark'] .ld-offcanvas-backdrop[data-ld-pos='right'] .ld-offcanvas {
   box-shadow: -16px 0 32px rgba(0, 0, 0, 0.45);
 }
+@media (prefers-color-scheme: dark) {
+  :where(:root):not([data-ld-theme]) .ld-offcanvas-backdrop[data-ld-pos='right'] .ld-offcanvas {
+  box-shadow: -16px 0 32px rgba(0, 0, 0, 0.45);
+}
+}
+
 
 .ld-offcanvas-header {
   display: flex;
@@ -2150,7 +2252,10 @@ code.ld-code-inline {
 }
 
 .ld-command-input:focus {
-  outline: none;
+  /* transparent outline for forced-colors, plus an accent underline as the visible indicator */
+  outline: 2px solid transparent;
+  outline-offset: -2px;
+  box-shadow: inset 0 -2px 0 var(--ld-focus-border);
 }
 
 .ld-command-list {
@@ -2208,9 +2313,21 @@ code.ld-code-inline {
   appearance: none;
   width: 100%;
   height: 4px;
-  background: var(--ld-border-soft);
+  background: var(--ld-border-control);
   border-radius: 9999px;
-  outline: none;
+  /* transparent, not none: forced-colors draws it. The visible focus ring is on the thumb below. */
+  outline: 2px solid transparent;
+  outline-offset: 6px;
+}
+
+.ld-range:focus-visible::-webkit-slider-thumb {
+  outline: 2px solid var(--ld-focus-ring);
+  outline-offset: 2px;
+}
+
+.ld-range:focus-visible::-moz-range-thumb {
+  outline: 2px solid var(--ld-focus-ring);
+  outline-offset: 2px;
 }
 
 .ld-range::-webkit-slider-thumb {
@@ -2218,7 +2335,7 @@ code.ld-code-inline {
   width: 16px;
   height: 16px;
   background: var(--ld-accent);
-  border: 2px solid var(--ld-border);
+  border: 2px solid var(--ld-border-control);
   border-radius: 50%;
   cursor: pointer;
 }
@@ -2227,13 +2344,13 @@ code.ld-code-inline {
   width: 16px;
   height: 16px;
   background: var(--ld-accent);
-  border: 2px solid var(--ld-border);
+  border: 2px solid var(--ld-border-control);
   border-radius: 50%;
   cursor: pointer;
 }
 
 .ld-range::-moz-range-track {
-  background: var(--ld-border-soft);
+  background: var(--ld-border-control);
   height: 4px;
 }
 
@@ -2248,7 +2365,7 @@ code.ld-code-inline {
   align-items: center;
   justify-content: center;
   gap: var(--ld-space-1);
-  border: var(--ld-border-width) dashed var(--ld-border-soft);
+  border: var(--ld-border-width) dashed var(--ld-border-control);
   border-radius: var(--ld-radius);
   padding: var(--ld-space-6);
   text-align: center;
@@ -2310,13 +2427,15 @@ code.ld-code-inline {
   gap: var(--ld-space-2);
   align-items: center;
   padding: var(--ld-space-2);
-  border: var(--ld-border-width) solid var(--ld-border-soft);
+  border: var(--ld-border-width) solid var(--ld-border-control);
   border-radius: var(--ld-radius);
   background: var(--ld-surface);
 }
 
 [data-ld-tags]:focus-within {
-  border-color: var(--ld-accent);
+  outline: 2px solid transparent;
+  outline-offset: 2px;
+  border-color: var(--ld-focus-border);
 }
 
 .ld-tag,
@@ -2355,6 +2474,7 @@ code.ld-code-inline {
   font-family: var(--ld-font-family);
   font-size: var(--ld-text-sm);
   color: var(--ld-text);
+  /* no outline of its own: the [data-ld-tags] box around it is the focus indicator */
   outline: none;
 }
 
@@ -3809,6 +3929,12 @@ a[data-ld-combobox-option] {
 [data-ld-theme='dark'] .ld-select {
   background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='%238A928D' d='M4 6l4 4 4-4H4z'/%3e%3c/svg%3e");
 }
+@media (prefers-color-scheme: dark) {
+  :where(:root):not([data-ld-theme]) .ld-select {
+  background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='%238A928D' d='M4 6l4 4 4-4H4z'/%3e%3c/svg%3e");
+}
+}
+
 
 .ld-select[multiple] {
   background-image: none;
@@ -4454,7 +4580,7 @@ a[data-ld-combobox-option] {
   border-radius: var(--ld-radius);
   box-shadow: var(--ld-shadow-lg);
   z-index: var(--ld-z-popover);
-  outline: none;
+  outline: 2px solid transparent;
 }
 
 .ld-context-menu.ld-show {
@@ -4482,7 +4608,9 @@ a[data-ld-combobox-option] {
 .ld-context-item:hover,
 .ld-context-item:focus-visible {
   background: var(--ld-surface-raised);
-  outline: none;
+  /* transparent outline: shown by forced-colors, where the inset ring below is removed */
+  outline: 2px solid transparent;
+  outline-offset: -2px;
 }
 
 .ld-context-item:focus-visible {
@@ -4607,7 +4735,7 @@ a[data-ld-combobox-option] {
   flex-direction: column;
   width: min(24rem, calc(100vw - 2rem));
   max-height: min(28rem, 70vh);
-  outline: none;
+  outline: 2px solid transparent;
 }
 
 .ld-nc-head {
@@ -5048,6 +5176,7 @@ html.ld-resizing iframe {
   border-start-start-radius: 0;
   border-end-start-radius: 0;
   margin-inline-start: calc(var(--ld-border-width) * -1);
+  border-color: var(--ld-border-control);
 }
 
 .ld-search-btn:hover,
@@ -7599,18 +7728,42 @@ html.ld-resizing iframe {
 [data-ld-theme='dark'] .ld-dark\:hidden {
   display: none;
 }
+@media (prefers-color-scheme: dark) {
+  :where(:root):not([data-ld-theme]) .ld-dark\:hidden {
+  display: none;
+}
+}
+
 
 [data-ld-theme='dark'] .ld-dark\:block {
   display: block;
 }
+@media (prefers-color-scheme: dark) {
+  :where(:root):not([data-ld-theme]) .ld-dark\:block {
+  display: block;
+}
+}
+
 
 [data-ld-theme='dark'] .ld-dark\:opacity-50 {
   opacity: 0.5;
 }
+@media (prefers-color-scheme: dark) {
+  :where(:root):not([data-ld-theme]) .ld-dark\:opacity-50 {
+  opacity: 0.5;
+}
+}
+
 
 [data-ld-theme='dark'] .ld-dark\:opacity-75 {
   opacity: 0.75;
 }
+@media (prefers-color-scheme: dark) {
+  :where(:root):not([data-ld-theme]) .ld-dark\:opacity-75 {
+  opacity: 0.75;
+}
+}
+
 
 :not([data-ld-theme='dark']) .ld-light\:hidden {
   display: none;
@@ -9731,14 +9884,32 @@ html.ld-resizing iframe {
 [data-ld-theme='dark'] .ld-shadow-soft-sm {
   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.4);
 }
+@media (prefers-color-scheme: dark) {
+  :where(:root):not([data-ld-theme]) .ld-shadow-soft-sm {
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.4);
+}
+}
+
 
 [data-ld-theme='dark'] .ld-shadow-soft {
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.45);
 }
+@media (prefers-color-scheme: dark) {
+  :where(:root):not([data-ld-theme]) .ld-shadow-soft {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.45);
+}
+}
+
 
 [data-ld-theme='dark'] .ld-shadow-soft-lg {
   box-shadow: 0 12px 32px rgba(0, 0, 0, 0.5);
 }
+@media (prefers-color-scheme: dark) {
+  :where(:root):not([data-ld-theme]) .ld-shadow-soft-lg {
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.5);
+}
+}
+
 
 /* -- Shadow depth, upward (same sm/base/lg scale as ld-shadow-soft-*, for
    elements like a footer where the shadow should read as cast toward the
@@ -9759,14 +9930,32 @@ html.ld-resizing iframe {
 [data-ld-theme='dark'] .ld-shadow-up-sm {
   box-shadow: 0 -1px 4px rgba(0, 0, 0, 0.4);
 }
+@media (prefers-color-scheme: dark) {
+  :where(:root):not([data-ld-theme]) .ld-shadow-up-sm {
+  box-shadow: 0 -1px 4px rgba(0, 0, 0, 0.4);
+}
+}
+
 
 [data-ld-theme='dark'] .ld-shadow-up {
   box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.45);
 }
+@media (prefers-color-scheme: dark) {
+  :where(:root):not([data-ld-theme]) .ld-shadow-up {
+  box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.45);
+}
+}
+
 
 [data-ld-theme='dark'] .ld-shadow-up-lg {
   box-shadow: 0 -12px 32px rgba(0, 0, 0, 0.5);
 }
+@media (prefers-color-scheme: dark) {
+  :where(:root):not([data-ld-theme]) .ld-shadow-up-lg {
+  box-shadow: 0 -12px 32px rgba(0, 0, 0, 0.5);
+}
+}
+
 
 /* This section is its own cascade layer (ld.escape), so a shadow utility
    wins over every component rule no matter how specific that rule is —

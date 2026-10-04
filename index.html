@@ -6,6 +6,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>ldcss — Lena Dijksma CSS</title>
   <link rel="stylesheet" href="dist/ldcss.css">
+  <script src="dist/ldcss-theme.js"></script>
   <style>
     /* this page centres the framework's ld-hero as a column */
     .ld-hero {
@@ -103,7 +104,7 @@
 
   <nav class="ld-nav">
     <a href="index.html" class="ld-nav-brand" data-ld-mark="$">ldcss</a>
-    <span class="ld-badge" data-ld-variant="primary">v3.1.1</span>
+    <span class="ld-badge" data-ld-variant="primary">v3.2.0</span>
     <div class="ld-row">
       <button class="ld-btn" data-ld-size="sm" data-ld-variant="ghost" data-ld-toggle="command"
         data-ld-target="#demo-command" aria-label="Open the command palette">⌘K</button>
@@ -187,6 +188,10 @@
             <tr>
               <td><code class="ld-code-inline">dist/ldcss.js</code>, <code class="ld-code-inline">dist/ldcss.min.js</code></td>
               <td>Behaviour for toggles, overlays, tables, search, toasts, and so on. Link this one too.</td>
+            </tr>
+            <tr>
+              <td><code class="ld-code-inline">dist/ldcss-theme.js</code></td>
+              <td>Optional 0.3 KB script for <code class="ld-code-inline">&lt;head&gt;</code>: applies a saved theme before the first paint, so there is no flash.</td>
             </tr>
             <tr>
               <td><code class="ld-code-inline">dist/fonts/</code></td>

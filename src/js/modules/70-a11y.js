@@ -189,7 +189,7 @@
   }
 
   document.addEventListener('keydown', function (e) {
-    var dd = e.target.closest && e.target.closest('[data-ld-dropdown]');
+    var dd = e.target.closest && closestOf(e.target, '[data-ld-dropdown]');
     if (!dd) return;
     var menu = dd.querySelector('[data-ld-dropdown-menu]');
     if (!menu) return;
@@ -209,7 +209,7 @@
     else if (e.key === 'Home') { e.preventDefault(); focusMenuItem(menu, items[0]); }
     else if (e.key === 'End') { e.preventDefault(); focusMenuItem(menu, items[items.length - 1]); }
     else if (e.key === 'Tab') { menu.classList.remove('ld-show'); if (trigger) trigger.setAttribute('aria-expanded', 'false'); }
-    else if (e.key.length === 1 && !e.ctrlKey && !e.metaKey && !e.altKey) {
+    else if ((e.key || '').length === 1 && !e.ctrlKey && !e.metaKey && !e.altKey) {
       var ch = e.key.toLowerCase();
       var hit = items.slice(i + 1).concat(items.slice(0, i + 1)).filter(function (it) { return it.textContent.trim().toLowerCase().indexOf(ch) === 0; })[0];
       if (hit) focusMenuItem(menu, hit);
@@ -224,7 +224,7 @@
   });
 
   document.addEventListener('keydown', function (e) {
-    var th = e.target.closest && e.target.closest('th[data-ld-sort]');
+    var th = e.target.closest && closestOf(e.target, 'th[data-ld-sort]');
     if (th && e.target === th && (e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); th.click(); }
   });
 
@@ -266,22 +266,25 @@
     inertMarks = [];
   }
 
+  /* Only the top dialog is reachable. Recomputed on every open and close, so with stacked
+     dialogs the one underneath is inert while another sits on top of it, and becomes
+     reachable again, with the page still locked out, when the top one closes. */
+  function syncInert() {
+    var top = topOverlay();
+    if (top) makeRestInert(top.el); else releaseInert();
+  }
+
   ['modal', 'offcanvas', 'command'].forEach(function (kind) {
     document.addEventListener('ld:' + kind + ':show', function (e) {
       var host = e.target;
-      var dialog = host.matches && host.matches('[role="dialog"]') ? host : (host.querySelector && host.querySelector('[role="dialog"]')) || host;
-      labelDialog(dialog);
-      // wait one frame: the component marks its box role=dialog while opening
+      // wait a tick: the component marks its box role=dialog while opening
       setTimeout(function () {
         var d = host.matches && host.matches('[role="dialog"]') ? host : (host.querySelector && host.querySelector('[role="dialog"]')) || host;
         labelDialog(d);
-        makeRestInert(host);
+        syncInert();
       }, 0);
     });
-    document.addEventListener('ld:' + kind + ':hide', function () {
-      var stillOpen = document.querySelector('.ld-modal-backdrop.ld-show, .ld-offcanvas-backdrop.ld-show, .ld-command-backdrop.ld-show');
-      if (!stillOpen) releaseInert();
-    });
+    document.addEventListener('ld:' + kind + ':hide', function () { setTimeout(syncInert, 0); });
   });
 
   /* forms: aria-invalid once the field has been touched */

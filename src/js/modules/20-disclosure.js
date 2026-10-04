@@ -86,7 +86,7 @@
   }
 
   document.addEventListener('click', function (e) {
-    var trigger = e.target.closest && e.target.closest('[data-ld-disclosure]');
+    var trigger = e.target.closest && closestOf(e.target, '[data-ld-disclosure]');
     if (!trigger || trigger.disabled || trigger.getAttribute('aria-disabled') === 'true') return;
     if (trigger.tagName === 'A') e.preventDefault();
     setDisclosure(trigger, !isDisclosureOpen(trigger), trigger);
@@ -94,7 +94,7 @@
 
   // non-button triggers (role="button") need Enter / Space themselves
   document.addEventListener('keydown', function (e) {
-    var trigger = e.target.closest && e.target.closest('[data-ld-disclosure]');
+    var trigger = e.target.closest && closestOf(e.target, '[data-ld-disclosure]');
     if (!trigger || trigger.tagName === 'BUTTON' || (e.key !== 'Enter' && e.key !== ' ')) return;
     e.preventDefault();
     setDisclosure(trigger, !isDisclosureOpen(trigger), trigger);

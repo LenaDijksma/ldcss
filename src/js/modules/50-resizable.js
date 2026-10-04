@@ -153,7 +153,7 @@
   }
 
   function resizeStart(e) {
-    var handle = e.target.closest && e.target.closest('.ld-resize-handle');
+    var handle = e.target.closest && closestOf(e.target, '.ld-resize-handle');
     var box = handle && handle.parentElement;
     if (!box || !box._ldResizable || e.button > 0) return;
     var parts = resizeParts(box), vertical = resizeIsVertical(box);
@@ -201,7 +201,7 @@
   document.addEventListener('pointercancel', resizeEnd);
 
   document.addEventListener('dblclick', function (e) {
-    var handle = e.target.closest && e.target.closest('.ld-resize-handle');
+    var handle = e.target.closest && closestOf(e.target, '.ld-resize-handle');
     var box = handle && handle.parentElement;
     if (!box || !box._ldResizable) return;
     resizeApply(box, box._ldInitial.slice());
@@ -210,7 +210,7 @@
   });
 
   document.addEventListener('keydown', function (e) {
-    var handle = e.target.closest && e.target.closest('.ld-resize-handle');
+    var handle = e.target.closest && closestOf(e.target, '.ld-resize-handle');
     var box = handle && handle.parentElement;
     if (!box || !box._ldResizable) return;
     var parts = resizeParts(box), index = parts.handles.indexOf(handle), vertical = resizeIsVertical(box);

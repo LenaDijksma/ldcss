@@ -6,6 +6,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>ldcss — Lena Dijksma CSS</title>
   <link rel="stylesheet" href="dist/ldcss.css">
+  <script src="dist/ldcss-theme.js"></script>
 </head>
 
 <body>
@@ -37,7 +38,7 @@
   <div class="ld-container">
 
     <header class="ld-hero">
-      <span class="ld-badge" data-ld-variant="primary">v3.1.1</span>
+      <span class="ld-badge" data-ld-variant="primary">v3.2.0</span>
       <h1>ldcss</h1>
       <p class="ld-text-muted">A small framework built on two ideas: <span class="ld-text-accent">ld-*</span> classes
         for structure, <span class="ld-text-accent">data-ld-*</span> attributes for state and variants. No dependencies
@@ -162,6 +163,7 @@
             build step.</p>
         </div>
         <div id="tab-3" data-ld-tab-panel>
+          <p class="ld-text-muted"><strong>v3.2.0</strong> — Accessibility and bug-fix release. Form field edges use a new <code class="ld-code-inline">--ld-border-control</code> token (3:1 or better in both themes; they were 1.2:1) and the focused border is <code class="ld-code-inline">--ld-focus-border</code>. <code class="ld-code-inline">.ld-input</code>, <code class="ld-code-inline">.ld-textarea</code>, <code class="ld-code-inline">.ld-select</code>, the tag input, the command palette, the context menu and the range slider all keep a focus indicator in Windows High Contrast (transparent outline instead of <code class="ld-code-inline">none</code>; the range thumb gets a real ring). The light danger colour is darker so white text on it passes (5.1:1). Toasts stay 5 s or more (longer for longer text), pause while the tab is hidden, and <code class="ld-code-inline">data-ld-toast-default-duration</code> sets your own default. Dark mode follows the OS with no JavaScript and no flash (<code class="ld-code-inline">prefers-color-scheme</code>, plus <code class="ld-code-inline">dist/ldcss-theme.js</code> for a saved choice), and <code class="ld-code-inline">ldcss.theme.get() / set()</code> is new. Nested themes no longer cancel <code class="ld-code-inline">data-ld-shadow</code> or <code class="ld-code-inline">data-ld-unstyled</code> set higher up. Dialogs: stacked modals each give focus back to what opened them, Escape closes one layer at a time, and the focus trap skips hidden elements. Fixed a crash on key-less <code class="ld-code-inline">keydown</code> events (browser autofill).</p>
           <p class="ld-text-muted"><strong>v3.1.1</strong> — Search bar: the input is now styled (<code class="ld-code-inline">ld-input</code> is added for you) and the magnifier is a real button next to it, so clicking it searches just like pressing Enter. New <code class="ld-code-inline">ld:search:submit</code> event; in a <code class="ld-code-inline">&lt;form&gt;</code> the button submits the form. <code class="ld-code-inline">data-ld-search-button="false"</code> keeps the compact icon-inside style. Fixed: Escape closed the search dropdown and the browser's own "clear search" immediately reopened it.</p>
           <p class="ld-text-muted"><strong>v3.1.0</strong> — New: context menu (<code class="ld-code-inline">data-ld-context-menu</code>), toast queue and notification centre (<code class="ld-code-inline">ldcss.toast</code>, <code class="ld-code-inline">ldcss.notify</code>), resizable panels (<code class="ld-code-inline">data-ld-resizable</code>), general-purpose disclosure (<code class="ld-code-inline">data-ld-disclosure</code>), search bar with fuzzy matching (<code class="ld-code-inline">data-ld-search</code>, <code class="ld-code-inline">ldcss.fuzzy</code>), easy tables (<code class="ld-code-inline">data-ld-table</code>), sizing / flex / grid / transition / transform utilities, and a unified event API (<code class="ld-code-inline">ldcss.on</code>, <code class="ld-code-inline">ldcss.once</code>, <code class="ld-code-inline">ldcss.off</code>, <code class="ld-code-inline">ldcss.emit</code>, wildcard <code class="ld-code-inline">"*"</code>). The combobox gained remote sources with debounce, loading / empty / error states, request cancellation, result templates and renderers. ldcss now watches the page and initialises markup added later (<code class="ld-code-inline">data-ld-observe="false"</code> opts out). Accessibility: <code class="ld-code-inline">aria-current</code>, dropdown menu keys, <code class="ld-code-inline">inert</code> behind dialogs, tooltip names, 24px hit areas, forced-colors support, <code class="ld-code-inline">ldcss.a11y.audit()</code>. The cheat sheet was rewritten with pages, a sidebar and search.</p>
           <p class="ld-text-muted"><strong>v3.0.2</strong> — The nav brand links to the landing page (<code class="ld-code-inline">index.html</code>) on every page. Relative, so it also works when you open the files straight from disk or host them in a sub-folder.</p>
@@ -1457,7 +1459,7 @@
   </div>
 
   <footer class="ld-footer ld-shadow-up">
-    <p class="ld-text-muted ld-text-sm">ldcss v3.1.1 · built with ldcss</p>
+    <p class="ld-text-muted ld-text-sm">ldcss v3.2.0 · built with ldcss</p>
   </footer>
 
   <script src="dist/ldcss.js"></script>

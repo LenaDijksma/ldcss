@@ -8,13 +8,15 @@
   gap: var(--ld-space-2);
   align-items: center;
   padding: var(--ld-space-2);
-  border: var(--ld-border-width) solid var(--ld-border-soft);
+  border: var(--ld-border-width) solid var(--ld-border-control);
   border-radius: var(--ld-radius);
   background: var(--ld-surface);
 }
 
 [data-ld-tags]:focus-within {
-  border-color: var(--ld-accent);
+  outline: 2px solid transparent;
+  outline-offset: 2px;
+  border-color: var(--ld-focus-border);
 }
 
 .ld-tag,
@@ -53,6 +55,7 @@
   font-family: var(--ld-font-family);
   font-size: var(--ld-text-sm);
   color: var(--ld-text);
+  /* no outline of its own: the [data-ld-tags] box around it is the focus indicator */
   outline: none;
 }
 

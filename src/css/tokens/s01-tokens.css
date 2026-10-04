@@ -78,7 +78,7 @@
    hand-copied duplicate of these values. A property declared directly on
    the element always beats one it would inherit from a dark ancestor,
    which is what lets a light/notheme subtree sit inside a dark page. */
-:root,
+:where(:root),
 [data-ld-theme='light'],
 [data-ld-notheme] {
   --ld-bg: #FAFAF7;
@@ -90,7 +90,15 @@
   /* structural component outline — soft by default, not high-contrast */
   --ld-border-soft: #E7EAE7;
   /* hairline dividers: table rows, card footers, list separators */
+  --ld-border-control: #858E88;
+  /* the boundary of a form control (input, select, switch, range track…).
+     3:1 or better against bg, surface and surface-raised, which is what
+     WCAG 1.4.11 asks of a control's edge. --ld-border and --ld-border-soft
+     are decorative dividers and are intentionally fainter. */
   --ld-focus-ring: #14171A;
+  --ld-focus-border: color-mix(in srgb, var(--ld-accent) 70%, var(--ld-focus-ring));
+  /* the accent, darkened toward the focus ring colour until it reaches 3:1
+     on every surface; used for the border of a focused field */
   --ld-code-text: #0c297a;
   /* dark blue — readable on light surfaces */
   --ld-shadow-color: #14171A;
@@ -101,8 +109,9 @@
      and info live here rather than inline (alert §11, terminal dot §19) so
      a theme swap or [data-ld-unstyled] subtree can reach them like every
      other status color. */
-  --ld-danger: #E8465C;
+  --ld-danger: #CF2F46;
   --ld-danger-text: #FFFFFF;
+  /* white on this red is 5.1:1 (it was 3.8:1 with #E8465C, under the 4.5:1 text minimum) */
   --ld-success: #27bd16;
   --ld-success-text: #0e2b0a;
   --ld-warning: #C98A1F;
@@ -116,6 +125,7 @@
   --ld-shadow-soft-lg: 0 4px 12px rgba(20, 23, 26, 0.10), 0 16px 40px rgba(20, 23, 26, 0.16);
   --ld-shadow: var(--ld-shadow-soft);
   --ld-shadow-lg: var(--ld-shadow-soft-lg);
+  color-scheme: light;
 }
 
 [data-ld-theme='dark'] {
@@ -126,6 +136,7 @@
   --ld-text-muted: #8A928D;
   --ld-border: #302c2a;
   --ld-border-soft: #222623;
+  --ld-border-control: #6A7470;
   --ld-danger: #FF6B7A;
   --ld-danger-text: #1A0508;
   --ld-success: #27bd16;
@@ -136,12 +147,14 @@
   --ld-info-text: #04122E;
   --ld-shadow-color: var(--ld-accent);
   --ld-focus-ring: var(--ld-accent);
+  --ld-focus-border: color-mix(in srgb, var(--ld-accent) 70%, var(--ld-focus-ring));
   --ld-code-text: var(--ld-accent);
   /* full brightness reads fine on dark surfaces */
   --ld-shadow-soft: 0 1px 2px rgba(0, 0, 0, 0.4), 0 6px 20px rgba(0, 0, 0, 0.45);
   --ld-shadow-soft-lg: 0 4px 16px rgba(0, 0, 0, 0.5), 0 20px 48px rgba(0, 0, 0, 0.55);
   --ld-shadow: var(--ld-shadow-soft);
   --ld-shadow-lg: var(--ld-shadow-soft-lg);
+  color-scheme: dark;
 }
 
 /*
@@ -156,7 +169,12 @@
  * elements." Apply to <html> for the whole page, or to a container to scope
  * it to one part of the UI.
  */
-[data-ld-unstyled] {
+[data-ld-unstyled],
+[data-ld-unstyled] [data-ld-theme],
+[data-ld-unstyled] [data-ld-notheme] {
+  /* The two extra selectors matter: a theme block redeclares --ld-shadow and
+     --ld-border on its own element, which would silently cancel this reset
+     for a <body data-ld-theme="dark"> inside <html data-ld-unstyled>. */
   --ld-radius: 0px;
   --ld-shadow: none;
   --ld-shadow-lg: none;
@@ -175,12 +193,19 @@
  * transitions regardless of this switch — hard mode only changes the resting
  * shadow's shape, not the interaction model.)
  */
-[data-ld-shadow='hard'] {
+[data-ld-shadow='hard'],
+[data-ld-shadow='hard'] [data-ld-theme]:not([data-ld-shadow]),
+[data-ld-shadow='hard'] [data-ld-notheme]:not([data-ld-shadow]) {
+  /* Re-declared on any themed descendant (that has no shadow style of its
+     own), so a nested theme cannot cancel the hard shadow set further up.
+     --ld-shadow-color is read on the descendant, so it uses that theme's colour. */
   --ld-shadow: var(--ld-shadow-offset) var(--ld-shadow-offset) 0 var(--ld-shadow-color);
   --ld-shadow-lg: calc(var(--ld-shadow-offset) * 2) calc(var(--ld-shadow-offset) * 2) 0 var(--ld-shadow-color);
 }
 
-[data-ld-shadow='soft'] {
+[data-ld-shadow='soft'],
+[data-ld-shadow='soft'] [data-ld-theme]:not([data-ld-shadow]),
+[data-ld-shadow='soft'] [data-ld-notheme]:not([data-ld-shadow]) {
   --ld-shadow: var(--ld-shadow-soft);
   --ld-shadow-lg: var(--ld-shadow-soft-lg);
 }
@@ -201,16 +226,18 @@
  * people who've asked their OS/browser for higher contrast.
  */
 @media (prefers-contrast: more) {
-  :root,
+  :where(:root),
   [data-ld-theme='light'],
   [data-ld-notheme] {
     --ld-text-muted: #14171A;
     --ld-border-soft: #14171A;
+    --ld-border-control: #14171A;
   }
 
   [data-ld-theme='dark'] {
     --ld-text-muted: #EDEFEC;
     --ld-border-soft: #6B746E;
+    --ld-border-control: #A8B0AB;
   }
 }
 

@@ -1,5 +1,79 @@
 # Changelog
 
+## 3.2.0
+
+Accessibility and bug fixes. Contrast figures below were measured on the rendered page.
+
+**Accessibility**
+
+- Focus is never invisible. `.ld-input`, `.ld-textarea`, `.ld-select`, the tag input, the command
+  palette input, the context menu and notification centre used `outline: none` and relied on a
+  border colour and a glow, which forced-colors / Windows High Contrast removes. They now use
+  `outline: 2px solid transparent`, which the system draws in a real colour when colours are
+  forced. `.ld-range` had `outline: none` and nothing else: it now has the same transparent outline
+  and a visible ring on the thumb for keyboard focus.
+- Form control edges were 1.2:1 against the surface (`--ld-border-soft`; `--ld-border` was 1.3:1, so
+  switching to it would not have helped). New token `--ld-border-control` is 3.4:1 on the surface in
+  the light theme and 3.7:1 in the dark theme (and 3.0 or better on the page background and raised
+  surfaces). Used by inputs, textareas, selects, the tag input, switches, the range track and thumb,
+  dropzones, and the search button. Decorative borders are unchanged. `prefers-contrast: more`
+  strengthens it further.
+- The focused border was the raw accent (2.8:1 on white). New token `--ld-focus-border` is the accent
+  darkened toward the focus colour: 4.9:1 on white, and unchanged (6.3:1) in the dark theme.
+- Light danger is `#CF2F46`: white text on it is 5.1:1 (it was 3.8:1 with `#E8465C`). Dark theme
+  danger (7.1:1) is unchanged.
+- Toasts: the default duration is no longer a fixed 3 seconds. It is 5 seconds plus 40 ms per
+  character beyond 60, plus 3 seconds when the toast has buttons, at most 15 seconds.
+  `data-ld-toast-default-duration` on `<body>` sets your own (`0` = until dismissed). Pause on hover
+  and focus already shipped in 3.1.0; toasts now also pause while the tab is hidden.
+- `color-scheme` is set per theme, so scrollbars and native controls match.
+
+**Bugs**
+
+- `e.key.toLowerCase()` in the Ctrl/Cmd+K handler threw on `keydown` events with no `key` (browser
+  autofill sends them). Fixed there and in the context menu and dropdown type-ahead. Event handlers
+  also tolerate events whose target is not an element (`closestOf()`), which crashed on synthetic
+  events dispatched on `document`.
+- Theme flash and no-JS dark mode: with no `data-ld-theme` attribute the page now follows
+  `prefers-color-scheme` from the first paint, with or without JavaScript. The build copies every
+  `[data-ld-theme="dark"]` rule into a `prefers-color-scheme: dark` block, so the dark-only utilities
+  and component tweaks follow too (same specificity, so the cascade between rules is unchanged).
+  `dist/ldcss-theme.js` (0.3 KB, in `<head>`) applies a choice the visitor made earlier before the
+  first paint. With no saved choice ldcss no longer sets the attribute itself, so the page also
+  follows the OS if it changes while open.
+- The theme toggle did nothing on its first click on an OS-dark page with no saved choice (it read
+  "no attribute" as light and "toggled" to dark). It now toggles from what is actually showing.
+- Nested themes cancelled settings made higher up: `data-ld-theme="dark"` on `<body>` silently
+  cancelled `data-ld-shadow="hard"` or `"soft"` on `<html>`, and `data-ld-unstyled` lost its
+  `--ld-shadow` and `--ld-border` reset the same way. Both now also apply to themed descendants. A
+  shadow attribute set closer to the element still wins.
+- Dialogs: the single global `lastFocusedEl` is replaced by a stack with one return-focus target per
+  dialog, so stacked modals hand focus back in order (it used to be lost, or go to the wrong
+  place). Escape closes one layer at a time: a dropdown or popover you are inside, an open combobox
+  list, then the top dialog only (it used to close every dialog at once). `getFocusable()` skips
+  hidden, `display: none`, `visibility: hidden`, `inert` and disabled elements, so the focus trap no
+  longer stops on invisible controls and a dialog whose first button is hidden is focused correctly.
+  Focus also moves inside the dialog if it somehow ended up outside, and a dialog with nothing
+  focusable gets focus on itself.
+- The page behind stacked dialogs: `inert` is recomputed for the top dialog on every open and
+  close (before focus moves), so the dialog underneath is inert while another is on top and
+  reachable again afterwards, with the page still locked out. Previously the lower dialog stayed
+  inert after the upper one closed.
+- `h1`-`h6` use `--ld-weight-bold` and `--ld-leading-tight` instead of fixed 700 and 1.25 (the values
+  are identical, so nothing changes until you override the tokens).
+
+**New**
+
+- `ldcss.theme.get()`, `ldcss.theme.set('light' | 'dark' | 'auto')` and the `ld:theme:change` event.
+- `dist/ldcss-theme.js`.
+
+**Behaviour changes to know about**
+
+- Inputs, switches, dropzones and range tracks are visibly darker-edged. This is the point, but it
+  changes how every form looks.
+- Light-theme danger buttons and danger text are a darker red.
+- Toasts without an explicit `duration` last longer.
+
 ## 3.1.1
 
 Search bar (`data-ld-search`), one module.

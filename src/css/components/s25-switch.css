@@ -17,7 +17,7 @@
   width: 38px;
   height: 20px;
   background: var(--ld-surface-raised);
-  border: var(--ld-border-width) solid var(--ld-border-soft);
+  border: var(--ld-border-width) solid var(--ld-border-control);
   border-radius: 9999px;
   cursor: pointer;
   transition: background var(--ld-transition), border-color var(--ld-transition);
