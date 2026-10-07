@@ -13,7 +13,7 @@
  * dispatch CustomEvents on the element itself — ld:{component}:show and
  * ld:{component}:hide — bubbling, so a single listener higher up the
  * DOM can react to any instance:
- *   document.addEventListener('ld:modal:show', function (e) {
+ *   delegate('ld:modal:show', function (e) {
  *     console.log('opened', e.target, e.detail.trigger);
  *   });
  * detail.trigger is the element that caused the change (the clicked
@@ -26,13 +26,203 @@
   /* Open dialogs (modal, offcanvas, command palette), bottom to top. Each keeps
      its own return-focus target, so stacked dialogs hand focus back in order. */
   var overlayStack = [];
-  var activeAnimationObservers = [];
 
   /* element.closest() that tolerates events whose target is not an element
      (document, window, a text node): synthetic keydown events and some
      assistive tools dispatch those. */
   function closestOf(node, selector) {
     return node && typeof node.closest === 'function' ? node.closest(selector) : null;
+  }
+
+
+  /* =====================================================================
+     Component lifecycle
+
+     Every component with per-element setup is registered here:
+
+       defineComponent(name, selector, init(el, scope), destroy(el, scope), options)
+
+     `scope` collects what an instance owns, so destroying it is exact:
+       scope.on(target, type, fn)   an event listener, removed on destroy
+       scope.cleanup(fn)            anything else (observer, timer…)
+       scope.add(node)              a node init created, removed on destroy
+
+     Public API (window.ldcss):
+       init([target], [names])      set components up (default: the whole page)
+       destroy([target], [names])   tear them down; no arguments = everything
+       reinit(target, [names])      destroy + init, e.g. after replacing content
+       component(name)              { init, destroy, reinit, on, once, instances, has }
+       components(), isInitialized(el, name)
+     Elements ldcss removes from the page are destroyed automatically.
+     ===================================================================== */
+
+  var components = [];
+  var componentByName = {};
+  var instances = new WeakMap(); // element -> { componentName: scope }
+  var delegates = [];            // every document/window listener ldcss attached
+  var delegatesAttached = true;
+  var lifecycleHooks = [];       // { start, stop } for observers that run page-wide
+
+  function isDestroyed(node) {
+    return !!closestOf(node, '[data-ld-destroyed]');
+  }
+
+  /* Listener on document or window. It ignores events from inside an element
+     that was destroyed (data-ld-destroyed), which is how components that work
+     purely through delegated listeners (tabs, disclosure, the context menu…)
+     stop responding, and ldcss.destroy() with no arguments removes all of them. */
+  function delegateTo(target, type, handler, capture) {
+    var wrapped = function (e) {
+      if (isDestroyed(e.target)) return;
+      handler(e);
+    };
+    delegates.push({ target: target, type: type, fn: wrapped, capture: !!capture });
+    if (delegatesAttached) target.addEventListener(type, wrapped, !!capture);
+  }
+
+  function delegate(type, handler, capture) { delegateTo(document, type, handler, capture); }
+  function delegateWindow(type, handler, capture) { delegateTo(window, type, handler, capture); }
+
+  function makeScope(el, name) {
+    var scope = { el: el, name: name, cleanups: [] };
+    scope.cleanup = function (fn) { scope.cleanups.push(fn); };
+    scope.on = function (target, type, fn, options) {
+      target.addEventListener(type, fn, options);
+      scope.cleanups.push(function () { target.removeEventListener(type, fn, options); });
+    };
+    scope.add = function (node) {
+      scope.cleanups.push(function () { if (node.parentNode) node.parentNode.removeChild(node); });
+      return node;
+    };
+    return scope;
+  }
+
+  function instanceOf(el, name) {
+    var map = instances.get(el);
+    return map ? map[name] || null : null;
+  }
+
+  function defineComponent(name, selector, init, destroy, options) {
+    options = options || {};
+    var def = { name: name, selector: selector, init: init, destroy: destroy || null, event: options.event || name, gate: !!options.gate };
+    components.push(def);
+    componentByName[name] = def;
+    return def;
+  }
+
+  function instantiate(def, el) {
+    if (instanceOf(el, def.name)) return;
+    var scope = makeScope(el, def.name);
+    var map = instances.get(el);
+    if (!map) { map = {}; instances.set(el, map); }
+    map[def.name] = scope;
+    try {
+      def.init(el, scope);
+    } catch (err) {
+      console.error('ldcss: could not set up ' + def.name, err);
+      return;
+    }
+    emit(el, 'ld:' + def.event + ':init', { component: def.name });
+  }
+
+  function destroyInstance(def, el, mark) {
+    var scope = instanceOf(el, def.name);
+    if (!scope) return;
+    for (var i = scope.cleanups.length - 1; i >= 0; i--) {
+      try { scope.cleanups[i](); } catch (err) { console.error('ldcss: cleanup failed for ' + def.name, err); }
+    }
+    if (def.destroy) {
+      try { def.destroy(el, scope); } catch (err) { console.error('ldcss: could not tear down ' + def.name, err); }
+    }
+    var map = instances.get(el);
+    if (map) { delete map[def.name]; }
+    if (mark && def.gate) el.setAttribute('data-ld-destroyed', 'true');
+    emit(el, 'ld:' + def.event + ':destroy', { component: def.name });
+  }
+
+  function selectComponents(names) {
+    if (names == null) return components;
+    var list = [].concat(names);
+    return components.filter(function (def) { return list.indexOf(def.name) !== -1; });
+  }
+
+  function resolveTargets(target) {
+    if (!target) return [document];
+    if (typeof target === 'string') return Array.prototype.slice.call(document.querySelectorAll(target));
+    if (target.nodeType) return [target];
+    return Array.prototype.slice.call(target);
+  }
+
+  function clearDestroyedMarks(root) {
+    if (root.nodeType !== 1) return;
+    qsaSelf(root, '[data-ld-destroyed]').forEach(function (el) { el.removeAttribute('data-ld-destroyed'); });
+  }
+
+  function initComponents(target, names) {
+    resolveTargets(target).forEach(function (root) {
+      if (delegatesAttached === false) startLifecycle();
+      if (target) clearDestroyedMarks(root);
+      selectComponents(names).forEach(function (def) {
+        qsaSelf(root, def.selector).forEach(function (el) {
+          if (!isDestroyed(el)) instantiate(def, el);
+        });
+      });
+      if (names == null) moduleInits.forEach(function (fn) { fn(root); });
+    });
+  }
+
+  /* what the page-wide pieces (document listeners, observers) do on stop/start */
+  function stopLifecycle() {
+    if (!delegatesAttached) return;
+    delegatesAttached = false;
+    delegates.forEach(function (d) { d.target.removeEventListener(d.type, d.fn, d.capture); });
+    lifecycleHooks.forEach(function (h) { if (h.stop) h.stop(); });
+  }
+
+  function startLifecycle() {
+    if (delegatesAttached) return;
+    delegatesAttached = true;
+    delegates.forEach(function (d) { d.target.addEventListener(d.type, d.fn, d.capture); });
+    lifecycleHooks.forEach(function (h) { if (h.start) h.start(); });
+  }
+
+  function destroyComponents(target, names, markRoot) {
+    resolveTargets(target).forEach(function (root) {
+      closeOverlaysIn(root);
+      removeOwnedListeners(root);
+      selectComponents(names).forEach(function (def) {
+        qsaSelf(root, def.selector).forEach(function (el) { destroyInstance(def, el, markRoot !== false); });
+      });
+      // destroying a whole subtree on purpose: its delegated behaviours stop too
+      if (root.nodeType === 1 && names == null && markRoot !== false) root.setAttribute('data-ld-destroyed', 'true');
+    });
+  }
+
+  /* an overlay that is open inside something being destroyed must not stay open */
+  function closeOverlaysIn(root) {
+    if (root.nodeType !== 1 && root.nodeType !== 9) return;
+    qsaSelf(root, '.ld-modal-backdrop.ld-show, .ld-offcanvas-backdrop.ld-show, .ld-command-backdrop.ld-show').forEach(function (b) {
+      if (b.classList.contains('ld-modal-backdrop')) closeModal(b);
+      else if (b.classList.contains('ld-offcanvas-backdrop')) closeOffcanvas(b);
+      else closeCommand(b);
+    });
+    qsaSelf(root, '[data-ld-dropdown-menu].ld-show, [data-ld-popover-content].ld-show').forEach(function (m) { m.classList.remove('ld-show'); });
+  }
+
+  function componentApi(def) {
+    return {
+      name: def.name,
+      selector: def.selector,
+      init: function (target) { initComponents(target, def.name); },
+      destroy: function (target) { destroyComponents(target, def.name); },
+      reinit: function (target) { destroyComponents(target, def.name); initComponents(target, def.name); },
+      on: function (type, fn, options) { return on(def.event + ':' + type, fn, options); },
+      once: function (type, fn, options) { return once(def.event + ':' + type, fn, options); },
+      has: function (el) { return !!instanceOf(el, def.name); },
+      instances: function (root) {
+        return qsaSelf(root || document, def.selector).filter(function (el) { return !!instanceOf(el, def.name); });
+      }
+    };
   }
 
   /* Module registry — each file in src/js/modules/ adds an init function
@@ -57,10 +247,19 @@
   function emit(el, name, detail, cancelable) {
     if (!el) return true;
     var evt = new CustomEvent(name, { bubbles: true, cancelable: !!cancelable, detail: detail || {} });
+    // Wildcard listeners ("*") run while the event is being dispatched, so event.target is still
+    // the element (browsers reset it afterwards for elements that are no longer in the page).
+    var seen = null;
+    if (wildcardListeners.length) {
+      seen = function (e) {
+        wildcardListeners.slice().forEach(function (fn) {
+          try { fn(e); } catch (err) { console.error('ldcss listener error', err); }
+        });
+      };
+      el.addEventListener(name, seen, { once: true });
+    }
     var notCancelled = el.dispatchEvent(evt);
-    wildcardListeners.slice().forEach(function (fn) {
-      try { fn(evt); } catch (err) { console.error('ldcss listener error', err); }
-    });
+    if (seen) el.removeEventListener(name, seen);
     return notCancelled;
   }
 
@@ -78,7 +277,7 @@
      Returns an unsubscribe function. */
   function on(type, handler, options) {
     options = options || {};
-    var entry = { type: type, handler: handler };
+    var entry = { type: type, handler: handler, owner: options.root && options.root.nodeType === 1 ? options.root : null };
     var listener = function (e) {
       if (!matchesTarget(e, options.target)) return;
       if (options.once) entry.off();
@@ -98,6 +297,16 @@
     }
     listenerRegistry.push(entry);
     return entry.off;
+  }
+
+  /* listeners registered with { root: el } go away when el (or an ancestor) is destroyed */
+  function removeOwnedListeners(root) {
+    if (root.nodeType !== 1 && root.nodeType !== 9) return;
+    listenerRegistry = listenerRegistry.filter(function (entry) {
+      if (!entry.owner || !(entry.owner === root || root.contains(entry.owner))) return true;
+      entry.off();
+      return false;
+    });
   }
 
   function off(type, handler) {
@@ -287,15 +496,13 @@
      Progress bars — read data-ld-value (0-100) into bar width
      ------------------------------------------------------------------- */
 
-  function initProgressBars(root) {
-    qsaSelf(root, '[data-ld-progress]').forEach(function (bar) {
-      var val = parseFloat(bar.getAttribute('data-ld-value'));
-      if (isNaN(val)) val = 0;
-      val = Math.max(0, Math.min(100, val));
-      bar.style.width = val + '%';
-      bar.setAttribute('aria-valuenow', val);
-    });
-  }
+  defineComponent('progress', '[data-ld-progress]', function (bar) {
+    var val = parseFloat(bar.getAttribute('data-ld-value'));
+    if (isNaN(val)) val = 0;
+    val = Math.max(0, Math.min(100, val));
+    bar.style.width = val + '%';
+    bar.setAttribute('aria-valuenow', val);
+  });
 
   /* ---------------------------------------------------------------------
      Entrance animations — [data-ld-animate]
@@ -304,28 +511,26 @@
      and having the "animation" be an instant no-op transition.
      ------------------------------------------------------------------- */
 
-  function initAnimations(root) {
-    var els = qsaSelf(root, '[data-ld-animate]');
-    if (!els.length) return;
-
+  defineComponent('animate', '[data-ld-animate]', function (el, scope) {
     var reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     if (reduceMotion || typeof IntersectionObserver === 'undefined') {
-      els.forEach(function (el) { el.classList.add('ld-in-view'); });
+      el.classList.add('ld-in-view');
       return;
     }
-
     var observer = new IntersectionObserver(function (entries) {
       entries.forEach(function (entry) {
         if (entry.isIntersecting) {
-          entry.target.classList.add('ld-in-view');
-          observer.unobserve(entry.target);
+          el.classList.add('ld-in-view');
+          observer.disconnect();
         }
       });
     }, { threshold: 0.15 });
-
-    activeAnimationObservers.push(observer);
-    els.forEach(function (el) { observer.observe(el); });
-  }
+    observer.observe(el);
+    scope.cleanup(function () { observer.disconnect(); });
+  }, function (el) {
+    // never leave content hidden because its entrance animation will not run now
+    el.classList.add('ld-in-view');
+  });
 
   /* ---------------------------------------------------------------------
      Copy to clipboard
@@ -769,21 +974,28 @@
     }
   }
 
-  function initPagination(root) {
-    qsaSelf(root, '.ld-pagination').forEach(function (pagination) {
-      if (pagination.getAttribute('data-ld-paginate')) {
-        renderAutoPagination(pagination);
-        return;
-      }
-      var pages = getPaginationPages(pagination);
-      var currentIndex = pages.findIndex(function (p) { return p.getAttribute('data-ld-active') === 'true'; });
-      if (currentIndex === -1 && pages.length) {
-        currentIndex = 0;
-        pages[0].setAttribute('data-ld-active', 'true');
-      }
-      updatePaginationBounds(pagination, pages, currentIndex);
-    });
-  }
+  defineComponent('pagination', '.ld-pagination', function (pagination, scope) {
+    if (pagination.getAttribute('data-ld-paginate')) {
+      renderAutoPagination(pagination);
+      // the buttons were generated from the target's items: take them away again and show every item
+      scope.cleanup(function () {
+        var target = document.querySelector(pagination.getAttribute('data-ld-paginate'));
+        if (target) {
+          getPaginatedItems(target).forEach(function (item) { item.style.display = ''; });
+          target.removeAttribute('data-ld-page-index');
+        }
+        pagination.textContent = '';
+      });
+      return;
+    }
+    var pages = getPaginationPages(pagination);
+    var currentIndex = pages.findIndex(function (p) { return p.getAttribute('data-ld-active') === 'true'; });
+    if (currentIndex === -1 && pages.length) {
+      currentIndex = 0;
+      pages[0].setAttribute('data-ld-active', 'true');
+    }
+    updatePaginationBounds(pagination, pages, currentIndex);
+  }, null, { event: 'pagination', gate: true });
 
   /* ---------------------------------------------------------------------
      Dropzone
@@ -843,17 +1055,15 @@
     wrapper.setAttribute('data-ld-value', String(index + 1));
   }
 
-  function initRatings(root) {
-    qsaSelf(root, '[data-ld-rating]').forEach(function (wrapper) {
-      var value = parseInt(wrapper.getAttribute('data-ld-value'), 10) || 0;
-      var stars = wrapper.querySelectorAll('[data-ld-star]');
-      stars.forEach(function (s, i) {
-        s.setAttribute('data-ld-active', i < value ? 'true' : 'false');
-        s.setAttribute('role', 'button');
-        s.setAttribute('aria-pressed', i < value ? 'true' : 'false');
-      });
+  defineComponent('rating', '[data-ld-rating]', function (wrapper) {
+    var value = parseInt(wrapper.getAttribute('data-ld-value'), 10) || 0;
+    var stars = wrapper.querySelectorAll('[data-ld-star]');
+    stars.forEach(function (s, i) {
+      s.setAttribute('data-ld-active', i < value ? 'true' : 'false');
+      s.setAttribute('role', 'button');
+      s.setAttribute('aria-pressed', i < value ? 'true' : 'false');
     });
-  }
+  }, null, { gate: true });
 
   /* ---------------------------------------------------------------------
      Tag input
@@ -979,11 +1189,9 @@
     goToStep(stepper, steps.indexOf(step));
   }
 
-  function initSteppers(root) {
-    qsaSelf(root, '[data-ld-stepper]').forEach(function (stepper) {
-      goToStep(stepper, currentStepIndex(stepper));
-    });
-  }
+  defineComponent('stepper', '[data-ld-stepper]', function (stepper) {
+    goToStep(stepper, currentStepIndex(stepper));
+  }, null, { gate: true });
 
   /* ---------------------------------------------------------------------
      Combobox / autocomplete
@@ -999,20 +1207,24 @@
      buttons, and what the ARIA tabs/toolbar authoring practice expects).
      ------------------------------------------------------------------- */
 
-  function initRovingTabindex(root) {
-    qsaSelf(root, '[data-ld-tabs]').forEach(function (group) {
-      var triggers = Array.prototype.slice.call(group.querySelectorAll('[data-ld-toggle="tab"]'));
-      triggers.forEach(function (t) {
-        t.setAttribute('tabindex', t.getAttribute('data-ld-active') === 'true' ? '0' : '-1');
-      });
+  defineComponent('tabs', '[data-ld-tabs]', function (group) {
+    var triggers = Array.prototype.slice.call(group.querySelectorAll('[data-ld-toggle="tab"]'));
+    triggers.forEach(function (t) {
+      t.setAttribute('tabindex', t.getAttribute('data-ld-active') === 'true' ? '0' : '-1');
     });
-    qsaSelf(root, '[data-ld-segmented]').forEach(function (group) {
-      var items = Array.prototype.slice.call(group.querySelectorAll('[data-ld-segment]'));
-      items.forEach(function (i) {
-        i.setAttribute('tabindex', i.getAttribute('data-ld-active') === 'true' ? '0' : '-1');
-      });
+  }, function (group) {
+    // back to the natural tab order
+    Array.prototype.forEach.call(group.querySelectorAll('[data-ld-toggle="tab"]'), function (t) { t.removeAttribute('tabindex'); });
+  }, { event: 'tab', gate: true });
+
+  defineComponent('segmented', '[data-ld-segmented]', function (group) {
+    var items = Array.prototype.slice.call(group.querySelectorAll('[data-ld-segment]'));
+    items.forEach(function (i) {
+      i.setAttribute('tabindex', i.getAttribute('data-ld-active') === 'true' ? '0' : '-1');
     });
-  }
+  }, function (group) {
+    Array.prototype.forEach.call(group.querySelectorAll('[data-ld-segment]'), function (i) { i.removeAttribute('tabindex'); });
+  }, { event: 'segmented', gate: true });
 
   function handleRovingKeydown(e) {
     var isTab = e.target.matches && e.target.matches('[data-ld-toggle="tab"]');
@@ -1048,27 +1260,26 @@
      styles), cleared from the rest.
      ------------------------------------------------------------------- */
 
-  function initScrollspy(root) {
-    qsaSelf(root, '[data-ld-scrollspy]').forEach(function (nav) {
-      var links = Array.prototype.slice.call(nav.querySelectorAll('a[href^="#"]'));
-      var sections = links
-        .map(function (link) { return document.querySelector(link.getAttribute('href')); })
-        .filter(Boolean);
-      if (!sections.length) return;
+  defineComponent('scrollspy', '[data-ld-scrollspy]', function (nav, scope) {
+    var links = Array.prototype.slice.call(nav.querySelectorAll('a[href^="#"]'));
+    var sections = links
+      .map(function (link) { return document.querySelector(link.getAttribute('href')); })
+      .filter(Boolean);
+    if (!sections.length || typeof IntersectionObserver === 'undefined') return;
 
-      var observer = new IntersectionObserver(function (entries) {
-        entries.forEach(function (entry) {
-          if (!entry.isIntersecting) return;
-          var id = '#' + entry.target.id;
-          links.forEach(function (link) {
-            link.setAttribute('data-ld-active', link.getAttribute('href') === id ? 'true' : 'false');
-          });
+    var observer = new IntersectionObserver(function (entries) {
+      entries.forEach(function (entry) {
+        if (!entry.isIntersecting) return;
+        var id = '#' + entry.target.id;
+        links.forEach(function (link) {
+          link.setAttribute('data-ld-active', link.getAttribute('href') === id ? 'true' : 'false');
         });
-      }, { rootMargin: '-40% 0px -55% 0px', threshold: 0 });
+      });
+    }, { rootMargin: '-40% 0px -55% 0px', threshold: 0 });
 
-      sections.forEach(function (section) { observer.observe(section); });
-    });
-  }
+    sections.forEach(function (section) { observer.observe(section); });
+    scope.cleanup(function () { observer.disconnect(); });
+  });
 
   /* ---------------------------------------------------------------------
      Carousel
@@ -1112,16 +1323,15 @@
     if (timer) clearInterval(timer);
   }
 
-  function initCarousels(root) {
-    qsaSelf(root, '[data-ld-carousel]').forEach(function (carousel) {
-      goToSlide(carousel, 0);
-      if (carousel.getAttribute('data-ld-autoplay') === 'true') {
-        startCarouselAutoplay(carousel);
-        carousel.addEventListener('mouseenter', function () { stopCarouselAutoplay(carousel); });
-        carousel.addEventListener('mouseleave', function () { startCarouselAutoplay(carousel); });
-      }
-    });
-  }
+  defineComponent('carousel', '[data-ld-carousel]', function (carousel, scope) {
+    goToSlide(carousel, 0);
+    if (carousel.getAttribute('data-ld-autoplay') === 'true') {
+      startCarouselAutoplay(carousel);
+      scope.on(carousel, 'mouseenter', function () { stopCarouselAutoplay(carousel); });
+      scope.on(carousel, 'mouseleave', function () { startCarouselAutoplay(carousel); });
+      scope.cleanup(function () { stopCarouselAutoplay(carousel); });
+    }
+  }, null, { gate: true });
 
   /* ---------------------------------------------------------------------
      Navbar collapse
@@ -1172,12 +1382,10 @@
     if (clearBtn) clearBtn.setAttribute('data-ld-show', input.value.length > 0 ? 'true' : 'false');
   }
 
-  function initInputClear(root) {
-    qsaSelf(root, '[data-ld-input-clear]').forEach(function (clearBtn) {
-      var input = getClearTarget(clearBtn);
-      if (input) syncInputClear(input);
-    });
-  }
+  defineComponent('input-clear', '[data-ld-input-clear]', function (clearBtn) {
+    var input = getClearTarget(clearBtn);
+    if (input) syncInputClear(input);
+  }, null, { gate: true });
 
   function handleInputClear(clearBtn) {
     var input = getClearTarget(clearBtn);
@@ -1212,13 +1420,16 @@
     el.style.height = el.scrollHeight + 'px';
   }
 
-  function initAutosize(root) {
-    qsaSelf(root, '[data-ld-autosize]').forEach(function (el) {
-      el.style.overflowY = 'hidden';
-      el.style.resize = 'none';
-      autosizeTextarea(el);
-    });
-  }
+  defineComponent('autosize', '[data-ld-autosize]', function (el) {
+    el.style.overflowY = 'hidden';
+    el.style.resize = 'none';
+    autosizeTextarea(el);
+  }, function (el) {
+    // give the textarea back its own sizing
+    el.style.overflowY = '';
+    el.style.resize = '';
+    el.style.height = '';
+  }, { gate: true });
 
   /* ---------------------------------------------------------------------
      Sortable table headers — .ld-table[data-ld-sortable] th[data-ld-sort]
@@ -1273,7 +1484,7 @@
     };
   }
 
-  document.addEventListener('click', function (e) {
+  delegate('click', function (e) {
     var segmentEl = closestOf(e.target, '[data-ld-segment]');
     if (segmentEl) {
       handleSegmentToggle(segmentEl);
@@ -1475,7 +1686,7 @@
        3. the top dialog, and only that one
        4. otherwise any open dropdown, popover or combobox list
      A dropdown inside a modal closes first, then the modal; stacked modals close top first. */
-  document.addEventListener('keydown', function (e) {
+  delegate('keydown', function (e) {
     var key = e.key || ''; // autofill and some assistive tech send keydown events with no key
     if (key === 'Escape') {
       var active = document.activeElement;
@@ -1519,7 +1730,7 @@
     trapTab(e);
   });
 
-  document.addEventListener('input', function (e) {
+  delegate('input', function (e) {
     var commandInput = closestOf(e.target, '.ld-command-input');
     if (commandInput) {
       var backdrop = commandInput.closest('.ld-command-backdrop');
@@ -1539,7 +1750,7 @@
     }
   });
 
-  document.addEventListener('change', function (e) {
+  delegate('change', function (e) {
     var input = closestOf(e.target, '[data-ld-dropzone] input[type="file"]');
     if (!input) return;
     var zone = input.closest('[data-ld-dropzone]');
@@ -1552,12 +1763,12 @@
 
   /* Sidebar dropdown (small screens): choosing a link closes the menu, and
      Escape closes it and hands focus back to the toggle button. */
-  document.addEventListener('click', function (e) {
+  delegate('click', function (e) {
     var sideLink = e.target.closest && closestOf(e.target, '.ld-sidebar-link');
     if (sideLink) closeNavbarCollapse(sideLink.closest('.ld-sidebar-body'));
   });
 
-  document.addEventListener('keydown', function (e) {
+  delegate('keydown', function (e) {
     if (e.key !== 'Escape') return;
     var openMenu = document.querySelector('.ld-sidebar-body[data-ld-show="true"]');
     var trigger = closeNavbarCollapse(openMenu);
@@ -1569,22 +1780,12 @@
 
   /* @ldcss-modules */
 
-  document.addEventListener('dragover', handleDropzoneDragOver);
-  document.addEventListener('dragleave', handleDropzoneDragLeave);
-  document.addEventListener('drop', handleDropzoneDrop);
+  delegate('dragover', handleDropzoneDragOver);
+  delegate('dragleave', handleDropzoneDragLeave);
+  delegate('drop', handleDropzoneDrop);
 
   initTheme();
-  initProgressBars();
-  initRatings();
-  initPagination();
-  initAnimations();
-  initSteppers();
-  initRovingTabindex();
-  initScrollspy();
-  initCarousels();
-  initInputClear();
-  initAutosize();
-  moduleInits.forEach(function (fn) { fn(document); });
+  initComponents(document);
 
   /* ---------------------------------------------------------------------
      Mutation-aware initializer. A MutationObserver on <body> runs the same
@@ -1595,20 +1796,6 @@
      ldcss.observe() switch it off and on at runtime.
      ------------------------------------------------------------------- */
   var observer = null;
-
-  function runInitializers(root) {
-    initProgressBars(root);
-    initRatings(root);
-    initPagination(root);
-    initAnimations(root);
-    initSteppers(root);
-    initRovingTabindex(root);
-    initScrollspy(root);
-    initCarousels(root);
-    initInputClear(root);
-    initAutosize(root);
-    moduleInits.forEach(function (fn) { fn(root); });
-  }
 
   function observeDom(target) {
     if (observer || !window.MutationObserver) return;
@@ -1622,7 +1809,8 @@
           if (node.nodeType === 1 && !node.closest('[data-ld-no-observe]')) added.push(node);
         });
         Array.prototype.forEach.call(record.removedNodes, function (node) {
-          if (node.nodeType === 1) qsaSelf(node, '[data-ld-carousel]').forEach(stopCarouselAutoplay);
+          // gone from the page: release timers, observers and listeners (moved nodes stay connected)
+          if (node.nodeType === 1 && !node.isConnected) destroyComponents(node, null, false);
         });
       });
       // only the outermost added elements: their descendants are covered
@@ -1635,7 +1823,7 @@
       observer.disconnect();
       try {
         added.forEach(function (node) {
-          runInitializers(node);
+          if (!isDestroyed(node)) initComponents(node);
           emit(node, 'ld:init', { root: node });
         });
       } finally {
@@ -1664,7 +1852,24 @@
      sweeps below need to be re-run, scoped to whatever you just added.
      ------------------------------------------------------------------- */
   window.ldcss = window.ldcss || {};
-  window.ldcss.refresh = runInitializers;
+  /* ---------------------------------------------------------------------
+     Public API
+     ------------------------------------------------------------------- */
+
+  window.ldcss.init = function (target, names) { initComponents(target, names); };
+  window.ldcss.refresh = window.ldcss.init; // the name it had before 3.3.0
+  window.ldcss.reinit = function (target, names) { destroyComponents(target, names); initComponents(target, names); };
+  window.ldcss.component = function (name) {
+    var def = componentByName[name];
+    if (!def) throw new Error('ldcss: no component called "' + name + '". Known: ' + components.map(function (d) { return d.name; }).join(', '));
+    return componentApi(def);
+  };
+  window.ldcss.components = function () { return components.map(function (d) { return d.name; }); };
+  window.ldcss.isInitialized = function (el, name) {
+    if (name) return !!instanceOf(el, name);
+    var map = instances.get(el);
+    return !!map && Object.keys(map).length > 0;
+  };
   window.ldcss.theme = { get: currentTheme, set: setTheme };
   window.ldcss.observe = observeDom;
   window.ldcss.unobserve = unobserveDom;
@@ -1673,19 +1878,24 @@
   window.ldcss.once = once;
   window.ldcss.emit = emit;
   window.ldcss.announce = announce;
-
   window.ldcss.debounce = debounce;
 
-  /* Coarse teardown: disconnects every entrance-animation
-     IntersectionObserver. Delegated listeners (click/input/keydown/drag)
-     don't need teardown — they're bound once on document and no-op
-     harmlessly on elements that no longer exist. Call this before
-     removing a large chunk of DOM that contained [data-ld-animate]
-     elements, then call ldcss.refresh() again for whatever's left. */
-  window.ldcss.destroy = function () {
-    activeAnimationObservers.forEach(function (observer) { observer.disconnect(); });
-    activeAnimationObservers = [];
-    unobserveDom();
-    qsaSelf(document, '[data-ld-carousel]').forEach(stopCarouselAutoplay);
+  /* destroy(target, names): tear down the components inside target (an element, selector or
+     list), or only the named ones. Their listeners, observers and timers go, generated markup is
+     removed, open dialogs inside are closed, and delegated behaviour (tabs, the context menu…)
+     stops responding there until ldcss.init(target) is called.
+     destroy() with no arguments is the whole-page version: every component, the mutation
+     observer, and every document and window listener ldcss attached. ldcss.init() starts it all
+     again. */
+  window.ldcss.destroy = function (target, names) {
+    if (target == null && names == null) {
+      destroyComponents(document, null, false);
+      stopLifecycle();
+      return;
+    }
+    destroyComponents(target, names);
   };
+
+  // the page-wide mutation observer is part of start/stop
+  lifecycleHooks.push({ stop: unobserveDom, start: function () { if (document.body && document.body.getAttribute('data-ld-observe') !== 'false') observeDom(); } });
 })();

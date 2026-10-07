@@ -33,7 +33,7 @@
   padding: var(--ld-space-2);
   background: none;
   border: none;
-  border-radius: calc(var(--ld-radius) / 2);
+  border-radius: var(--ld-border-radius-sm);
   font-family: var(--ld-font-family);
   font-size: var(--ld-text-sm);
   color: var(--ld-text);

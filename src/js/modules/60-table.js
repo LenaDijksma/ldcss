@@ -305,14 +305,13 @@
     row.insertBefore(td, row.firstChild);
   }
 
-  function initTables(root) {
-    qsaSelf(root, 'table[data-ld-table]').forEach(function (table) {
-      if (table._ldTable) return;
+  defineComponent('table', 'table[data-ld-table]', function (table, scope) {
       var st = table._ldTable = {
         rows: [], original: [], body: null, sort: { col: -1, dir: null }, query: '', page: 1,
         pageSize: parseInt(table.getAttribute('data-ld-page-size'), 10) || 0,
         selectable: table.hasAttribute('data-ld-select'), selected: new Set(), busy: false,
-        headerCells: [], searchColumns: null
+        headerCells: [], searchColumns: null,
+        createdWrap: false, shell: null, wrap: null, sortAdded: [], sortWrapped: [], wrapAttrs: null
       };
       var cols = table.getAttribute('data-ld-search-columns');
       if (cols) st.searchColumns = cols.split(',').map(function (n) { return parseInt(n, 10); }).filter(function (n) { return !isNaN(n); });
@@ -334,9 +333,11 @@
         wrap.className = 'ld-table-wrap';
         table.parentNode.insertBefore(wrap, table);
         wrap.appendChild(table);
+        st.createdWrap = true;
       }
       var caption = table.querySelector('caption');
       var name = (caption && caption.textContent.trim()) || table.getAttribute('aria-label') || 'Table';
+      st.wrapAttrs = { role: wrap.getAttribute('role'), label: wrap.getAttribute('aria-label'), tabindex: wrap.getAttribute('tabindex') };
       wrap.setAttribute('role', 'region');
       wrap.setAttribute('aria-label', name);
       wrap.tabIndex = 0;
@@ -344,6 +345,8 @@
       var shell = document.createElement('div');
       shell.className = 'ld-table-shell';
       wrap.parentNode.insertBefore(shell, wrap);
+      st.shell = shell;
+      st.wrap = wrap;
 
       if (table.hasAttribute('data-ld-search')) {
         var bar = document.createElement('div');
@@ -358,11 +361,11 @@
         bar.appendChild(input);
         shell.appendChild(bar);
         st.searchInput = input;
-        input.addEventListener('input', function () {
+        scope.on(input, 'input', function () {
           clearTimeout(st.searchTimer);
           st.searchTimer = setTimeout(function () { st.query = input.value; st.page = 1; tableApply(table, 'search'); }, 120);
         });
-        input.addEventListener('keydown', function (e) {
+        scope.on(input, 'keydown', function (e) {
           if (e.key === 'Escape' && input.value) { input.value = ''; st.query = ''; st.page = 1; tableApply(table, 'search'); e.stopPropagation(); }
         });
       }
@@ -390,7 +393,7 @@
           sel.className = 'ld-select';
           sel.setAttribute('aria-label', 'Rows per page');
           sizes.forEach(function (n) { var o = document.createElement('option'); o.value = n; o.textContent = n + ' / page'; if (n === st.pageSize) o.selected = true; sel.appendChild(o); });
-          sel.addEventListener('change', function () { st.pageSize = parseInt(sel.value, 10); st.page = 1; tableApply(table, 'page'); });
+          scope.on(sel, 'change', function () { st.pageSize = parseInt(sel.value, 10); st.page = 1; tableApply(table, 'page'); });
           right.appendChild(sel);
         }
         if (st.pageSize) {
@@ -411,6 +414,7 @@
       if (table.getAttribute('data-ld-sortable') !== 'false') {
         st.headerCells.forEach(function (th) {
           if (th.hasAttribute('data-ld-nosort') || th.classList.contains('ld-table-select')) return;
+          if (!th.hasAttribute('data-ld-sort')) st.sortAdded.push(th);
           th.setAttribute('data-ld-sort', '');
           th.setAttribute('aria-sort', 'none');
           if (!th.querySelector('.ld-sort-btn')) {
@@ -419,6 +423,7 @@
             btn.className = 'ld-sort-btn';
             while (th.firstChild) btn.appendChild(th.firstChild);
             th.appendChild(btn);
+            st.sortWrapped.push({ th: th, btn: btn });
           }
         });
       }
@@ -433,8 +438,56 @@
         st.observer.observe(st.body, { childList: true });
       }
       tableApply(table, 'init');
+  }, function (table) {
+    var st = table._ldTable;
+    if (!st) return;
+    clearTimeout(st.searchTimer);
+    clearTimeout(st.refreshTimer);
+    clearTimeout(st.announceTimer);
+    if (st.observer) { st.observer.disconnect(); st.observer = null; }
+    st.busy = true;
+
+    // rows: original order, all visible, no selection marks, no empty-state row
+    var emptyRow = st.body && st.body.querySelector('[data-ld-table-empty]');
+    if (emptyRow) emptyRow.remove();
+    // Only rows that are still in the table: if you replaced the rows, the old ones are gone for good
+    // and must not come back. Rows you added since setup keep their place after the original ones.
+    var present = st.body ? Array.prototype.slice.call(st.body.rows) : [];
+    var ordered = st.original.filter(function (row) { return row.parentNode === st.body; })
+      .concat(present.filter(function (row) { return st.original.indexOf(row) === -1; }));
+    ordered.forEach(function (row) {
+      row.hidden = false;
+      row.removeAttribute('data-ld-selected');
+      row.removeAttribute('aria-selected');
+      st.body.appendChild(row);
     });
-  }
+    // the checkbox column
+    Array.prototype.forEach.call(table.querySelectorAll('.ld-table-select'), function (cell) { cell.remove(); });
+    // headers: label back inside the th, our attributes off
+    st.sortWrapped.forEach(function (w) {
+      while (w.btn.firstChild) w.th.insertBefore(w.btn.firstChild, w.btn);
+      w.btn.remove();
+    });
+    st.headerCells.forEach(function (th) {
+      th.removeAttribute('data-ld-sort-dir');
+      if (st.sortAdded.indexOf(th) !== -1) { th.removeAttribute('data-ld-sort'); th.removeAttribute('aria-sort'); }
+    });
+    // chrome: shell, toolbar, status line and footer go; the wrapper only if we made it
+    if (st.shell && st.shell.parentNode && st.wrap) {
+      st.shell.parentNode.insertBefore(st.wrap, st.shell);
+      st.shell.remove();
+    }
+    if (st.createdWrap && st.wrap && st.wrap.parentNode) {
+      st.wrap.parentNode.insertBefore(table, st.wrap);
+      st.wrap.remove();
+    } else if (st.wrap && st.wrapAttrs) {
+      ['role', 'aria-label', 'tabindex'].forEach(function (a, i) {
+        var before = [st.wrapAttrs.role, st.wrapAttrs.label, st.wrapAttrs.tabindex][i];
+        if (before == null) st.wrap.removeAttribute(a); else st.wrap.setAttribute(a, before);
+      });
+    }
+    table._ldTable = null;
+  }, { gate: true });
 
   function refreshTable(table) {
     table = tableRef(table);
@@ -452,7 +505,7 @@
     tableApply(table, 'refresh');
   }
 
-  document.addEventListener('click', function (e) {
+  delegate('click', function (e) {
     var pageBtn = e.target.closest && closestOf(e.target, '[data-ld-table-page]');
     if (pageBtn && !pageBtn.disabled) {
       var shell = pageBtn.closest('.ld-table-shell');
@@ -466,7 +519,7 @@
     }
   });
 
-  document.addEventListener('change', function (e) {
+  delegate('change', function (e) {
     var box = e.target;
     if (!box.matches || !box.matches('[data-ld-table-rowselect], [data-ld-table-selectall]')) return;
     var table = box.closest('table[data-ld-table]');
@@ -482,7 +535,6 @@
     tableEmitSelect(table);
   });
 
-  moduleInits.push(initTables);
   window.ldcss.table = {
     refresh: refreshTable,
     selected: function (el) { var st = tableSt(tableRef(el)); return st ? Array.from(st.selected) : []; },

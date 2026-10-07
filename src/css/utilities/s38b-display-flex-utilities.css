@@ -163,22 +163,7 @@
   max-width: 100%;
 }
 
-/* -- Aspect ratio -------------------------------------------------------------------- */
-.ld-aspect-square {
-  aspect-ratio: 1 / 1;
-}
-
-.ld-aspect-video {
-  aspect-ratio: 16 / 9;
-}
-
-.ld-aspect-4-3 {
-  aspect-ratio: 4 / 3;
-}
-
-.ld-aspect-3-2 {
-  aspect-ratio: 3 / 2;
-}
+/* Aspect-ratio utilities live in s38i (they used to be declared here too). */
 
 /* -- Link reset -----------------------------------------------------------------------
    Strip default <a> underline/color for building a custom brand mark, card-as-link,

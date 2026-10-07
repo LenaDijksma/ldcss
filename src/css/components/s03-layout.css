@@ -11,25 +11,25 @@
 
 @media (min-width: 640px) {
   .ld-container {
-    max-width: 600px;
+    max-width: min(600px, var(--ld-content-width));
   }
 }
 
 @media (min-width: 960px) {
   .ld-container {
-    max-width: 900px;
+    max-width: min(900px, var(--ld-content-width));
   }
 }
 
 @media (min-width: 1200px) {
   .ld-container {
-    max-width: 1100px;
+    max-width: min(1100px, var(--ld-content-width));
   }
 }
 
 @media (min-width: 1440px) {
   .ld-container {
-    max-width: 1320px;
+    max-width: min(1320px, var(--ld-content-width));
   }
 }
 

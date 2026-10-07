@@ -1,4 +1,4 @@
-/*! ldcss.js v3.2.0 — MIT */
+/*! ldcss.js v3.3.0 — MIT */
 /*!
  * ldcss.js — Lena Dijksma CSS
  * Zero-dependency behavior for data-ld-* interactive components.
@@ -14,7 +14,7 @@
  * dispatch CustomEvents on the element itself — ld:{component}:show and
  * ld:{component}:hide — bubbling, so a single listener higher up the
  * DOM can react to any instance:
- *   document.addEventListener('ld:modal:show', function (e) {
+ *   delegate('ld:modal:show', function (e) {
  *     console.log('opened', e.target, e.detail.trigger);
  *   });
  * detail.trigger is the element that caused the change (the clicked
@@ -27,13 +27,203 @@
   /* Open dialogs (modal, offcanvas, command palette), bottom to top. Each keeps
      its own return-focus target, so stacked dialogs hand focus back in order. */
   var overlayStack = [];
-  var activeAnimationObservers = [];
 
   /* element.closest() that tolerates events whose target is not an element
      (document, window, a text node): synthetic keydown events and some
      assistive tools dispatch those. */
   function closestOf(node, selector) {
     return node && typeof node.closest === 'function' ? node.closest(selector) : null;
+  }
+
+
+  /* =====================================================================
+     Component lifecycle
+
+     Every component with per-element setup is registered here:
+
+       defineComponent(name, selector, init(el, scope), destroy(el, scope), options)
+
+     `scope` collects what an instance owns, so destroying it is exact:
+       scope.on(target, type, fn)   an event listener, removed on destroy
+       scope.cleanup(fn)            anything else (observer, timer…)
+       scope.add(node)              a node init created, removed on destroy
+
+     Public API (window.ldcss):
+       init([target], [names])      set components up (default: the whole page)
+       destroy([target], [names])   tear them down; no arguments = everything
+       reinit(target, [names])      destroy + init, e.g. after replacing content
+       component(name)              { init, destroy, reinit, on, once, instances, has }
+       components(), isInitialized(el, name)
+     Elements ldcss removes from the page are destroyed automatically.
+     ===================================================================== */
+
+  var components = [];
+  var componentByName = {};
+  var instances = new WeakMap(); // element -> { componentName: scope }
+  var delegates = [];            // every document/window listener ldcss attached
+  var delegatesAttached = true;
+  var lifecycleHooks = [];       // { start, stop } for observers that run page-wide
+
+  function isDestroyed(node) {
+    return !!closestOf(node, '[data-ld-destroyed]');
+  }
+
+  /* Listener on document or window. It ignores events from inside an element
+     that was destroyed (data-ld-destroyed), which is how components that work
+     purely through delegated listeners (tabs, disclosure, the context menu…)
+     stop responding, and ldcss.destroy() with no arguments removes all of them. */
+  function delegateTo(target, type, handler, capture) {
+    var wrapped = function (e) {
+      if (isDestroyed(e.target)) return;
+      handler(e);
+    };
+    delegates.push({ target: target, type: type, fn: wrapped, capture: !!capture });
+    if (delegatesAttached) target.addEventListener(type, wrapped, !!capture);
+  }
+
+  function delegate(type, handler, capture) { delegateTo(document, type, handler, capture); }
+  function delegateWindow(type, handler, capture) { delegateTo(window, type, handler, capture); }
+
+  function makeScope(el, name) {
+    var scope = { el: el, name: name, cleanups: [] };
+    scope.cleanup = function (fn) { scope.cleanups.push(fn); };
+    scope.on = function (target, type, fn, options) {
+      target.addEventListener(type, fn, options);
+      scope.cleanups.push(function () { target.removeEventListener(type, fn, options); });
+    };
+    scope.add = function (node) {
+      scope.cleanups.push(function () { if (node.parentNode) node.parentNode.removeChild(node); });
+      return node;
+    };
+    return scope;
+  }
+
+  function instanceOf(el, name) {
+    var map = instances.get(el);
+    return map ? map[name] || null : null;
+  }
+
+  function defineComponent(name, selector, init, destroy, options) {
+    options = options || {};
+    var def = { name: name, selector: selector, init: init, destroy: destroy || null, event: options.event || name, gate: !!options.gate };
+    components.push(def);
+    componentByName[name] = def;
+    return def;
+  }
+
+  function instantiate(def, el) {
+    if (instanceOf(el, def.name)) return;
+    var scope = makeScope(el, def.name);
+    var map = instances.get(el);
+    if (!map) { map = {}; instances.set(el, map); }
+    map[def.name] = scope;
+    try {
+      def.init(el, scope);
+    } catch (err) {
+      console.error('ldcss: could not set up ' + def.name, err);
+      return;
+    }
+    emit(el, 'ld:' + def.event + ':init', { component: def.name });
+  }
+
+  function destroyInstance(def, el, mark) {
+    var scope = instanceOf(el, def.name);
+    if (!scope) return;
+    for (var i = scope.cleanups.length - 1; i >= 0; i--) {
+      try { scope.cleanups[i](); } catch (err) { console.error('ldcss: cleanup failed for ' + def.name, err); }
+    }
+    if (def.destroy) {
+      try { def.destroy(el, scope); } catch (err) { console.error('ldcss: could not tear down ' + def.name, err); }
+    }
+    var map = instances.get(el);
+    if (map) { delete map[def.name]; }
+    if (mark && def.gate) el.setAttribute('data-ld-destroyed', 'true');
+    emit(el, 'ld:' + def.event + ':destroy', { component: def.name });
+  }
+
+  function selectComponents(names) {
+    if (names == null) return components;
+    var list = [].concat(names);
+    return components.filter(function (def) { return list.indexOf(def.name) !== -1; });
+  }
+
+  function resolveTargets(target) {
+    if (!target) return [document];
+    if (typeof target === 'string') return Array.prototype.slice.call(document.querySelectorAll(target));
+    if (target.nodeType) return [target];
+    return Array.prototype.slice.call(target);
+  }
+
+  function clearDestroyedMarks(root) {
+    if (root.nodeType !== 1) return;
+    qsaSelf(root, '[data-ld-destroyed]').forEach(function (el) { el.removeAttribute('data-ld-destroyed'); });
+  }
+
+  function initComponents(target, names) {
+    resolveTargets(target).forEach(function (root) {
+      if (delegatesAttached === false) startLifecycle();
+      if (target) clearDestroyedMarks(root);
+      selectComponents(names).forEach(function (def) {
+        qsaSelf(root, def.selector).forEach(function (el) {
+          if (!isDestroyed(el)) instantiate(def, el);
+        });
+      });
+      if (names == null) moduleInits.forEach(function (fn) { fn(root); });
+    });
+  }
+
+  /* what the page-wide pieces (document listeners, observers) do on stop/start */
+  function stopLifecycle() {
+    if (!delegatesAttached) return;
+    delegatesAttached = false;
+    delegates.forEach(function (d) { d.target.removeEventListener(d.type, d.fn, d.capture); });
+    lifecycleHooks.forEach(function (h) { if (h.stop) h.stop(); });
+  }
+
+  function startLifecycle() {
+    if (delegatesAttached) return;
+    delegatesAttached = true;
+    delegates.forEach(function (d) { d.target.addEventListener(d.type, d.fn, d.capture); });
+    lifecycleHooks.forEach(function (h) { if (h.start) h.start(); });
+  }
+
+  function destroyComponents(target, names, markRoot) {
+    resolveTargets(target).forEach(function (root) {
+      closeOverlaysIn(root);
+      removeOwnedListeners(root);
+      selectComponents(names).forEach(function (def) {
+        qsaSelf(root, def.selector).forEach(function (el) { destroyInstance(def, el, markRoot !== false); });
+      });
+      // destroying a whole subtree on purpose: its delegated behaviours stop too
+      if (root.nodeType === 1 && names == null && markRoot !== false) root.setAttribute('data-ld-destroyed', 'true');
+    });
+  }
+
+  /* an overlay that is open inside something being destroyed must not stay open */
+  function closeOverlaysIn(root) {
+    if (root.nodeType !== 1 && root.nodeType !== 9) return;
+    qsaSelf(root, '.ld-modal-backdrop.ld-show, .ld-offcanvas-backdrop.ld-show, .ld-command-backdrop.ld-show').forEach(function (b) {
+      if (b.classList.contains('ld-modal-backdrop')) closeModal(b);
+      else if (b.classList.contains('ld-offcanvas-backdrop')) closeOffcanvas(b);
+      else closeCommand(b);
+    });
+    qsaSelf(root, '[data-ld-dropdown-menu].ld-show, [data-ld-popover-content].ld-show').forEach(function (m) { m.classList.remove('ld-show'); });
+  }
+
+  function componentApi(def) {
+    return {
+      name: def.name,
+      selector: def.selector,
+      init: function (target) { initComponents(target, def.name); },
+      destroy: function (target) { destroyComponents(target, def.name); },
+      reinit: function (target) { destroyComponents(target, def.name); initComponents(target, def.name); },
+      on: function (type, fn, options) { return on(def.event + ':' + type, fn, options); },
+      once: function (type, fn, options) { return once(def.event + ':' + type, fn, options); },
+      has: function (el) { return !!instanceOf(el, def.name); },
+      instances: function (root) {
+        return qsaSelf(root || document, def.selector).filter(function (el) { return !!instanceOf(el, def.name); });
+      }
+    };
   }
 
   /* Module registry — each file in src/js/modules/ adds an init function
@@ -58,10 +248,19 @@
   function emit(el, name, detail, cancelable) {
     if (!el) return true;
     var evt = new CustomEvent(name, { bubbles: true, cancelable: !!cancelable, detail: detail || {} });
+    // Wildcard listeners ("*") run while the event is being dispatched, so event.target is still
+    // the element (browsers reset it afterwards for elements that are no longer in the page).
+    var seen = null;
+    if (wildcardListeners.length) {
+      seen = function (e) {
+        wildcardListeners.slice().forEach(function (fn) {
+          try { fn(e); } catch (err) { console.error('ldcss listener error', err); }
+        });
+      };
+      el.addEventListener(name, seen, { once: true });
+    }
     var notCancelled = el.dispatchEvent(evt);
-    wildcardListeners.slice().forEach(function (fn) {
-      try { fn(evt); } catch (err) { console.error('ldcss listener error', err); }
-    });
+    if (seen) el.removeEventListener(name, seen);
     return notCancelled;
   }
 
@@ -79,7 +278,7 @@
      Returns an unsubscribe function. */
   function on(type, handler, options) {
     options = options || {};
-    var entry = { type: type, handler: handler };
+    var entry = { type: type, handler: handler, owner: options.root && options.root.nodeType === 1 ? options.root : null };
     var listener = function (e) {
       if (!matchesTarget(e, options.target)) return;
       if (options.once) entry.off();
@@ -99,6 +298,16 @@
     }
     listenerRegistry.push(entry);
     return entry.off;
+  }
+
+  /* listeners registered with { root: el } go away when el (or an ancestor) is destroyed */
+  function removeOwnedListeners(root) {
+    if (root.nodeType !== 1 && root.nodeType !== 9) return;
+    listenerRegistry = listenerRegistry.filter(function (entry) {
+      if (!entry.owner || !(entry.owner === root || root.contains(entry.owner))) return true;
+      entry.off();
+      return false;
+    });
   }
 
   function off(type, handler) {
@@ -288,15 +497,13 @@
      Progress bars — read data-ld-value (0-100) into bar width
      ------------------------------------------------------------------- */
 
-  function initProgressBars(root) {
-    qsaSelf(root, '[data-ld-progress]').forEach(function (bar) {
-      var val = parseFloat(bar.getAttribute('data-ld-value'));
-      if (isNaN(val)) val = 0;
-      val = Math.max(0, Math.min(100, val));
-      bar.style.width = val + '%';
-      bar.setAttribute('aria-valuenow', val);
-    });
-  }
+  defineComponent('progress', '[data-ld-progress]', function (bar) {
+    var val = parseFloat(bar.getAttribute('data-ld-value'));
+    if (isNaN(val)) val = 0;
+    val = Math.max(0, Math.min(100, val));
+    bar.style.width = val + '%';
+    bar.setAttribute('aria-valuenow', val);
+  });
 
   /* ---------------------------------------------------------------------
      Entrance animations — [data-ld-animate]
@@ -305,28 +512,26 @@
      and having the "animation" be an instant no-op transition.
      ------------------------------------------------------------------- */
 
-  function initAnimations(root) {
-    var els = qsaSelf(root, '[data-ld-animate]');
-    if (!els.length) return;
-
+  defineComponent('animate', '[data-ld-animate]', function (el, scope) {
     var reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     if (reduceMotion || typeof IntersectionObserver === 'undefined') {
-      els.forEach(function (el) { el.classList.add('ld-in-view'); });
+      el.classList.add('ld-in-view');
       return;
     }
-
     var observer = new IntersectionObserver(function (entries) {
       entries.forEach(function (entry) {
         if (entry.isIntersecting) {
-          entry.target.classList.add('ld-in-view');
-          observer.unobserve(entry.target);
+          el.classList.add('ld-in-view');
+          observer.disconnect();
         }
       });
     }, { threshold: 0.15 });
-
-    activeAnimationObservers.push(observer);
-    els.forEach(function (el) { observer.observe(el); });
-  }
+    observer.observe(el);
+    scope.cleanup(function () { observer.disconnect(); });
+  }, function (el) {
+    // never leave content hidden because its entrance animation will not run now
+    el.classList.add('ld-in-view');
+  });
 
   /* ---------------------------------------------------------------------
      Copy to clipboard
@@ -770,21 +975,28 @@
     }
   }
 
-  function initPagination(root) {
-    qsaSelf(root, '.ld-pagination').forEach(function (pagination) {
-      if (pagination.getAttribute('data-ld-paginate')) {
-        renderAutoPagination(pagination);
-        return;
-      }
-      var pages = getPaginationPages(pagination);
-      var currentIndex = pages.findIndex(function (p) { return p.getAttribute('data-ld-active') === 'true'; });
-      if (currentIndex === -1 && pages.length) {
-        currentIndex = 0;
-        pages[0].setAttribute('data-ld-active', 'true');
-      }
-      updatePaginationBounds(pagination, pages, currentIndex);
-    });
-  }
+  defineComponent('pagination', '.ld-pagination', function (pagination, scope) {
+    if (pagination.getAttribute('data-ld-paginate')) {
+      renderAutoPagination(pagination);
+      // the buttons were generated from the target's items: take them away again and show every item
+      scope.cleanup(function () {
+        var target = document.querySelector(pagination.getAttribute('data-ld-paginate'));
+        if (target) {
+          getPaginatedItems(target).forEach(function (item) { item.style.display = ''; });
+          target.removeAttribute('data-ld-page-index');
+        }
+        pagination.textContent = '';
+      });
+      return;
+    }
+    var pages = getPaginationPages(pagination);
+    var currentIndex = pages.findIndex(function (p) { return p.getAttribute('data-ld-active') === 'true'; });
+    if (currentIndex === -1 && pages.length) {
+      currentIndex = 0;
+      pages[0].setAttribute('data-ld-active', 'true');
+    }
+    updatePaginationBounds(pagination, pages, currentIndex);
+  }, null, { event: 'pagination', gate: true });
 
   /* ---------------------------------------------------------------------
      Dropzone
@@ -844,17 +1056,15 @@
     wrapper.setAttribute('data-ld-value', String(index + 1));
   }
 
-  function initRatings(root) {
-    qsaSelf(root, '[data-ld-rating]').forEach(function (wrapper) {
-      var value = parseInt(wrapper.getAttribute('data-ld-value'), 10) || 0;
-      var stars = wrapper.querySelectorAll('[data-ld-star]');
-      stars.forEach(function (s, i) {
-        s.setAttribute('data-ld-active', i < value ? 'true' : 'false');
-        s.setAttribute('role', 'button');
-        s.setAttribute('aria-pressed', i < value ? 'true' : 'false');
-      });
+  defineComponent('rating', '[data-ld-rating]', function (wrapper) {
+    var value = parseInt(wrapper.getAttribute('data-ld-value'), 10) || 0;
+    var stars = wrapper.querySelectorAll('[data-ld-star]');
+    stars.forEach(function (s, i) {
+      s.setAttribute('data-ld-active', i < value ? 'true' : 'false');
+      s.setAttribute('role', 'button');
+      s.setAttribute('aria-pressed', i < value ? 'true' : 'false');
     });
-  }
+  }, null, { gate: true });
 
   /* ---------------------------------------------------------------------
      Tag input
@@ -980,11 +1190,9 @@
     goToStep(stepper, steps.indexOf(step));
   }
 
-  function initSteppers(root) {
-    qsaSelf(root, '[data-ld-stepper]').forEach(function (stepper) {
-      goToStep(stepper, currentStepIndex(stepper));
-    });
-  }
+  defineComponent('stepper', '[data-ld-stepper]', function (stepper) {
+    goToStep(stepper, currentStepIndex(stepper));
+  }, null, { gate: true });
 
   /* ---------------------------------------------------------------------
      Combobox / autocomplete
@@ -1000,20 +1208,24 @@
      buttons, and what the ARIA tabs/toolbar authoring practice expects).
      ------------------------------------------------------------------- */
 
-  function initRovingTabindex(root) {
-    qsaSelf(root, '[data-ld-tabs]').forEach(function (group) {
-      var triggers = Array.prototype.slice.call(group.querySelectorAll('[data-ld-toggle="tab"]'));
-      triggers.forEach(function (t) {
-        t.setAttribute('tabindex', t.getAttribute('data-ld-active') === 'true' ? '0' : '-1');
-      });
+  defineComponent('tabs', '[data-ld-tabs]', function (group) {
+    var triggers = Array.prototype.slice.call(group.querySelectorAll('[data-ld-toggle="tab"]'));
+    triggers.forEach(function (t) {
+      t.setAttribute('tabindex', t.getAttribute('data-ld-active') === 'true' ? '0' : '-1');
     });
-    qsaSelf(root, '[data-ld-segmented]').forEach(function (group) {
-      var items = Array.prototype.slice.call(group.querySelectorAll('[data-ld-segment]'));
-      items.forEach(function (i) {
-        i.setAttribute('tabindex', i.getAttribute('data-ld-active') === 'true' ? '0' : '-1');
-      });
+  }, function (group) {
+    // back to the natural tab order
+    Array.prototype.forEach.call(group.querySelectorAll('[data-ld-toggle="tab"]'), function (t) { t.removeAttribute('tabindex'); });
+  }, { event: 'tab', gate: true });
+
+  defineComponent('segmented', '[data-ld-segmented]', function (group) {
+    var items = Array.prototype.slice.call(group.querySelectorAll('[data-ld-segment]'));
+    items.forEach(function (i) {
+      i.setAttribute('tabindex', i.getAttribute('data-ld-active') === 'true' ? '0' : '-1');
     });
-  }
+  }, function (group) {
+    Array.prototype.forEach.call(group.querySelectorAll('[data-ld-segment]'), function (i) { i.removeAttribute('tabindex'); });
+  }, { event: 'segmented', gate: true });
 
   function handleRovingKeydown(e) {
     var isTab = e.target.matches && e.target.matches('[data-ld-toggle="tab"]');
@@ -1049,27 +1261,26 @@
      styles), cleared from the rest.
      ------------------------------------------------------------------- */
 
-  function initScrollspy(root) {
-    qsaSelf(root, '[data-ld-scrollspy]').forEach(function (nav) {
-      var links = Array.prototype.slice.call(nav.querySelectorAll('a[href^="#"]'));
-      var sections = links
-        .map(function (link) { return document.querySelector(link.getAttribute('href')); })
-        .filter(Boolean);
-      if (!sections.length) return;
+  defineComponent('scrollspy', '[data-ld-scrollspy]', function (nav, scope) {
+    var links = Array.prototype.slice.call(nav.querySelectorAll('a[href^="#"]'));
+    var sections = links
+      .map(function (link) { return document.querySelector(link.getAttribute('href')); })
+      .filter(Boolean);
+    if (!sections.length || typeof IntersectionObserver === 'undefined') return;
 
-      var observer = new IntersectionObserver(function (entries) {
-        entries.forEach(function (entry) {
-          if (!entry.isIntersecting) return;
-          var id = '#' + entry.target.id;
-          links.forEach(function (link) {
-            link.setAttribute('data-ld-active', link.getAttribute('href') === id ? 'true' : 'false');
-          });
+    var observer = new IntersectionObserver(function (entries) {
+      entries.forEach(function (entry) {
+        if (!entry.isIntersecting) return;
+        var id = '#' + entry.target.id;
+        links.forEach(function (link) {
+          link.setAttribute('data-ld-active', link.getAttribute('href') === id ? 'true' : 'false');
         });
-      }, { rootMargin: '-40% 0px -55% 0px', threshold: 0 });
+      });
+    }, { rootMargin: '-40% 0px -55% 0px', threshold: 0 });
 
-      sections.forEach(function (section) { observer.observe(section); });
-    });
-  }
+    sections.forEach(function (section) { observer.observe(section); });
+    scope.cleanup(function () { observer.disconnect(); });
+  });
 
   /* ---------------------------------------------------------------------
      Carousel
@@ -1113,16 +1324,15 @@
     if (timer) clearInterval(timer);
   }
 
-  function initCarousels(root) {
-    qsaSelf(root, '[data-ld-carousel]').forEach(function (carousel) {
-      goToSlide(carousel, 0);
-      if (carousel.getAttribute('data-ld-autoplay') === 'true') {
-        startCarouselAutoplay(carousel);
-        carousel.addEventListener('mouseenter', function () { stopCarouselAutoplay(carousel); });
-        carousel.addEventListener('mouseleave', function () { startCarouselAutoplay(carousel); });
-      }
-    });
-  }
+  defineComponent('carousel', '[data-ld-carousel]', function (carousel, scope) {
+    goToSlide(carousel, 0);
+    if (carousel.getAttribute('data-ld-autoplay') === 'true') {
+      startCarouselAutoplay(carousel);
+      scope.on(carousel, 'mouseenter', function () { stopCarouselAutoplay(carousel); });
+      scope.on(carousel, 'mouseleave', function () { startCarouselAutoplay(carousel); });
+      scope.cleanup(function () { stopCarouselAutoplay(carousel); });
+    }
+  }, null, { gate: true });
 
   /* ---------------------------------------------------------------------
      Navbar collapse
@@ -1173,12 +1383,10 @@
     if (clearBtn) clearBtn.setAttribute('data-ld-show', input.value.length > 0 ? 'true' : 'false');
   }
 
-  function initInputClear(root) {
-    qsaSelf(root, '[data-ld-input-clear]').forEach(function (clearBtn) {
-      var input = getClearTarget(clearBtn);
-      if (input) syncInputClear(input);
-    });
-  }
+  defineComponent('input-clear', '[data-ld-input-clear]', function (clearBtn) {
+    var input = getClearTarget(clearBtn);
+    if (input) syncInputClear(input);
+  }, null, { gate: true });
 
   function handleInputClear(clearBtn) {
     var input = getClearTarget(clearBtn);
@@ -1213,13 +1421,16 @@
     el.style.height = el.scrollHeight + 'px';
   }
 
-  function initAutosize(root) {
-    qsaSelf(root, '[data-ld-autosize]').forEach(function (el) {
-      el.style.overflowY = 'hidden';
-      el.style.resize = 'none';
-      autosizeTextarea(el);
-    });
-  }
+  defineComponent('autosize', '[data-ld-autosize]', function (el) {
+    el.style.overflowY = 'hidden';
+    el.style.resize = 'none';
+    autosizeTextarea(el);
+  }, function (el) {
+    // give the textarea back its own sizing
+    el.style.overflowY = '';
+    el.style.resize = '';
+    el.style.height = '';
+  }, { gate: true });
 
   /* ---------------------------------------------------------------------
      Sortable table headers — .ld-table[data-ld-sortable] th[data-ld-sort]
@@ -1274,7 +1485,7 @@
     };
   }
 
-  document.addEventListener('click', function (e) {
+  delegate('click', function (e) {
     var segmentEl = closestOf(e.target, '[data-ld-segment]');
     if (segmentEl) {
       handleSegmentToggle(segmentEl);
@@ -1476,7 +1687,7 @@
        3. the top dialog, and only that one
        4. otherwise any open dropdown, popover or combobox list
      A dropdown inside a modal closes first, then the modal; stacked modals close top first. */
-  document.addEventListener('keydown', function (e) {
+  delegate('keydown', function (e) {
     var key = e.key || ''; // autofill and some assistive tech send keydown events with no key
     if (key === 'Escape') {
       var active = document.activeElement;
@@ -1520,7 +1731,7 @@
     trapTab(e);
   });
 
-  document.addEventListener('input', function (e) {
+  delegate('input', function (e) {
     var commandInput = closestOf(e.target, '.ld-command-input');
     if (commandInput) {
       var backdrop = commandInput.closest('.ld-command-backdrop');
@@ -1540,7 +1751,7 @@
     }
   });
 
-  document.addEventListener('change', function (e) {
+  delegate('change', function (e) {
     var input = closestOf(e.target, '[data-ld-dropzone] input[type="file"]');
     if (!input) return;
     var zone = input.closest('[data-ld-dropzone]');
@@ -1553,12 +1764,12 @@
 
   /* Sidebar dropdown (small screens): choosing a link closes the menu, and
      Escape closes it and hands focus back to the toggle button. */
-  document.addEventListener('click', function (e) {
+  delegate('click', function (e) {
     var sideLink = e.target.closest && closestOf(e.target, '.ld-sidebar-link');
     if (sideLink) closeNavbarCollapse(sideLink.closest('.ld-sidebar-body'));
   });
 
-  document.addEventListener('keydown', function (e) {
+  delegate('keydown', function (e) {
     if (e.key !== 'Escape') return;
     var openMenu = document.querySelector('.ld-sidebar-body[data-ld-show="true"]');
     var trigger = closeNavbarCollapse(openMenu);
@@ -1566,7 +1777,7 @@
   });
 
   window.ldcss = window.ldcss || {};
-  window.ldcss.version = '3.2.0';
+  window.ldcss.version = '3.3.0';
 
     /* =====================================================================
      Fuzzy matching — ldcss.fuzzy.match / .search / .highlight
@@ -1810,37 +2021,45 @@
     return open;
   }
 
-  function initDisclosures(root) {
-    qsaSelf(root, '[data-ld-disclosure]').forEach(function (trigger) {
-      var panel = disclosurePanel(trigger);
+  defineComponent('disclosure', '[data-ld-disclosure], .ld-disclosure', function (el) {
+    if (el.hasAttribute('data-ld-disclosure')) {
+      var panel = disclosurePanel(el);
       if (!panel) return;
-      trigger.setAttribute('aria-controls', ensureId(panel, 'ld-disclosure'));
-      if (trigger.tagName !== 'BUTTON' && !trigger.hasAttribute('tabindex')) trigger.setAttribute('tabindex', '0');
-      if (trigger.tagName !== 'BUTTON' && !trigger.hasAttribute('role')) trigger.setAttribute('role', 'button');
+      el.setAttribute('aria-controls', ensureId(panel, 'ld-disclosure'));
+      if (el.tagName !== 'BUTTON' && !el.hasAttribute('tabindex')) { el.setAttribute('tabindex', '0'); el._ldAddedTabindex = true; }
+      if (el.tagName !== 'BUTTON' && !el.hasAttribute('role')) { el.setAttribute('role', 'button'); el._ldAddedRole = true; }
       paintDisclosure(panel, panel.getAttribute('data-ld-open') === 'true');
-    });
-    qsaSelf(root, '.ld-disclosure').forEach(function (panel) {
-      if (!panel.hasAttribute('data-ld-open')) paintDisclosure(panel, false);
-      else paintDisclosure(panel, panel.getAttribute('data-ld-open') === 'true');
-    });
-  }
+    }
+    if (el.classList.contains('ld-disclosure')) {
+      paintDisclosure(el, el.getAttribute('data-ld-open') === 'true');
+    }
+  }, function (el) {
+    if (el.classList.contains('ld-disclosure')) {
+      el.removeAttribute('inert'); // an open or closed panel stays as it is, but must be reachable
+    }
+    if (el.hasAttribute('data-ld-disclosure')) {
+      if (el._ldAddedTabindex) { el.removeAttribute('tabindex'); el._ldAddedTabindex = false; }
+      if (el._ldAddedRole) { el.removeAttribute('role'); el._ldAddedRole = false; }
+    }
+  }, { gate: true });
 
-  document.addEventListener('click', function (e) {
+  delegate('click', function (e) {
     var trigger = e.target.closest && closestOf(e.target, '[data-ld-disclosure]');
     if (!trigger || trigger.disabled || trigger.getAttribute('aria-disabled') === 'true') return;
+    var panelOf = disclosurePanel(trigger);
+    if (panelOf && isDestroyed(panelOf)) return;
     if (trigger.tagName === 'A') e.preventDefault();
     setDisclosure(trigger, !isDisclosureOpen(trigger), trigger);
   });
 
   // non-button triggers (role="button") need Enter / Space themselves
-  document.addEventListener('keydown', function (e) {
+  delegate('keydown', function (e) {
     var trigger = e.target.closest && closestOf(e.target, '[data-ld-disclosure]');
     if (!trigger || trigger.tagName === 'BUTTON' || (e.key !== 'Enter' && e.key !== ' ')) return;
     e.preventDefault();
     setDisclosure(trigger, !isDisclosureOpen(trigger), trigger);
   });
 
-  moduleInits.push(initDisclosures);
   window.ldcss.disclosure = {
     show: function (ref) { return setDisclosure(ref, true); },
     hide: function (ref) { return setDisclosure(ref, false); },
@@ -1939,7 +2158,7 @@
     return node && node.closest ? node.closest('[data-ld-context-menu]') : null;
   }
 
-  document.addEventListener('contextmenu', function (e) {
+  delegate('contextmenu', function (e) {
     var region = contextRegionFor(e.target);
     // let people reach the browser menu: Shift+right-click, or inside the menu itself
     if (e.shiftKey || (contextState.menu && contextState.menu.contains(e.target))) {
@@ -1967,7 +2186,7 @@
   (function () {
     var timer = null, startX = 0, startY = 0, suppressClick = false;
     function cancel() { clearTimeout(timer); timer = null; }
-    document.addEventListener('pointerdown', function (e) {
+    delegate('pointerdown', function (e) {
       if (e.pointerType !== 'touch') return;
       var region = contextRegionFor(e.target);
       if (!region || region.getAttribute('data-ld-longpress') === 'false') return;
@@ -1979,20 +2198,20 @@
         if (menu && openContextMenu(menu, startX, startY, region, e.target, false)) suppressClick = true;
       }, LONG_PRESS_MS);
     });
-    document.addEventListener('pointermove', function (e) {
+    delegate('pointermove', function (e) {
       if (timer && (Math.abs(e.clientX - startX) > 10 || Math.abs(e.clientY - startY) > 10)) cancel();
     });
-    ['pointerup', 'pointercancel'].forEach(function (t) { document.addEventListener(t, cancel); });
-    document.addEventListener('click', function (e) {
+    ['pointerup', 'pointercancel'].forEach(function (t) { delegate(t, cancel); });
+    delegate('click', function (e) {
       if (suppressClick) { suppressClick = false; e.preventDefault(); e.stopPropagation(); }
     }, true);
   })();
 
-  document.addEventListener('pointerdown', function (e) {
+  delegate('pointerdown', function (e) {
     if (contextState.menu && !contextState.menu.contains(e.target)) closeContextMenu(false);
   }, true);
 
-  document.addEventListener('click', function (e) {
+  delegate('click', function (e) {
     var item = e.target.closest && closestOf(e.target, '.ld-context-item');
     if (!item || !contextState.menu || !contextState.menu.contains(item)) return;
     if (item.disabled || item.getAttribute('aria-disabled') === 'true') { e.preventDefault(); return; }
@@ -2003,7 +2222,7 @@
     closeContextMenu(true);
   });
 
-  document.addEventListener('keydown', function (e) {
+  delegate('keydown', function (e) {
     var menu = contextState.menu;
     if (!menu) return;
     var items = contextItems(menu);
@@ -2022,29 +2241,37 @@
     }
   }, true);
 
-  document.addEventListener('mouseover', function (e) {
+  delegate('mouseover', function (e) {
     var item = e.target.closest && closestOf(e.target, '.ld-context-item');
     if (item && contextState.menu && contextState.menu.contains(item) && !item.disabled && item.getAttribute('aria-disabled') !== 'true') {
       focusContextItem(contextState.menu, item);
     }
   });
 
-  window.addEventListener('resize', function () { closeContextMenu(false); });
-  window.addEventListener('blur', function () { closeContextMenu(false); });
-  window.addEventListener('scroll', function (e) {
+  delegateWindow('resize', function () { closeContextMenu(false); });
+  delegateWindow('blur', function () { closeContextMenu(false); });
+  delegateWindow('scroll', function (e) {
     if (contextState.menu && !contextState.menu.contains(e.target)) closeContextMenu(false);
   }, true);
 
-  function initContextMenus(root) {
-    qsaSelf(root, '[data-ld-context-menu]').forEach(function (region) {
-      region.setAttribute('aria-haspopup', 'menu');
-      var menu = document.querySelector(region.getAttribute('data-ld-context-menu'));
+  defineComponent('context-menu', '[data-ld-context-menu], .ld-context-menu', function (el) {
+    if (el.hasAttribute('data-ld-context-menu')) {
+      el.setAttribute('aria-haspopup', 'menu');
+      var menu = document.querySelector(el.getAttribute('data-ld-context-menu'));
       if (menu) prepareContextMenu(menu);
-    });
-    qsaSelf(root, '.ld-context-menu').forEach(prepareContextMenu);
-  }
+    }
+    if (el.classList.contains('ld-context-menu')) prepareContextMenu(el);
+  }, function (el) {
+    if (el.hasAttribute('data-ld-context-menu')) {
+      el.removeAttribute('aria-haspopup');
+      if (contextState.region === el) closeContextMenu(false);
+    }
+    if (el.classList.contains('ld-context-menu')) {
+      if (contextState.menu === el) closeContextMenu(false);
+      el._ldReady = false;
+    }
+  }, { event: 'contextmenu', gate: true });
 
-  moduleInits.push(initContextMenus);
   window.ldcss.contextMenu = {
     open: function (menu, x, y, region) { return openContextMenu(typeof menu === 'string' ? document.querySelector(menu) : menu, x, y, region || null, region || null, false); },
     close: function () { closeContextMenu(true); }
@@ -2313,7 +2540,7 @@
   }
 
   // a hidden tab is not reading anything: hold the timers until it is visible again
-  document.addEventListener('visibilitychange', function () {
+  delegate('visibilitychange', function () {
     toastActive.forEach(function (entry) {
       if (document.hidden) pauseToastTimer(entry);
       else if (!entry.el.matches(':hover') && !entry.el.contains(document.activeElement)) resumeToastTimer(entry);
@@ -2486,12 +2713,13 @@
 
   function renderNotifications() {
     var count = unreadCount();
-    qsaSelf(document, '[data-ld-notification-count]').forEach(function (badge) {
+    // only instances: a destroyed badge or centre is left alone until it is initialised again
+    qsaSelf(document, '[data-ld-notification-count]').filter(function (b) { return !!instanceOf(b, 'notification'); }).forEach(function (badge) {
       badge.textContent = count > 99 ? '99+' : String(count);
       badge.hidden = count === 0;
       badge.setAttribute('data-ld-count', String(count));
     });
-    qsaSelf(document, '[data-ld-notification-center]').forEach(renderNotificationCenter);
+    qsaSelf(document, '[data-ld-notification-center]').filter(function (c) { return !!instanceOf(c, 'notification'); }).forEach(renderNotificationCenter);
   }
 
   function findNotification(id) {
@@ -2560,7 +2788,7 @@
     emit(document.body, 'ld:notification:clear', {});
   }
 
-  document.addEventListener('click', function (e) {
+  delegate('click', function (e) {
     var notifyTrigger = e.target.closest && closestOf(e.target, '[data-ld-notify]');
     if (notifyTrigger) {
       var spec = toastSpecFromTrigger(notifyTrigger, 'notify');
@@ -2586,23 +2814,29 @@
 
   // opening whatever holds the centre (popover, dropdown, offcanvas…) can mark everything read
   ['popover', 'dropdown', 'offcanvas', 'modal'].forEach(function (kind) {
-    document.addEventListener('ld:' + kind + ':show', function (e) {
+    delegate('ld:' + kind + ':show', function (e) {
       var centers = qsaSelf(e.target, '[data-ld-notification-center][data-ld-mark-read="open"]');
       if (centers.length) setTimeout(markAllNotificationsRead, 600);
     });
   });
 
-  moduleInits.push(function (root) {
+  defineComponent('notification', '[data-ld-notification-center], [data-ld-notification-count]', function (el) {
     loadNotifications();
-    // only touch what is new: re-rendering an already-rendered centre would drop keyboard focus
-    var fresh = qsaSelf(root, '[data-ld-notification-center]:not(.ld-nc)');
-    var badges = qsaSelf(root, '[data-ld-notification-count]:not([data-ld-count])');
-    fresh.forEach(function (c) {
-      if (!c.hasAttribute('tabindex')) c.setAttribute('tabindex', '-1');
-      renderNotificationCenter(c);
-    });
-    if (badges.length) renderNotifications();
-  });
+    if (el.hasAttribute('data-ld-notification-center')) {
+      if (!el.hasAttribute('tabindex')) { el.setAttribute('tabindex', '-1'); el._ldAddedTabindex = true; }
+      renderNotificationCenter(el);
+    } else {
+      renderNotifications();
+    }
+  }, function (el) {
+    if (el.hasAttribute('data-ld-notification-center')) {
+      el.textContent = '';
+      el.classList.remove('ld-nc');
+      if (el._ldAddedTabindex) { el.removeAttribute('tabindex'); el._ldAddedTabindex = false; }
+    } else {
+      el.removeAttribute('data-ld-count');
+    }
+  }, { event: 'notification', gate: true });
 
   window.ldcss.toast = toast;
   window.ldcss.notify = notify;
@@ -2705,6 +2939,7 @@
     if (!list) return null;
     el = document.createElement('div');
     el.setAttribute('data-ld-combobox-' + kind, '');
+    el.setAttribute('data-ld-auto', '');
     if (kind === 'loading') {
       el.innerHTML = '<span class="ld-spinner" aria-hidden="true"></span> <span>Searching…</span>';
     } else if (kind === 'empty') {
@@ -3169,7 +3404,7 @@
     }
   }
 
-  document.addEventListener('keydown', function (e) {
+  delegate('keydown', function (e) {
     // second Escape on an already-closed combobox clears it
     if (e.key !== 'Escape') return;
     var box = e.target.closest && closestOf(e.target, '[data-ld-combobox]');
@@ -3181,7 +3416,7 @@
     }
   }, true);
 
-  document.addEventListener('click', function (e) {
+  delegate('click', function (e) {
     var retry = e.target.closest && closestOf(e.target, '[data-ld-combobox-retry]');
     if (retry) {
       var box = retry.closest('[data-ld-combobox]');
@@ -3191,51 +3426,72 @@
   });
 
   /* keep the input open/closed in step with the list when focus leaves */
-  document.addEventListener('focusin', function (e) {
+  delegate('focusin', function (e) {
     var box = e.target.closest && closestOf(e.target, '[data-ld-combobox]');
     document.querySelectorAll('[data-ld-combobox]').forEach(function (other) {
       if (other !== box) closeCombobox(other);
     });
   });
 
-  function initComboboxes(root) {
-    qsaSelf(root, '[data-ld-combobox]').forEach(function (box) {
-      var list = comboList(box), input = comboInput(box);
-      if (!list || !input) return;
-      var st = comboState(box);
-      if (!st.ready) {
-        st.ready = true;
-        input.setAttribute('role', 'combobox');
-        input.setAttribute('aria-autocomplete', 'list');
-        input.setAttribute('aria-haspopup', 'listbox');
-        input.setAttribute('aria-expanded', list.classList.contains('ld-show') ? 'true' : 'false');
-        input.setAttribute('aria-controls', ensureId(list, 'ld-listbox'));
-        if (!input.hasAttribute('autocomplete')) input.setAttribute('autocomplete', 'off');
-        list.setAttribute('role', 'listbox');
-        comboStatusRegion(box);
-        if (box.getAttribute('data-ld-source') || st.source) comboSetState(box, 'idle');
-        // a visible <label for> is the best name; fall back to the placeholder
-        if (!input.hasAttribute('aria-label') && !input.hasAttribute('aria-labelledby') && !(input.id && document.querySelector('label[for="' + input.id + '"]')) && !input.closest('label')) {
-          var fallback = input.getAttribute('placeholder');
-          if (fallback) input.setAttribute('aria-label', fallback);
-        }
-      }
-      Array.prototype.forEach.call(list.querySelectorAll('[data-ld-combobox-option]:not([role])'), function (o) {
-        o.setAttribute('role', 'option');
-        o.setAttribute('aria-selected', 'false');
-        ensureId(o, 'ld-opt');
-      });
-      var special = ['empty', 'loading', 'error'];
-      special.forEach(function (k) {
-        var el = box.querySelector('[data-ld-combobox-' + k + ']');
-        if (el && !el.hasAttribute('role')) el.setAttribute('role', 'presentation');
-      });
+  defineComponent('combobox', '[data-ld-combobox]', function (box) {
+    var list = comboList(box), input = comboInput(box);
+    if (!list || !input) return;
+    var st = comboState(box);
+    st.ready = true;
+    st.added = { role: !input.hasAttribute('role'), label: false, autocomplete: !input.hasAttribute('autocomplete'), listRole: !list.hasAttribute('role'), special: [] };
+    input.setAttribute('role', 'combobox');
+    input.setAttribute('aria-autocomplete', 'list');
+    input.setAttribute('aria-haspopup', 'listbox');
+    input.setAttribute('aria-expanded', list.classList.contains('ld-show') ? 'true' : 'false');
+    input.setAttribute('aria-controls', ensureId(list, 'ld-listbox'));
+    if (!input.hasAttribute('autocomplete')) input.setAttribute('autocomplete', 'off');
+    list.setAttribute('role', 'listbox');
+    comboStatusRegion(box);
+    if (box.getAttribute('data-ld-source') || st.source) comboSetState(box, 'idle');
+    // a visible <label for> is the best name; fall back to the placeholder
+    if (!input.hasAttribute('aria-label') && !input.hasAttribute('aria-labelledby') && !(input.id && document.querySelector('label[for="' + input.id + '"]')) && !input.closest('label')) {
+      var fallback = input.getAttribute('placeholder');
+      if (fallback) { input.setAttribute('aria-label', fallback); st.added.label = true; }
+    }
+    Array.prototype.forEach.call(list.querySelectorAll('[data-ld-combobox-option]:not([role])'), function (o) {
+      o.setAttribute('role', 'option');
+      o.setAttribute('aria-selected', 'false');
+      ensureId(o, 'ld-opt');
     });
-  }
+    ['empty', 'loading', 'error'].forEach(function (k) {
+      var el = box.querySelector('[data-ld-combobox-' + k + ']');
+      if (el && !el.hasAttribute('role')) el.setAttribute('role', 'presentation');
+    });
+  }, function (box) {
+    var list = comboList(box), input = comboInput(box), st = box._ld;
+    if (!st) return;
+    clearTimeout(st.timer);
+    if (st.controller) { st.controller.abort(); st.controller = null; }
+    st.seq++;
+    if (list) {
+      Array.prototype.forEach.call(list.querySelectorAll('[data-ld-rendered]'), function (n) { n.remove(); });
+      // the loading / empty / error rows ldcss created are removed; ones you wrote stay
+      ['loading', 'empty', 'error'].forEach(function (k) { var n = list.querySelector('[data-ld-combobox-' + k + '][data-ld-auto]'); if (n) n.remove(); });
+      list.classList.remove('ld-show');
+      list.removeAttribute('role');
+      list.removeAttribute('aria-busy');
+      list.removeAttribute('data-ld-stale');
+    }
+    if (input) {
+      ['aria-autocomplete', 'aria-haspopup', 'aria-expanded', 'aria-controls', 'aria-activedescendant', 'aria-busy'].forEach(function (a) { input.removeAttribute(a); });
+      if (st.added && st.added.role) input.removeAttribute('role');
+      if (st.added && st.added.label) input.removeAttribute('aria-label');
+    }
+    var status = box.querySelector('[data-ld-combobox-status]');
+    if (status) status.remove();
+    box.removeAttribute('data-ld-state');
+    // the source, renderer and items you configured stay, so reinit picks up where it was
+    st.ready = false;
+    st.cache = {};
+  }, { gate: true });
 
   function comboRef(el) { return typeof el === 'string' ? document.querySelector(el) : el; }
 
-  moduleInits.push(initComboboxes);
   window.ldcss.combobox = {
     source: function (el, fn) { var box = comboRef(el); comboState(box).source = fn; comboSetState(box, 'idle'); },
     render: function (el, fn) { comboState(comboRef(el)).renderer = fn; },
@@ -3386,36 +3642,44 @@
     return sizes.map(function (v) { return v / total; });
   }
 
-  function initResizables(root) {
-    qsaSelf(root, '[data-ld-resizable]').forEach(function (box) {
-      if (box._ldResizable) return;
-      box._ldResizable = true;
-      box.classList.add('ld-resizable');
-      var vertical = resizeIsVertical(box);
-      var parts = resizeParts(box);
+  defineComponent('resizable', '[data-ld-resizable]', function (box, scope) {
+    box._ldResizable = true;
+    box._ldAddedClass = !box.classList.contains('ld-resizable');
+    box.classList.add('ld-resizable');
+    var vertical = resizeIsVertical(box);
+    var parts = resizeParts(box);
 
-      // put a handle between every pair of panels that does not have one
-      parts.panels.forEach(function (panel, i) {
-        var after = panel.nextElementSibling;
-        if (i < parts.panels.length - 1 && !(after && after.classList.contains('ld-resize-handle'))) {
-          var handle = document.createElement('div');
-          handle.className = 'ld-resize-handle';
-          box.insertBefore(handle, panel.nextSibling);
-        }
-      });
-      parts = resizeParts(box);
-      parts.handles.forEach(function (handle, i) {
-        handle.setAttribute('role', 'separator');
-        handle.setAttribute('aria-orientation', vertical ? 'horizontal' : 'vertical');
-        handle.setAttribute('tabindex', '0');
-        if (!handle.hasAttribute('aria-label')) handle.setAttribute('aria-label', box.getAttribute('data-ld-label') || 'Resize panels');
-        if (parts.panels[i]) handle.setAttribute('aria-controls', ensureId(parts.panels[i], 'ld-panel'));
-      });
-      box._ldInitial = resizeInitialSizes(box);
-      box._ldInitialDefault = null;
-      resizeApply(box, box._ldInitial.slice());
+    // put a handle between every pair of panels that does not have one
+    parts.panels.forEach(function (panel, i) {
+      var after = panel.nextElementSibling;
+      if (i < parts.panels.length - 1 && !(after && after.classList.contains('ld-resize-handle'))) {
+        var handle = document.createElement('div');
+        handle.className = 'ld-resize-handle';
+        box.insertBefore(handle, panel.nextSibling);
+        scope.add(handle);
+      }
     });
-  }
+    parts = resizeParts(box);
+    parts.handles.forEach(function (handle, i) {
+      handle.setAttribute('role', 'separator');
+      handle.setAttribute('aria-orientation', vertical ? 'horizontal' : 'vertical');
+      handle.setAttribute('tabindex', '0');
+      if (!handle.hasAttribute('aria-label')) handle.setAttribute('aria-label', box.getAttribute('data-ld-label') || 'Resize panels');
+      if (parts.panels[i]) handle.setAttribute('aria-controls', ensureId(parts.panels[i], 'ld-panel'));
+    });
+    box._ldInitial = resizeInitialSizes(box);
+    box._ldInitialDefault = null;
+    resizeApply(box, box._ldInitial.slice());
+  }, function (box) {
+    if (resizeDrag && resizeDrag.box === box) resizeEnd();
+    resizeParts(box).panels.forEach(function (panel) { panel.style.flex = ''; });
+    resizeParts(box).handles.forEach(function (handle) {
+      ['role', 'aria-orientation', 'tabindex', 'aria-controls', 'aria-valuenow', 'aria-valuemin', 'aria-valuemax'].forEach(function (a) { handle.removeAttribute(a); });
+    });
+    if (box._ldAddedClass) box.classList.remove('ld-resizable');
+    box._ldResizable = false;
+    box._ldSizes = null;
+  }, { gate: true });
 
   function resizeStart(e) {
     var handle = e.target.closest && closestOf(e.target, '.ld-resize-handle');
@@ -3460,12 +3724,12 @@
     emit(d.box, 'ld:resize:end', { sizes: resizePercent(d.box), handle: d.index });
   }
 
-  document.addEventListener('pointerdown', resizeStart);
-  document.addEventListener('pointermove', resizeDragMove);
-  document.addEventListener('pointerup', resizeEnd);
-  document.addEventListener('pointercancel', resizeEnd);
+  delegate('pointerdown', resizeStart);
+  delegate('pointermove', resizeDragMove);
+  delegate('pointerup', resizeEnd);
+  delegate('pointercancel', resizeEnd);
 
-  document.addEventListener('dblclick', function (e) {
+  delegate('dblclick', function (e) {
     var handle = e.target.closest && closestOf(e.target, '.ld-resize-handle');
     var box = handle && handle.parentElement;
     if (!box || !box._ldResizable) return;
@@ -3474,7 +3738,7 @@
     emit(box, 'ld:resize:end', { sizes: resizePercent(box), handle: resizeParts(box).handles.indexOf(handle), reset: true });
   });
 
-  document.addEventListener('keydown', function (e) {
+  delegate('keydown', function (e) {
     var handle = e.target.closest && closestOf(e.target, '.ld-resize-handle');
     var box = handle && handle.parentElement;
     if (!box || !box._ldResizable) return;
@@ -3508,11 +3772,10 @@
     }
   });
 
-  window.addEventListener('resize', function () {
+  delegateWindow('resize', function () {
     qsaSelf(document, '[data-ld-resizable]').forEach(function (box) { if (box._ldSizes) resizeSyncAria(box); });
   });
 
-  moduleInits.push(initResizables);
   window.ldcss.resizable = {
     get: function (el) { return resizePercent(typeof el === 'string' ? document.querySelector(el) : el); },
     set: function (el, percents) {
@@ -3655,102 +3918,124 @@
     return true;
   }
 
-  function initSearch(root) {
-    qsaSelf(root, '[data-ld-search]').forEach(function (wrap) {
-      if (wrap._ldSearch) return;
-      var input = searchInputOf(wrap);
-      if (!input) return;
-      wrap._ldSearch = true;
-      wrap.classList.add('ld-search');
-      input.classList.add('ld-input');
-      if (!input.hasAttribute('type')) input.setAttribute('type', 'search');
-      if (!input.hasAttribute('autocomplete')) input.setAttribute('autocomplete', 'off');
-      if (!input.hasAttribute('enterkeyhint')) input.setAttribute('enterkeyhint', 'search');
-      if (!input.hasAttribute('aria-label') && !input.hasAttribute('aria-labelledby') && !(input.id && document.querySelector('label[for="' + input.id + '"]'))) {
-        input.setAttribute('aria-label', input.getAttribute('placeholder') || 'Search');
-      }
-      wrap.setAttribute('role', wrap.hasAttribute('data-ld-combobox') ? wrap.getAttribute('role') || 'search' : 'search');
+  defineComponent('search', '[data-ld-search]', function (wrap, scope) {
+    var input = searchInputOf(wrap);
+    if (!input) return;
+    wrap._ldSearch = true;
+    var added = { wrapClass: !wrap.classList.contains('ld-search'), inputClass: !input.classList.contains('ld-input'), type: !input.hasAttribute('type'), autocomplete: !input.hasAttribute('autocomplete'), enterkeyhint: !input.hasAttribute('enterkeyhint'), label: false, role: !wrap.hasAttribute('role'), shortcut: false };
+    wrap._ldSearchAdded = added;
+    wrap.classList.add('ld-search');
+    input.classList.add('ld-input');
+    if (!input.hasAttribute('type')) input.setAttribute('type', 'search');
+    if (!input.hasAttribute('autocomplete')) input.setAttribute('autocomplete', 'off');
+    if (!input.hasAttribute('enterkeyhint')) input.setAttribute('enterkeyhint', 'search');
+    if (!input.hasAttribute('aria-label') && !input.hasAttribute('aria-labelledby') && !(input.id && document.querySelector('label[for="' + input.id + '"]'))) {
+      input.setAttribute('aria-label', input.getAttribute('placeholder') || 'Search');
+      added.label = true;
+    }
+    wrap.setAttribute('role', wrap.hasAttribute('data-ld-combobox') ? wrap.getAttribute('role') || 'search' : 'search');
 
-      // the field: input + clear button + shortcut hint, so they sit inside the input, not over the button
-      var field = document.createElement('div');
-      field.className = 'ld-search-field';
-      input.parentNode.insertBefore(field, input);
-      field.appendChild(input);
-
-      var clear = document.createElement('button');
-      clear.type = 'button';
-      clear.className = 'ld-search-clear';
-      clear.setAttribute('aria-label', 'Clear search');
-      clear.textContent = '×';
-      clear.hidden = true;
-      clear.addEventListener('click', function () { searchClear(wrap); });
-      field.appendChild(clear);
-
-      var key = wrap.getAttribute('data-ld-shortcut');
-      if (key && key !== 'none') {
-        var hint = document.createElement('kbd');
-        hint.className = 'ld-search-kbd ld-kbd';
-        hint.setAttribute('aria-hidden', 'true');
-        hint.textContent = key;
-        field.appendChild(hint);
-        input.setAttribute('aria-keyshortcuts', key);
-      }
-
-      if (wrap.getAttribute('data-ld-search-button') === 'false') {
-        wrap.setAttribute('data-ld-search-compact', '');
-        var icon = document.createElement('span');
-        icon.className = 'ld-search-icon';
-        icon.setAttribute('aria-hidden', 'true');
-        field.insertBefore(icon, input);
-      } else {
-        var button = document.createElement('button');
-        var inForm = !!wrap.closest('form');
-        button.type = inForm ? 'submit' : 'button';
-        button.className = 'ld-btn ld-search-btn';
-        var variant = wrap.getAttribute('data-ld-search-variant');
-        if (variant) button.setAttribute('data-ld-variant', variant);
-        button.setAttribute('aria-label', wrap.getAttribute('data-ld-search-label') || 'Search');
-        var glyph = document.createElement('span');
-        glyph.className = 'ld-search-icon';
-        glyph.setAttribute('aria-hidden', 'true');
-        button.appendChild(glyph);
-        // in a form the browser submits; everywhere else the click is the submit
-        button.addEventListener('click', function (e) {
-          var ok = searchSubmit(wrap, 'button');
-          if (!ok && inForm) e.preventDefault();
-        });
-        field.insertAdjacentElement('afterend', button);
-      }
-
-      if (wrap.hasAttribute('data-ld-search-filter')) {
-        input.addEventListener('input', function () { searchFilter(wrap); });
-      } else {
-        input.addEventListener('input', function () { searchSyncClear(wrap); });
-      }
-      input.addEventListener('keydown', function (e) {
-        if (e.key === 'Escape' && input.value && !wrap.hasAttribute('data-ld-combobox')) { e.preventDefault(); searchClear(wrap); return; }
-        if (e.key === 'Escape' && wrap.hasAttribute('data-ld-combobox')) {
-          // a search input clears itself on Escape and fires `input`, which would search again and reopen the
-          // list we are about to close; the first Escape only closes it, the second clears (combobox module)
-          var open = wrap.querySelector('[data-ld-combobox-list]');
-          if (open && open.classList.contains('ld-show')) e.preventDefault();
-        }
-        if (e.key !== 'Enter' || e.isComposing) return;
-        // a highlighted result in an open dropdown is chosen by the combobox, not submitted
-        var list = wrap.querySelector('[data-ld-combobox-list]');
-        if (list && list.classList.contains('ld-show') && list.querySelector('[data-ld-highlighted="true"]')) return;
-        searchSubmit(wrap, 'enter');
-      });
-      searchSyncClear(wrap);
+    // the field: input + clear button + shortcut hint, so they sit inside the input, not over the button
+    var field = document.createElement('div');
+    field.className = 'ld-search-field';
+    var home = { parent: input.parentNode, next: input.nextSibling };
+    home.parent.insertBefore(field, input);
+    field.appendChild(input);
+    scope.cleanup(function () {
+      // put the input back where it was and drop everything built around it
+      home.parent.insertBefore(input, field);
+      if (field.parentNode) field.parentNode.removeChild(field);
     });
-  }
 
-  document.addEventListener('keydown', function (e) {
+    var clear = document.createElement('button');
+    clear.type = 'button';
+    clear.className = 'ld-search-clear';
+    clear.setAttribute('aria-label', 'Clear search');
+    clear.textContent = '×';
+    clear.hidden = true;
+    scope.on(clear, 'click', function () { searchClear(wrap); });
+    field.appendChild(clear);
+
+    var key = wrap.getAttribute('data-ld-shortcut');
+    if (key && key !== 'none') {
+      var hint = document.createElement('kbd');
+      hint.className = 'ld-search-kbd ld-kbd';
+      hint.setAttribute('aria-hidden', 'true');
+      hint.textContent = key;
+      field.appendChild(hint);
+      input.setAttribute('aria-keyshortcuts', key);
+      added.shortcut = true;
+    }
+
+    if (wrap.getAttribute('data-ld-search-button') === 'false') {
+      wrap.setAttribute('data-ld-search-compact', '');
+      var icon = document.createElement('span');
+      icon.className = 'ld-search-icon';
+      icon.setAttribute('aria-hidden', 'true');
+      field.insertBefore(icon, input);
+      scope.cleanup(function () { wrap.removeAttribute('data-ld-search-compact'); });
+    } else {
+      var button = document.createElement('button');
+      var inForm = !!wrap.closest('form');
+      button.type = inForm ? 'submit' : 'button';
+      button.className = 'ld-btn ld-search-btn';
+      var variant = wrap.getAttribute('data-ld-search-variant');
+      if (variant) button.setAttribute('data-ld-variant', variant);
+      button.setAttribute('aria-label', wrap.getAttribute('data-ld-search-label') || 'Search');
+      var glyph = document.createElement('span');
+      glyph.className = 'ld-search-icon';
+      glyph.setAttribute('aria-hidden', 'true');
+      button.appendChild(glyph);
+      // in a form the browser submits; everywhere else the click is the submit
+      scope.on(button, 'click', function (e) {
+        var ok = searchSubmit(wrap, 'button');
+        if (!ok && inForm) e.preventDefault();
+      });
+      field.insertAdjacentElement('afterend', button);
+      scope.add(button);
+    }
+
+    if (wrap.hasAttribute('data-ld-search-filter')) {
+      scope.on(input, 'input', function () { searchFilter(wrap); });
+    } else {
+      scope.on(input, 'input', function () { searchSyncClear(wrap); });
+    }
+    scope.on(input, 'keydown', function (e) {
+      if (e.key === 'Escape' && input.value && !wrap.hasAttribute('data-ld-combobox')) { e.preventDefault(); searchClear(wrap); return; }
+      if (e.key === 'Escape' && wrap.hasAttribute('data-ld-combobox')) {
+        // a search input clears itself on Escape and fires `input`, which would search again and reopen the
+        // list we are about to close; the first Escape only closes it, the second clears (combobox module)
+        var open = wrap.querySelector('[data-ld-combobox-list]');
+        if (open && open.classList.contains('ld-show')) e.preventDefault();
+      }
+      if (e.key !== 'Enter' || e.isComposing) return;
+      // a highlighted result in an open dropdown is chosen by the combobox, not submitted
+      var list = wrap.querySelector('[data-ld-combobox-list]');
+      if (list && list.classList.contains('ld-show') && list.querySelector('[data-ld-highlighted="true"]')) return;
+      searchSubmit(wrap, 'enter');
+    });
+    searchSyncClear(wrap);
+  }, function (wrap) {
+    var input = searchInputOf(wrap), added = wrap._ldSearchAdded || {};
+    wrap._ldSearch = false;
+    if (added.wrapClass) wrap.classList.remove('ld-search');
+    if (added.role) wrap.removeAttribute('role');
+    if (input) {
+      if (added.inputClass) input.classList.remove('ld-input');
+      if (added.type) input.removeAttribute('type');
+      if (added.autocomplete) input.removeAttribute('autocomplete');
+      if (added.enterkeyhint) input.removeAttribute('enterkeyhint');
+      if (added.label) input.removeAttribute('aria-label');
+      if (added.shortcut) input.removeAttribute('aria-keyshortcuts');
+    }
+  }, { gate: true });
+
+  delegate('keydown', function (e) {
     if (e.defaultPrevented || e.ctrlKey || e.metaKey || e.altKey) return;
     var t = e.target;
     var typing = t && (t.isContentEditable || /^(INPUT|TEXTAREA|SELECT)$/.test(t.tagName));
     if (typing) return;
-    var wraps = document.querySelectorAll('[data-ld-search][data-ld-shortcut]');
+    var wraps = Array.prototype.filter.call(document.querySelectorAll('[data-ld-search][data-ld-shortcut]'), function (w) { return w._ldSearch; });
     for (var i = 0; i < wraps.length; i++) {
       var key = wraps[i].getAttribute('data-ld-shortcut');
       if (key && key !== 'none' && e.key === key && wraps[i].offsetParent !== null) {
@@ -3761,7 +4046,6 @@
     }
   });
 
-  moduleInits.push(initSearch);
   window.ldcss.search = { filter: searchFilter, clear: searchClear, submit: searchSubmit };
 
 
@@ -4072,14 +4356,13 @@
     row.insertBefore(td, row.firstChild);
   }
 
-  function initTables(root) {
-    qsaSelf(root, 'table[data-ld-table]').forEach(function (table) {
-      if (table._ldTable) return;
+  defineComponent('table', 'table[data-ld-table]', function (table, scope) {
       var st = table._ldTable = {
         rows: [], original: [], body: null, sort: { col: -1, dir: null }, query: '', page: 1,
         pageSize: parseInt(table.getAttribute('data-ld-page-size'), 10) || 0,
         selectable: table.hasAttribute('data-ld-select'), selected: new Set(), busy: false,
-        headerCells: [], searchColumns: null
+        headerCells: [], searchColumns: null,
+        createdWrap: false, shell: null, wrap: null, sortAdded: [], sortWrapped: [], wrapAttrs: null
       };
       var cols = table.getAttribute('data-ld-search-columns');
       if (cols) st.searchColumns = cols.split(',').map(function (n) { return parseInt(n, 10); }).filter(function (n) { return !isNaN(n); });
@@ -4101,9 +4384,11 @@
         wrap.className = 'ld-table-wrap';
         table.parentNode.insertBefore(wrap, table);
         wrap.appendChild(table);
+        st.createdWrap = true;
       }
       var caption = table.querySelector('caption');
       var name = (caption && caption.textContent.trim()) || table.getAttribute('aria-label') || 'Table';
+      st.wrapAttrs = { role: wrap.getAttribute('role'), label: wrap.getAttribute('aria-label'), tabindex: wrap.getAttribute('tabindex') };
       wrap.setAttribute('role', 'region');
       wrap.setAttribute('aria-label', name);
       wrap.tabIndex = 0;
@@ -4111,6 +4396,8 @@
       var shell = document.createElement('div');
       shell.className = 'ld-table-shell';
       wrap.parentNode.insertBefore(shell, wrap);
+      st.shell = shell;
+      st.wrap = wrap;
 
       if (table.hasAttribute('data-ld-search')) {
         var bar = document.createElement('div');
@@ -4125,11 +4412,11 @@
         bar.appendChild(input);
         shell.appendChild(bar);
         st.searchInput = input;
-        input.addEventListener('input', function () {
+        scope.on(input, 'input', function () {
           clearTimeout(st.searchTimer);
           st.searchTimer = setTimeout(function () { st.query = input.value; st.page = 1; tableApply(table, 'search'); }, 120);
         });
-        input.addEventListener('keydown', function (e) {
+        scope.on(input, 'keydown', function (e) {
           if (e.key === 'Escape' && input.value) { input.value = ''; st.query = ''; st.page = 1; tableApply(table, 'search'); e.stopPropagation(); }
         });
       }
@@ -4157,7 +4444,7 @@
           sel.className = 'ld-select';
           sel.setAttribute('aria-label', 'Rows per page');
           sizes.forEach(function (n) { var o = document.createElement('option'); o.value = n; o.textContent = n + ' / page'; if (n === st.pageSize) o.selected = true; sel.appendChild(o); });
-          sel.addEventListener('change', function () { st.pageSize = parseInt(sel.value, 10); st.page = 1; tableApply(table, 'page'); });
+          scope.on(sel, 'change', function () { st.pageSize = parseInt(sel.value, 10); st.page = 1; tableApply(table, 'page'); });
           right.appendChild(sel);
         }
         if (st.pageSize) {
@@ -4178,6 +4465,7 @@
       if (table.getAttribute('data-ld-sortable') !== 'false') {
         st.headerCells.forEach(function (th) {
           if (th.hasAttribute('data-ld-nosort') || th.classList.contains('ld-table-select')) return;
+          if (!th.hasAttribute('data-ld-sort')) st.sortAdded.push(th);
           th.setAttribute('data-ld-sort', '');
           th.setAttribute('aria-sort', 'none');
           if (!th.querySelector('.ld-sort-btn')) {
@@ -4186,6 +4474,7 @@
             btn.className = 'ld-sort-btn';
             while (th.firstChild) btn.appendChild(th.firstChild);
             th.appendChild(btn);
+            st.sortWrapped.push({ th: th, btn: btn });
           }
         });
       }
@@ -4200,8 +4489,56 @@
         st.observer.observe(st.body, { childList: true });
       }
       tableApply(table, 'init');
+  }, function (table) {
+    var st = table._ldTable;
+    if (!st) return;
+    clearTimeout(st.searchTimer);
+    clearTimeout(st.refreshTimer);
+    clearTimeout(st.announceTimer);
+    if (st.observer) { st.observer.disconnect(); st.observer = null; }
+    st.busy = true;
+
+    // rows: original order, all visible, no selection marks, no empty-state row
+    var emptyRow = st.body && st.body.querySelector('[data-ld-table-empty]');
+    if (emptyRow) emptyRow.remove();
+    // Only rows that are still in the table: if you replaced the rows, the old ones are gone for good
+    // and must not come back. Rows you added since setup keep their place after the original ones.
+    var present = st.body ? Array.prototype.slice.call(st.body.rows) : [];
+    var ordered = st.original.filter(function (row) { return row.parentNode === st.body; })
+      .concat(present.filter(function (row) { return st.original.indexOf(row) === -1; }));
+    ordered.forEach(function (row) {
+      row.hidden = false;
+      row.removeAttribute('data-ld-selected');
+      row.removeAttribute('aria-selected');
+      st.body.appendChild(row);
     });
-  }
+    // the checkbox column
+    Array.prototype.forEach.call(table.querySelectorAll('.ld-table-select'), function (cell) { cell.remove(); });
+    // headers: label back inside the th, our attributes off
+    st.sortWrapped.forEach(function (w) {
+      while (w.btn.firstChild) w.th.insertBefore(w.btn.firstChild, w.btn);
+      w.btn.remove();
+    });
+    st.headerCells.forEach(function (th) {
+      th.removeAttribute('data-ld-sort-dir');
+      if (st.sortAdded.indexOf(th) !== -1) { th.removeAttribute('data-ld-sort'); th.removeAttribute('aria-sort'); }
+    });
+    // chrome: shell, toolbar, status line and footer go; the wrapper only if we made it
+    if (st.shell && st.shell.parentNode && st.wrap) {
+      st.shell.parentNode.insertBefore(st.wrap, st.shell);
+      st.shell.remove();
+    }
+    if (st.createdWrap && st.wrap && st.wrap.parentNode) {
+      st.wrap.parentNode.insertBefore(table, st.wrap);
+      st.wrap.remove();
+    } else if (st.wrap && st.wrapAttrs) {
+      ['role', 'aria-label', 'tabindex'].forEach(function (a, i) {
+        var before = [st.wrapAttrs.role, st.wrapAttrs.label, st.wrapAttrs.tabindex][i];
+        if (before == null) st.wrap.removeAttribute(a); else st.wrap.setAttribute(a, before);
+      });
+    }
+    table._ldTable = null;
+  }, { gate: true });
 
   function refreshTable(table) {
     table = tableRef(table);
@@ -4219,7 +4556,7 @@
     tableApply(table, 'refresh');
   }
 
-  document.addEventListener('click', function (e) {
+  delegate('click', function (e) {
     var pageBtn = e.target.closest && closestOf(e.target, '[data-ld-table-page]');
     if (pageBtn && !pageBtn.disabled) {
       var shell = pageBtn.closest('.ld-table-shell');
@@ -4233,7 +4570,7 @@
     }
   });
 
-  document.addEventListener('change', function (e) {
+  delegate('change', function (e) {
     var box = e.target;
     if (!box.matches || !box.matches('[data-ld-table-rowselect], [data-ld-table-selectall]')) return;
     var table = box.closest('table[data-ld-table]');
@@ -4249,7 +4586,6 @@
     tableEmitSelect(table);
   });
 
-  moduleInits.push(initTables);
   window.ldcss.table = {
     refresh: refreshTable,
     selected: function (el) { var st = tableSt(tableRef(el)); return st ? Array.from(st.selected) : []; },
@@ -4333,19 +4669,6 @@
       });
     });
 
-    // tooltips
-    qsaSelf(root, '[data-ld-tooltip]').forEach(function (el) {
-      var tip = el.getAttribute('data-ld-tooltip');
-      if (!tip || el._ldTip) return;
-      el._ldTip = true;
-      var hasName = el.hasAttribute('aria-label') || el.hasAttribute('aria-labelledby') || el.textContent.trim() !== '' || (el.querySelector && el.querySelector('img[alt]:not([alt=""])'));
-      if (!hasName) el.setAttribute('aria-label', tip);
-      else if (!el.hasAttribute('aria-description') && !el.hasAttribute('aria-describedby') && el.getAttribute('aria-label') !== tip) el.setAttribute('aria-description', tip);
-      var undismiss = function () { el.removeAttribute('data-ld-tooltip-dismissed'); };
-      el.addEventListener('mouseleave', undismiss);
-      el.addEventListener('blur', undismiss);
-    });
-
     // progress
     qsaSelf(root, '[data-ld-progress]').forEach(function (bar) {
       if (!bar.hasAttribute('role')) bar.setAttribute('role', 'progressbar');
@@ -4381,29 +4704,6 @@
       }
     });
 
-    // carousels
-    qsaSelf(root, '[data-ld-carousel]').forEach(function (carousel) {
-      if (carousel._ldA11y) return;
-      carousel._ldA11y = true;
-      if (!carousel.hasAttribute('role')) carousel.setAttribute('role', 'region');
-      carousel.setAttribute('aria-roledescription', 'carousel');
-      if (!carousel.hasAttribute('aria-label') && !carousel.hasAttribute('aria-labelledby')) carousel.setAttribute('aria-label', 'Carousel');
-      var slides = carousel.querySelectorAll('[data-ld-carousel-slide], .ld-carousel-slide');
-      Array.prototype.forEach.call(slides, function (slide, i) {
-        if (!slide.hasAttribute('role')) slide.setAttribute('role', 'group');
-        slide.setAttribute('aria-roledescription', 'slide');
-        if (!slide.hasAttribute('aria-label')) slide.setAttribute('aria-label', (i + 1) + ' of ' + slides.length);
-      });
-      Array.prototype.forEach.call(carousel.querySelectorAll('[data-ld-carousel-dot]'), function (dot, i) {
-        if (!dot.hasAttribute('aria-label')) dot.setAttribute('aria-label', 'Go to slide ' + (i + 1));
-      });
-      if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-        carousel.setAttribute('data-ld-autoplay', 'false');
-        stopCarouselAutoplay(carousel);
-      }
-      carousel.addEventListener('focusin', function () { stopCarouselAutoplay(carousel); });
-    });
-
     // legacy sortable headers (easy tables build their own buttons)
     qsaSelf(root, 'th[data-ld-sort]').forEach(function (th) {
       if (th.closest('table[data-ld-table]') || th._ldSortA11y) return;
@@ -4418,6 +4718,46 @@
       if (target && !target.hasAttribute('tabindex') && !/^(A|BUTTON|INPUT|SELECT|TEXTAREA)$/.test(target.tagName)) target.setAttribute('tabindex', '-1');
     });
   }
+
+  defineComponent('tooltip', '[data-ld-tooltip]', function (el, scope) {
+    var tip = el.getAttribute('data-ld-tooltip');
+    if (!tip) return;
+    var added = { label: false, description: false };
+    var hasName = el.hasAttribute('aria-label') || el.hasAttribute('aria-labelledby') || el.textContent.trim() !== '' || (el.querySelector && el.querySelector('img[alt]:not([alt=""])'));
+    if (!hasName) { el.setAttribute('aria-label', tip); added.label = true; }
+    else if (!el.hasAttribute('aria-description') && !el.hasAttribute('aria-describedby') && el.getAttribute('aria-label') !== tip) { el.setAttribute('aria-description', tip); added.description = true; }
+    var undismiss = function () { el.removeAttribute('data-ld-tooltip-dismissed'); };
+    scope.on(el, 'mouseleave', undismiss);
+    scope.on(el, 'blur', undismiss);
+    scope.cleanup(function () {
+      if (added.label) el.removeAttribute('aria-label');
+      if (added.description) el.removeAttribute('aria-description');
+      el.removeAttribute('data-ld-tooltip-dismissed');
+    });
+  }, null, { gate: true });
+
+  defineComponent('carousel-a11y', '[data-ld-carousel]', function (carousel, scope) {
+    var added = [];
+    var set = function (node, attr, value) { if (!node.hasAttribute(attr)) { node.setAttribute(attr, value); added.push([node, attr]); } };
+    set(carousel, 'role', 'region');
+    carousel.setAttribute('aria-roledescription', 'carousel'); added.push([carousel, 'aria-roledescription']);
+    if (!carousel.hasAttribute('aria-label') && !carousel.hasAttribute('aria-labelledby')) set(carousel, 'aria-label', 'Carousel');
+    var slides = carousel.querySelectorAll('[data-ld-carousel-slide], .ld-carousel-slide');
+    Array.prototype.forEach.call(slides, function (slide, i) {
+      set(slide, 'role', 'group');
+      slide.setAttribute('aria-roledescription', 'slide'); added.push([slide, 'aria-roledescription']);
+      set(slide, 'aria-label', (i + 1) + ' of ' + slides.length);
+    });
+    Array.prototype.forEach.call(carousel.querySelectorAll('[data-ld-carousel-dot]'), function (dot, i) {
+      set(dot, 'aria-label', 'Go to slide ' + (i + 1));
+    });
+    if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      carousel.setAttribute('data-ld-autoplay', 'false');
+      stopCarouselAutoplay(carousel);
+    }
+    scope.on(carousel, 'focusin', function () { stopCarouselAutoplay(carousel); });
+    scope.cleanup(function () { added.forEach(function (pair) { pair[0].removeAttribute(pair[1]); }); });
+  }, null, { event: 'carousel', gate: true });
 
   /* attributes that other components flip — mirror them into ARIA */
   if (window.MutationObserver) {
@@ -4437,6 +4777,7 @@
       if (document.body) attrWatcher.observe(document.body, { attributes: true, subtree: true, attributeFilter: ['data-ld-active', 'data-ld-highlighted'] });
     };
     if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', startAttrWatcher); else startAttrWatcher();
+    lifecycleHooks.push({ stop: function () { attrWatcher.disconnect(); }, start: startAttrWatcher });
   }
 
   /* dropdown keyboard */
@@ -4449,7 +4790,7 @@
     if (item) { item.setAttribute('tabindex', '0'); item.focus(); }
   }
 
-  document.addEventListener('keydown', function (e) {
+  delegate('keydown', function (e) {
     var dd = e.target.closest && closestOf(e.target, '[data-ld-dropdown]');
     if (!dd) return;
     var menu = dd.querySelector('[data-ld-dropdown-menu]');
@@ -4478,19 +4819,19 @@
   });
 
   /* Esc hides a visible tooltip without moving focus */
-  document.addEventListener('keydown', function (e) {
+  delegate('keydown', function (e) {
     if (e.key !== 'Escape') return;
     var tipEl = document.querySelector('[data-ld-tooltip]:focus-visible, [data-ld-tooltip]:hover');
     if (tipEl) tipEl.setAttribute('data-ld-tooltip-dismissed', 'true');
   });
 
-  document.addEventListener('keydown', function (e) {
+  delegate('keydown', function (e) {
     var th = e.target.closest && closestOf(e.target, 'th[data-ld-sort]');
     if (th && e.target === th && (e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); th.click(); }
   });
 
   /* switching a sortable header updates the status the same way for plain tables */
-  document.addEventListener('ld:table:sort', function (e) {
+  delegate('ld:table:sort', function (e) {
     if (e.target.hasAttribute && e.target.hasAttribute('data-ld-table')) return; // easy tables announce themselves
     var d = e.detail || {};
     announce(d.direction ? 'Sorted ' + (d.direction === 'asc' ? 'ascending' : 'descending') : 'Sorting cleared');
@@ -4536,7 +4877,7 @@
   }
 
   ['modal', 'offcanvas', 'command'].forEach(function (kind) {
-    document.addEventListener('ld:' + kind + ':show', function (e) {
+    delegate('ld:' + kind + ':show', function (e) {
       var host = e.target;
       // wait a tick: the component marks its box role=dialog while opening
       setTimeout(function () {
@@ -4545,7 +4886,7 @@
         syncInert();
       }, 0);
     });
-    document.addEventListener('ld:' + kind + ':hide', function () { setTimeout(syncInert, 0); });
+    delegate('ld:' + kind + ':hide', function () { setTimeout(syncInert, 0); });
   });
 
   /* forms: aria-invalid once the field has been touched */
@@ -4558,9 +4899,9 @@
     else if (field.getAttribute('aria-invalid') === 'true') field.removeAttribute('aria-invalid');
   }
 
-  document.addEventListener('focusout', function (e) { e.target._ldTouched = true; syncInvalid(e.target); });
-  document.addEventListener('input', function (e) { if (e.target.getAttribute && e.target.getAttribute('aria-invalid')) syncInvalid(e.target); });
-  document.addEventListener('invalid', function (e) { e.target._ldTouched = true; syncInvalid(e.target); }, true);
+  delegate('focusout', function (e) { e.target._ldTouched = true; syncInvalid(e.target); });
+  delegate('input', function (e) { if (e.target.getAttribute && e.target.getAttribute('aria-invalid')) syncInvalid(e.target); });
+  delegate('invalid', function (e) { e.target._ldTouched = true; syncInvalid(e.target); }, true);
 
   /* -- audit ----------------------------------------------------------------- */
 
@@ -4629,22 +4970,12 @@
 
 
 
-  document.addEventListener('dragover', handleDropzoneDragOver);
-  document.addEventListener('dragleave', handleDropzoneDragLeave);
-  document.addEventListener('drop', handleDropzoneDrop);
+  delegate('dragover', handleDropzoneDragOver);
+  delegate('dragleave', handleDropzoneDragLeave);
+  delegate('drop', handleDropzoneDrop);
 
   initTheme();
-  initProgressBars();
-  initRatings();
-  initPagination();
-  initAnimations();
-  initSteppers();
-  initRovingTabindex();
-  initScrollspy();
-  initCarousels();
-  initInputClear();
-  initAutosize();
-  moduleInits.forEach(function (fn) { fn(document); });
+  initComponents(document);
 
   /* ---------------------------------------------------------------------
      Mutation-aware initializer. A MutationObserver on <body> runs the same
@@ -4655,20 +4986,6 @@
      ldcss.observe() switch it off and on at runtime.
      ------------------------------------------------------------------- */
   var observer = null;
-
-  function runInitializers(root) {
-    initProgressBars(root);
-    initRatings(root);
-    initPagination(root);
-    initAnimations(root);
-    initSteppers(root);
-    initRovingTabindex(root);
-    initScrollspy(root);
-    initCarousels(root);
-    initInputClear(root);
-    initAutosize(root);
-    moduleInits.forEach(function (fn) { fn(root); });
-  }
 
   function observeDom(target) {
     if (observer || !window.MutationObserver) return;
@@ -4682,7 +4999,8 @@
           if (node.nodeType === 1 && !node.closest('[data-ld-no-observe]')) added.push(node);
         });
         Array.prototype.forEach.call(record.removedNodes, function (node) {
-          if (node.nodeType === 1) qsaSelf(node, '[data-ld-carousel]').forEach(stopCarouselAutoplay);
+          // gone from the page: release timers, observers and listeners (moved nodes stay connected)
+          if (node.nodeType === 1 && !node.isConnected) destroyComponents(node, null, false);
         });
       });
       // only the outermost added elements: their descendants are covered
@@ -4695,7 +5013,7 @@
       observer.disconnect();
       try {
         added.forEach(function (node) {
-          runInitializers(node);
+          if (!isDestroyed(node)) initComponents(node);
           emit(node, 'ld:init', { root: node });
         });
       } finally {
@@ -4724,7 +5042,24 @@
      sweeps below need to be re-run, scoped to whatever you just added.
      ------------------------------------------------------------------- */
   window.ldcss = window.ldcss || {};
-  window.ldcss.refresh = runInitializers;
+  /* ---------------------------------------------------------------------
+     Public API
+     ------------------------------------------------------------------- */
+
+  window.ldcss.init = function (target, names) { initComponents(target, names); };
+  window.ldcss.refresh = window.ldcss.init; // the name it had before 3.3.0
+  window.ldcss.reinit = function (target, names) { destroyComponents(target, names); initComponents(target, names); };
+  window.ldcss.component = function (name) {
+    var def = componentByName[name];
+    if (!def) throw new Error('ldcss: no component called "' + name + '". Known: ' + components.map(function (d) { return d.name; }).join(', '));
+    return componentApi(def);
+  };
+  window.ldcss.components = function () { return components.map(function (d) { return d.name; }); };
+  window.ldcss.isInitialized = function (el, name) {
+    if (name) return !!instanceOf(el, name);
+    var map = instances.get(el);
+    return !!map && Object.keys(map).length > 0;
+  };
   window.ldcss.theme = { get: currentTheme, set: setTheme };
   window.ldcss.observe = observeDom;
   window.ldcss.unobserve = unobserveDom;
@@ -4733,19 +5068,24 @@
   window.ldcss.once = once;
   window.ldcss.emit = emit;
   window.ldcss.announce = announce;
-
   window.ldcss.debounce = debounce;
 
-  /* Coarse teardown: disconnects every entrance-animation
-     IntersectionObserver. Delegated listeners (click/input/keydown/drag)
-     don't need teardown — they're bound once on document and no-op
-     harmlessly on elements that no longer exist. Call this before
-     removing a large chunk of DOM that contained [data-ld-animate]
-     elements, then call ldcss.refresh() again for whatever's left. */
-  window.ldcss.destroy = function () {
-    activeAnimationObservers.forEach(function (observer) { observer.disconnect(); });
-    activeAnimationObservers = [];
-    unobserveDom();
-    qsaSelf(document, '[data-ld-carousel]').forEach(stopCarouselAutoplay);
+  /* destroy(target, names): tear down the components inside target (an element, selector or
+     list), or only the named ones. Their listeners, observers and timers go, generated markup is
+     removed, open dialogs inside are closed, and delegated behaviour (tabs, the context menu…)
+     stops responding there until ldcss.init(target) is called.
+     destroy() with no arguments is the whole-page version: every component, the mutation
+     observer, and every document and window listener ldcss attached. ldcss.init() starts it all
+     again. */
+  window.ldcss.destroy = function (target, names) {
+    if (target == null && names == null) {
+      destroyComponents(document, null, false);
+      stopLifecycle();
+      return;
+    }
+    destroyComponents(target, names);
   };
+
+  // the page-wide mutation observer is part of start/stop
+  lifecycleHooks.push({ stop: unobserveDom, start: function () { if (document.body && document.body.getAttribute('data-ld-observe') !== 'false') observeDom(); } });
 })();

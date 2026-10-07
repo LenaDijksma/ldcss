@@ -1,5 +1,94 @@
 # Changelog
 
+## 3.3.0
+
+Media, layout primitives, component lifecycle and more tokens.
+
+**Media** (CSS only, nothing shipped but the styles)
+
+- `ld-img`: fluid image. `data-ld-rounded` (or `sm`, `full`).
+- `ld-media`: fixed-shape wrapper. `data-ld-ratio="1-1|4-3|3-2|16-9|21-9|3-4|2-3|9-16"`; the image,
+  `<picture>`, `<video>`, `<canvas>`, `<svg>` or `<iframe>` inside fills the box and is cropped, not
+  stretched. `data-ld-fit="contain"` shows all of it. Without a ratio it takes the media's own shape.
+- `ld-video`: 16:9 box (other ratios with `data-ld-ratio`) that an `<iframe>` or `<video>` fills, so
+  embeds keep their shape at every width.
+- `ld-figure` with a `<figcaption>`: caption below. `ld-media-caption` and `ld-media-overlay`: caption
+  or content on top of the media, on a gradient scrim (`--ld-opacity-overlay`) with white text in
+  every theme. `data-ld-align` (`bottom`, `center`, `top`) and `data-ld-show="hover"` (hover and
+  keyboard focus; always visible on devices that cannot hover).
+- `ld-masonry`: items of different heights packed into columns. Uses CSS multi-column layout, so it
+  works everywhere; `--ld-masonry-min` (14rem) or `data-ld-cols="2-6"`. Where the browser supports real
+  masonry (`display: grid-lanes`, or the older `grid-template-rows: masonry`) that is used instead.
+  Only the multi-column path could be tested: the browser used for testing supports neither.
+- `ld-gallery`: grid of equal tiles (`--ld-gallery-min` 12rem, `data-ld-ratio`, `data-ld-feature="first"`),
+  hover zoom (off for reduced motion), focus ring on linked tiles. Layout only; there is no lightbox.
+
+**Layout primitives**
+
+- `ld-cluster` (wrapping inline items with one gap; `data-ld-justify`, `data-ld-align`).
+- `ld-sidebar-layout` (content next to a naturally sized sidebar; stacks when the content would drop
+  below `--ld-content-min`, 50%; `data-ld-side="end"` keeps content first in the markup;
+  `--ld-side-width`).
+- `ld-switcher` (equal columns while the box is wider than `--ld-threshold`, a column below it;
+  `data-ld-threshold="xs|sm|md|lg|xl"`, `data-ld-limit="2-6"`, `data-ld-align`).
+- `ld-cover` (a column of at least `--ld-cover-height` with one child centred: `data-ld-centered`).
+- `data-ld-gap="0-6|8"` / `--ld-layout-gap` set the gap for all of them. They respond to the space
+  they are given, not to the window, so they work in cards and narrow columns too.
+
+**Component lifecycle**
+
+- Components with per-element setup are registered by name (`ldcss.components()`): progress,
+  animate, pagination, rating, stepper, tabs, segmented, scrollspy, carousel, input-clear, autosize,
+  disclosure, context-menu, notification, combobox, resizable, search, table, tooltip, carousel-a11y.
+- `ldcss.init(target?, names?)`, `ldcss.destroy(target?, names?)`, `ldcss.reinit(target, names?)`
+  work on one component, a subtree, or the whole page. `ldcss.refresh` is now an alias of `init`.
+- `ldcss.component(name)` returns `init`, `destroy`, `reinit`, `has(el)`, `instances(root?)`,
+  `on(type, fn, options)` and `once(...)`.
+- Destroying a component removes its listeners, observers and timers, the markup it generated (a
+  table's toolbar and checkbox column, a search bar's button, a combobox's result rows, resize
+  handles) and the attributes it added, puts the original markup back in its original order, and
+  closes open dialogs inside. A combobox's `source`, `render` and items survive, so `reinit` picks up
+  where it was. Rows you replaced stay replaced.
+- Delegated behaviour (tabs, toggles, the context menu…) stops responding inside a destroyed element
+  (`data-ld-destroyed`) until `init` runs again. All 50-odd document and window listeners now go
+  through one helper, so `ldcss.destroy()` with no arguments removes every one of them as well as the
+  mutation observer, and `ldcss.init()` puts them back.
+- Markup removed from the page is destroyed automatically (carousel timers, observers, listeners no
+  longer leak); markup that is only moved is left alone.
+- Consistent events: `ld:{component}:init` and `ld:{component}:destroy` on the element, and
+  `ldcss.on(type, fn, { root: el })` listeners are removed when `el` is destroyed.
+- Wildcard (`"*"`) listeners now see the element as `event.target` even for elements that have just
+  been removed from the page.
+
+**Tokens**
+
+- `--ld-border-radius-sm` (half of `--ld-radius`) and `--ld-border-radius-lg` (double). All twelve
+  `calc(var(--ld-radius) / 2)` uses in the components now use the token. `data-ld-unstyled` zeroes both.
+- `--ld-transition-fast` (80ms), `--ld-transition` (120ms), `--ld-transition-slow` (240ms), and the
+  numbers alone as `--ld-duration-fast`, `--ld-duration`, `--ld-duration-slow`.
+- `--ld-content-width` (1320px): `ld-container` steps now stop at `min(step, --ld-content-width)`.
+- `--ld-line-height-{none,tight,normal,relaxed,loose}`. The `--ld-leading-*` names still work and
+  follow the new ones. New utilities `ld-leading-none` and `ld-leading-loose`; body text and headings
+  read the tokens.
+- `--ld-opacity-{0,5,10,20,25,30,40,50,60,70,75,80,90,95,100}`, `--ld-opacity-disabled`,
+  `--ld-opacity-overlay`. `ld-opacity-N` reads them (the scale is wider than the old 0/25/50/75/100) and
+  `ld-opacity-disabled` is new. Components still use their own opacity values; only the utilities,
+  the media overlay and the new components read these tokens.
+
+**Fixed along the way**
+
+- Duplicate aspect-ratio utilities (`ld-aspect-square`, `ld-aspect-video` were declared in two files)
+  are declared once; `ld-aspect-4-3` and `ld-aspect-3-2` moved next to them.
+- Table `destroy` restores only the rows that are still in the table.
+
+**Behaviour changes to know about**
+
+- `ldcss.destroy()` with no arguments used to stop only the observer, animation observers and carousel
+  timers. It now also destroys every component and removes every document/window listener; call
+  `ldcss.init()` to start again.
+- Elements removed from the page are destroyed, so a component node you detach and re-insert later
+  (not as one move) needs `ldcss.init(node)`.
+
 ## 3.2.0
 
 Accessibility and bug fixes. Contrast figures below were measured on the rendered page.

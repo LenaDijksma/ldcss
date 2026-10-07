@@ -124,102 +124,124 @@
     return true;
   }
 
-  function initSearch(root) {
-    qsaSelf(root, '[data-ld-search]').forEach(function (wrap) {
-      if (wrap._ldSearch) return;
-      var input = searchInputOf(wrap);
-      if (!input) return;
-      wrap._ldSearch = true;
-      wrap.classList.add('ld-search');
-      input.classList.add('ld-input');
-      if (!input.hasAttribute('type')) input.setAttribute('type', 'search');
-      if (!input.hasAttribute('autocomplete')) input.setAttribute('autocomplete', 'off');
-      if (!input.hasAttribute('enterkeyhint')) input.setAttribute('enterkeyhint', 'search');
-      if (!input.hasAttribute('aria-label') && !input.hasAttribute('aria-labelledby') && !(input.id && document.querySelector('label[for="' + input.id + '"]'))) {
-        input.setAttribute('aria-label', input.getAttribute('placeholder') || 'Search');
-      }
-      wrap.setAttribute('role', wrap.hasAttribute('data-ld-combobox') ? wrap.getAttribute('role') || 'search' : 'search');
+  defineComponent('search', '[data-ld-search]', function (wrap, scope) {
+    var input = searchInputOf(wrap);
+    if (!input) return;
+    wrap._ldSearch = true;
+    var added = { wrapClass: !wrap.classList.contains('ld-search'), inputClass: !input.classList.contains('ld-input'), type: !input.hasAttribute('type'), autocomplete: !input.hasAttribute('autocomplete'), enterkeyhint: !input.hasAttribute('enterkeyhint'), label: false, role: !wrap.hasAttribute('role'), shortcut: false };
+    wrap._ldSearchAdded = added;
+    wrap.classList.add('ld-search');
+    input.classList.add('ld-input');
+    if (!input.hasAttribute('type')) input.setAttribute('type', 'search');
+    if (!input.hasAttribute('autocomplete')) input.setAttribute('autocomplete', 'off');
+    if (!input.hasAttribute('enterkeyhint')) input.setAttribute('enterkeyhint', 'search');
+    if (!input.hasAttribute('aria-label') && !input.hasAttribute('aria-labelledby') && !(input.id && document.querySelector('label[for="' + input.id + '"]'))) {
+      input.setAttribute('aria-label', input.getAttribute('placeholder') || 'Search');
+      added.label = true;
+    }
+    wrap.setAttribute('role', wrap.hasAttribute('data-ld-combobox') ? wrap.getAttribute('role') || 'search' : 'search');
 
-      // the field: input + clear button + shortcut hint, so they sit inside the input, not over the button
-      var field = document.createElement('div');
-      field.className = 'ld-search-field';
-      input.parentNode.insertBefore(field, input);
-      field.appendChild(input);
-
-      var clear = document.createElement('button');
-      clear.type = 'button';
-      clear.className = 'ld-search-clear';
-      clear.setAttribute('aria-label', 'Clear search');
-      clear.textContent = '×';
-      clear.hidden = true;
-      clear.addEventListener('click', function () { searchClear(wrap); });
-      field.appendChild(clear);
-
-      var key = wrap.getAttribute('data-ld-shortcut');
-      if (key && key !== 'none') {
-        var hint = document.createElement('kbd');
-        hint.className = 'ld-search-kbd ld-kbd';
-        hint.setAttribute('aria-hidden', 'true');
-        hint.textContent = key;
-        field.appendChild(hint);
-        input.setAttribute('aria-keyshortcuts', key);
-      }
-
-      if (wrap.getAttribute('data-ld-search-button') === 'false') {
-        wrap.setAttribute('data-ld-search-compact', '');
-        var icon = document.createElement('span');
-        icon.className = 'ld-search-icon';
-        icon.setAttribute('aria-hidden', 'true');
-        field.insertBefore(icon, input);
-      } else {
-        var button = document.createElement('button');
-        var inForm = !!wrap.closest('form');
-        button.type = inForm ? 'submit' : 'button';
-        button.className = 'ld-btn ld-search-btn';
-        var variant = wrap.getAttribute('data-ld-search-variant');
-        if (variant) button.setAttribute('data-ld-variant', variant);
-        button.setAttribute('aria-label', wrap.getAttribute('data-ld-search-label') || 'Search');
-        var glyph = document.createElement('span');
-        glyph.className = 'ld-search-icon';
-        glyph.setAttribute('aria-hidden', 'true');
-        button.appendChild(glyph);
-        // in a form the browser submits; everywhere else the click is the submit
-        button.addEventListener('click', function (e) {
-          var ok = searchSubmit(wrap, 'button');
-          if (!ok && inForm) e.preventDefault();
-        });
-        field.insertAdjacentElement('afterend', button);
-      }
-
-      if (wrap.hasAttribute('data-ld-search-filter')) {
-        input.addEventListener('input', function () { searchFilter(wrap); });
-      } else {
-        input.addEventListener('input', function () { searchSyncClear(wrap); });
-      }
-      input.addEventListener('keydown', function (e) {
-        if (e.key === 'Escape' && input.value && !wrap.hasAttribute('data-ld-combobox')) { e.preventDefault(); searchClear(wrap); return; }
-        if (e.key === 'Escape' && wrap.hasAttribute('data-ld-combobox')) {
-          // a search input clears itself on Escape and fires `input`, which would search again and reopen the
-          // list we are about to close; the first Escape only closes it, the second clears (combobox module)
-          var open = wrap.querySelector('[data-ld-combobox-list]');
-          if (open && open.classList.contains('ld-show')) e.preventDefault();
-        }
-        if (e.key !== 'Enter' || e.isComposing) return;
-        // a highlighted result in an open dropdown is chosen by the combobox, not submitted
-        var list = wrap.querySelector('[data-ld-combobox-list]');
-        if (list && list.classList.contains('ld-show') && list.querySelector('[data-ld-highlighted="true"]')) return;
-        searchSubmit(wrap, 'enter');
-      });
-      searchSyncClear(wrap);
+    // the field: input + clear button + shortcut hint, so they sit inside the input, not over the button
+    var field = document.createElement('div');
+    field.className = 'ld-search-field';
+    var home = { parent: input.parentNode, next: input.nextSibling };
+    home.parent.insertBefore(field, input);
+    field.appendChild(input);
+    scope.cleanup(function () {
+      // put the input back where it was and drop everything built around it
+      home.parent.insertBefore(input, field);
+      if (field.parentNode) field.parentNode.removeChild(field);
     });
-  }
 
-  document.addEventListener('keydown', function (e) {
+    var clear = document.createElement('button');
+    clear.type = 'button';
+    clear.className = 'ld-search-clear';
+    clear.setAttribute('aria-label', 'Clear search');
+    clear.textContent = '×';
+    clear.hidden = true;
+    scope.on(clear, 'click', function () { searchClear(wrap); });
+    field.appendChild(clear);
+
+    var key = wrap.getAttribute('data-ld-shortcut');
+    if (key && key !== 'none') {
+      var hint = document.createElement('kbd');
+      hint.className = 'ld-search-kbd ld-kbd';
+      hint.setAttribute('aria-hidden', 'true');
+      hint.textContent = key;
+      field.appendChild(hint);
+      input.setAttribute('aria-keyshortcuts', key);
+      added.shortcut = true;
+    }
+
+    if (wrap.getAttribute('data-ld-search-button') === 'false') {
+      wrap.setAttribute('data-ld-search-compact', '');
+      var icon = document.createElement('span');
+      icon.className = 'ld-search-icon';
+      icon.setAttribute('aria-hidden', 'true');
+      field.insertBefore(icon, input);
+      scope.cleanup(function () { wrap.removeAttribute('data-ld-search-compact'); });
+    } else {
+      var button = document.createElement('button');
+      var inForm = !!wrap.closest('form');
+      button.type = inForm ? 'submit' : 'button';
+      button.className = 'ld-btn ld-search-btn';
+      var variant = wrap.getAttribute('data-ld-search-variant');
+      if (variant) button.setAttribute('data-ld-variant', variant);
+      button.setAttribute('aria-label', wrap.getAttribute('data-ld-search-label') || 'Search');
+      var glyph = document.createElement('span');
+      glyph.className = 'ld-search-icon';
+      glyph.setAttribute('aria-hidden', 'true');
+      button.appendChild(glyph);
+      // in a form the browser submits; everywhere else the click is the submit
+      scope.on(button, 'click', function (e) {
+        var ok = searchSubmit(wrap, 'button');
+        if (!ok && inForm) e.preventDefault();
+      });
+      field.insertAdjacentElement('afterend', button);
+      scope.add(button);
+    }
+
+    if (wrap.hasAttribute('data-ld-search-filter')) {
+      scope.on(input, 'input', function () { searchFilter(wrap); });
+    } else {
+      scope.on(input, 'input', function () { searchSyncClear(wrap); });
+    }
+    scope.on(input, 'keydown', function (e) {
+      if (e.key === 'Escape' && input.value && !wrap.hasAttribute('data-ld-combobox')) { e.preventDefault(); searchClear(wrap); return; }
+      if (e.key === 'Escape' && wrap.hasAttribute('data-ld-combobox')) {
+        // a search input clears itself on Escape and fires `input`, which would search again and reopen the
+        // list we are about to close; the first Escape only closes it, the second clears (combobox module)
+        var open = wrap.querySelector('[data-ld-combobox-list]');
+        if (open && open.classList.contains('ld-show')) e.preventDefault();
+      }
+      if (e.key !== 'Enter' || e.isComposing) return;
+      // a highlighted result in an open dropdown is chosen by the combobox, not submitted
+      var list = wrap.querySelector('[data-ld-combobox-list]');
+      if (list && list.classList.contains('ld-show') && list.querySelector('[data-ld-highlighted="true"]')) return;
+      searchSubmit(wrap, 'enter');
+    });
+    searchSyncClear(wrap);
+  }, function (wrap) {
+    var input = searchInputOf(wrap), added = wrap._ldSearchAdded || {};
+    wrap._ldSearch = false;
+    if (added.wrapClass) wrap.classList.remove('ld-search');
+    if (added.role) wrap.removeAttribute('role');
+    if (input) {
+      if (added.inputClass) input.classList.remove('ld-input');
+      if (added.type) input.removeAttribute('type');
+      if (added.autocomplete) input.removeAttribute('autocomplete');
+      if (added.enterkeyhint) input.removeAttribute('enterkeyhint');
+      if (added.label) input.removeAttribute('aria-label');
+      if (added.shortcut) input.removeAttribute('aria-keyshortcuts');
+    }
+  }, { gate: true });
+
+  delegate('keydown', function (e) {
     if (e.defaultPrevented || e.ctrlKey || e.metaKey || e.altKey) return;
     var t = e.target;
     var typing = t && (t.isContentEditable || /^(INPUT|TEXTAREA|SELECT)$/.test(t.tagName));
     if (typing) return;
-    var wraps = document.querySelectorAll('[data-ld-search][data-ld-shortcut]');
+    var wraps = Array.prototype.filter.call(document.querySelectorAll('[data-ld-search][data-ld-shortcut]'), function (w) { return w._ldSearch; });
     for (var i = 0; i < wraps.length; i++) {
       var key = wraps[i].getAttribute('data-ld-shortcut');
       if (key && key !== 'none' && e.key === key && wraps[i].offsetParent !== null) {
@@ -230,6 +252,5 @@
     }
   });
 
-  moduleInits.push(initSearch);
   window.ldcss.search = { filter: searchFilter, clear: searchClear, submit: searchSubmit };
 

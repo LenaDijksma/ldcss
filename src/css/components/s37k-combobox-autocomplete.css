@@ -33,7 +33,7 @@
 
 [data-ld-combobox-option] {
   padding: var(--ld-space-2);
-  border-radius: calc(var(--ld-radius) / 2);
+  border-radius: var(--ld-border-radius-sm);
   font-size: var(--ld-text-sm);
   color: var(--ld-text);
   cursor: pointer;

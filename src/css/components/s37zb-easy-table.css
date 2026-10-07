@@ -129,7 +129,7 @@
   height: 32px;
   padding: 0 var(--ld-space-2);
   border: var(--ld-border-width) solid var(--ld-border-soft);
-  border-radius: calc(var(--ld-radius) / 2);
+  border-radius: var(--ld-border-radius-sm);
   background: var(--ld-surface);
   color: var(--ld-text);
   font-family: var(--ld-font-family);

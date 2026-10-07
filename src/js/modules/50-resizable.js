@@ -121,36 +121,44 @@
     return sizes.map(function (v) { return v / total; });
   }
 
-  function initResizables(root) {
-    qsaSelf(root, '[data-ld-resizable]').forEach(function (box) {
-      if (box._ldResizable) return;
-      box._ldResizable = true;
-      box.classList.add('ld-resizable');
-      var vertical = resizeIsVertical(box);
-      var parts = resizeParts(box);
+  defineComponent('resizable', '[data-ld-resizable]', function (box, scope) {
+    box._ldResizable = true;
+    box._ldAddedClass = !box.classList.contains('ld-resizable');
+    box.classList.add('ld-resizable');
+    var vertical = resizeIsVertical(box);
+    var parts = resizeParts(box);
 
-      // put a handle between every pair of panels that does not have one
-      parts.panels.forEach(function (panel, i) {
-        var after = panel.nextElementSibling;
-        if (i < parts.panels.length - 1 && !(after && after.classList.contains('ld-resize-handle'))) {
-          var handle = document.createElement('div');
-          handle.className = 'ld-resize-handle';
-          box.insertBefore(handle, panel.nextSibling);
-        }
-      });
-      parts = resizeParts(box);
-      parts.handles.forEach(function (handle, i) {
-        handle.setAttribute('role', 'separator');
-        handle.setAttribute('aria-orientation', vertical ? 'horizontal' : 'vertical');
-        handle.setAttribute('tabindex', '0');
-        if (!handle.hasAttribute('aria-label')) handle.setAttribute('aria-label', box.getAttribute('data-ld-label') || 'Resize panels');
-        if (parts.panels[i]) handle.setAttribute('aria-controls', ensureId(parts.panels[i], 'ld-panel'));
-      });
-      box._ldInitial = resizeInitialSizes(box);
-      box._ldInitialDefault = null;
-      resizeApply(box, box._ldInitial.slice());
+    // put a handle between every pair of panels that does not have one
+    parts.panels.forEach(function (panel, i) {
+      var after = panel.nextElementSibling;
+      if (i < parts.panels.length - 1 && !(after && after.classList.contains('ld-resize-handle'))) {
+        var handle = document.createElement('div');
+        handle.className = 'ld-resize-handle';
+        box.insertBefore(handle, panel.nextSibling);
+        scope.add(handle);
+      }
     });
-  }
+    parts = resizeParts(box);
+    parts.handles.forEach(function (handle, i) {
+      handle.setAttribute('role', 'separator');
+      handle.setAttribute('aria-orientation', vertical ? 'horizontal' : 'vertical');
+      handle.setAttribute('tabindex', '0');
+      if (!handle.hasAttribute('aria-label')) handle.setAttribute('aria-label', box.getAttribute('data-ld-label') || 'Resize panels');
+      if (parts.panels[i]) handle.setAttribute('aria-controls', ensureId(parts.panels[i], 'ld-panel'));
+    });
+    box._ldInitial = resizeInitialSizes(box);
+    box._ldInitialDefault = null;
+    resizeApply(box, box._ldInitial.slice());
+  }, function (box) {
+    if (resizeDrag && resizeDrag.box === box) resizeEnd();
+    resizeParts(box).panels.forEach(function (panel) { panel.style.flex = ''; });
+    resizeParts(box).handles.forEach(function (handle) {
+      ['role', 'aria-orientation', 'tabindex', 'aria-controls', 'aria-valuenow', 'aria-valuemin', 'aria-valuemax'].forEach(function (a) { handle.removeAttribute(a); });
+    });
+    if (box._ldAddedClass) box.classList.remove('ld-resizable');
+    box._ldResizable = false;
+    box._ldSizes = null;
+  }, { gate: true });
 
   function resizeStart(e) {
     var handle = e.target.closest && closestOf(e.target, '.ld-resize-handle');
@@ -195,12 +203,12 @@
     emit(d.box, 'ld:resize:end', { sizes: resizePercent(d.box), handle: d.index });
   }
 
-  document.addEventListener('pointerdown', resizeStart);
-  document.addEventListener('pointermove', resizeDragMove);
-  document.addEventListener('pointerup', resizeEnd);
-  document.addEventListener('pointercancel', resizeEnd);
+  delegate('pointerdown', resizeStart);
+  delegate('pointermove', resizeDragMove);
+  delegate('pointerup', resizeEnd);
+  delegate('pointercancel', resizeEnd);
 
-  document.addEventListener('dblclick', function (e) {
+  delegate('dblclick', function (e) {
     var handle = e.target.closest && closestOf(e.target, '.ld-resize-handle');
     var box = handle && handle.parentElement;
     if (!box || !box._ldResizable) return;
@@ -209,7 +217,7 @@
     emit(box, 'ld:resize:end', { sizes: resizePercent(box), handle: resizeParts(box).handles.indexOf(handle), reset: true });
   });
 
-  document.addEventListener('keydown', function (e) {
+  delegate('keydown', function (e) {
     var handle = e.target.closest && closestOf(e.target, '.ld-resize-handle');
     var box = handle && handle.parentElement;
     if (!box || !box._ldResizable) return;
@@ -243,11 +251,10 @@
     }
   });
 
-  window.addEventListener('resize', function () {
+  delegateWindow('resize', function () {
     qsaSelf(document, '[data-ld-resizable]').forEach(function (box) { if (box._ldSizes) resizeSyncAria(box); });
   });
 
-  moduleInits.push(initResizables);
   window.ldcss.resizable = {
     get: function (el) { return resizePercent(typeof el === 'string' ? document.querySelector(el) : el); },
     set: function (el, percents) {

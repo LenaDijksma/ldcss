@@ -72,19 +72,6 @@
       });
     });
 
-    // tooltips
-    qsaSelf(root, '[data-ld-tooltip]').forEach(function (el) {
-      var tip = el.getAttribute('data-ld-tooltip');
-      if (!tip || el._ldTip) return;
-      el._ldTip = true;
-      var hasName = el.hasAttribute('aria-label') || el.hasAttribute('aria-labelledby') || el.textContent.trim() !== '' || (el.querySelector && el.querySelector('img[alt]:not([alt=""])'));
-      if (!hasName) el.setAttribute('aria-label', tip);
-      else if (!el.hasAttribute('aria-description') && !el.hasAttribute('aria-describedby') && el.getAttribute('aria-label') !== tip) el.setAttribute('aria-description', tip);
-      var undismiss = function () { el.removeAttribute('data-ld-tooltip-dismissed'); };
-      el.addEventListener('mouseleave', undismiss);
-      el.addEventListener('blur', undismiss);
-    });
-
     // progress
     qsaSelf(root, '[data-ld-progress]').forEach(function (bar) {
       if (!bar.hasAttribute('role')) bar.setAttribute('role', 'progressbar');
@@ -120,29 +107,6 @@
       }
     });
 
-    // carousels
-    qsaSelf(root, '[data-ld-carousel]').forEach(function (carousel) {
-      if (carousel._ldA11y) return;
-      carousel._ldA11y = true;
-      if (!carousel.hasAttribute('role')) carousel.setAttribute('role', 'region');
-      carousel.setAttribute('aria-roledescription', 'carousel');
-      if (!carousel.hasAttribute('aria-label') && !carousel.hasAttribute('aria-labelledby')) carousel.setAttribute('aria-label', 'Carousel');
-      var slides = carousel.querySelectorAll('[data-ld-carousel-slide], .ld-carousel-slide');
-      Array.prototype.forEach.call(slides, function (slide, i) {
-        if (!slide.hasAttribute('role')) slide.setAttribute('role', 'group');
-        slide.setAttribute('aria-roledescription', 'slide');
-        if (!slide.hasAttribute('aria-label')) slide.setAttribute('aria-label', (i + 1) + ' of ' + slides.length);
-      });
-      Array.prototype.forEach.call(carousel.querySelectorAll('[data-ld-carousel-dot]'), function (dot, i) {
-        if (!dot.hasAttribute('aria-label')) dot.setAttribute('aria-label', 'Go to slide ' + (i + 1));
-      });
-      if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-        carousel.setAttribute('data-ld-autoplay', 'false');
-        stopCarouselAutoplay(carousel);
-      }
-      carousel.addEventListener('focusin', function () { stopCarouselAutoplay(carousel); });
-    });
-
     // legacy sortable headers (easy tables build their own buttons)
     qsaSelf(root, 'th[data-ld-sort]').forEach(function (th) {
       if (th.closest('table[data-ld-table]') || th._ldSortA11y) return;
@@ -157,6 +121,46 @@
       if (target && !target.hasAttribute('tabindex') && !/^(A|BUTTON|INPUT|SELECT|TEXTAREA)$/.test(target.tagName)) target.setAttribute('tabindex', '-1');
     });
   }
+
+  defineComponent('tooltip', '[data-ld-tooltip]', function (el, scope) {
+    var tip = el.getAttribute('data-ld-tooltip');
+    if (!tip) return;
+    var added = { label: false, description: false };
+    var hasName = el.hasAttribute('aria-label') || el.hasAttribute('aria-labelledby') || el.textContent.trim() !== '' || (el.querySelector && el.querySelector('img[alt]:not([alt=""])'));
+    if (!hasName) { el.setAttribute('aria-label', tip); added.label = true; }
+    else if (!el.hasAttribute('aria-description') && !el.hasAttribute('aria-describedby') && el.getAttribute('aria-label') !== tip) { el.setAttribute('aria-description', tip); added.description = true; }
+    var undismiss = function () { el.removeAttribute('data-ld-tooltip-dismissed'); };
+    scope.on(el, 'mouseleave', undismiss);
+    scope.on(el, 'blur', undismiss);
+    scope.cleanup(function () {
+      if (added.label) el.removeAttribute('aria-label');
+      if (added.description) el.removeAttribute('aria-description');
+      el.removeAttribute('data-ld-tooltip-dismissed');
+    });
+  }, null, { gate: true });
+
+  defineComponent('carousel-a11y', '[data-ld-carousel]', function (carousel, scope) {
+    var added = [];
+    var set = function (node, attr, value) { if (!node.hasAttribute(attr)) { node.setAttribute(attr, value); added.push([node, attr]); } };
+    set(carousel, 'role', 'region');
+    carousel.setAttribute('aria-roledescription', 'carousel'); added.push([carousel, 'aria-roledescription']);
+    if (!carousel.hasAttribute('aria-label') && !carousel.hasAttribute('aria-labelledby')) set(carousel, 'aria-label', 'Carousel');
+    var slides = carousel.querySelectorAll('[data-ld-carousel-slide], .ld-carousel-slide');
+    Array.prototype.forEach.call(slides, function (slide, i) {
+      set(slide, 'role', 'group');
+      slide.setAttribute('aria-roledescription', 'slide'); added.push([slide, 'aria-roledescription']);
+      set(slide, 'aria-label', (i + 1) + ' of ' + slides.length);
+    });
+    Array.prototype.forEach.call(carousel.querySelectorAll('[data-ld-carousel-dot]'), function (dot, i) {
+      set(dot, 'aria-label', 'Go to slide ' + (i + 1));
+    });
+    if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      carousel.setAttribute('data-ld-autoplay', 'false');
+      stopCarouselAutoplay(carousel);
+    }
+    scope.on(carousel, 'focusin', function () { stopCarouselAutoplay(carousel); });
+    scope.cleanup(function () { added.forEach(function (pair) { pair[0].removeAttribute(pair[1]); }); });
+  }, null, { event: 'carousel', gate: true });
 
   /* attributes that other components flip — mirror them into ARIA */
   if (window.MutationObserver) {
@@ -176,6 +180,7 @@
       if (document.body) attrWatcher.observe(document.body, { attributes: true, subtree: true, attributeFilter: ['data-ld-active', 'data-ld-highlighted'] });
     };
     if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', startAttrWatcher); else startAttrWatcher();
+    lifecycleHooks.push({ stop: function () { attrWatcher.disconnect(); }, start: startAttrWatcher });
   }
 
   /* dropdown keyboard */
@@ -188,7 +193,7 @@
     if (item) { item.setAttribute('tabindex', '0'); item.focus(); }
   }
 
-  document.addEventListener('keydown', function (e) {
+  delegate('keydown', function (e) {
     var dd = e.target.closest && closestOf(e.target, '[data-ld-dropdown]');
     if (!dd) return;
     var menu = dd.querySelector('[data-ld-dropdown-menu]');
@@ -217,19 +222,19 @@
   });
 
   /* Esc hides a visible tooltip without moving focus */
-  document.addEventListener('keydown', function (e) {
+  delegate('keydown', function (e) {
     if (e.key !== 'Escape') return;
     var tipEl = document.querySelector('[data-ld-tooltip]:focus-visible, [data-ld-tooltip]:hover');
     if (tipEl) tipEl.setAttribute('data-ld-tooltip-dismissed', 'true');
   });
 
-  document.addEventListener('keydown', function (e) {
+  delegate('keydown', function (e) {
     var th = e.target.closest && closestOf(e.target, 'th[data-ld-sort]');
     if (th && e.target === th && (e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); th.click(); }
   });
 
   /* switching a sortable header updates the status the same way for plain tables */
-  document.addEventListener('ld:table:sort', function (e) {
+  delegate('ld:table:sort', function (e) {
     if (e.target.hasAttribute && e.target.hasAttribute('data-ld-table')) return; // easy tables announce themselves
     var d = e.detail || {};
     announce(d.direction ? 'Sorted ' + (d.direction === 'asc' ? 'ascending' : 'descending') : 'Sorting cleared');
@@ -275,7 +280,7 @@
   }
 
   ['modal', 'offcanvas', 'command'].forEach(function (kind) {
-    document.addEventListener('ld:' + kind + ':show', function (e) {
+    delegate('ld:' + kind + ':show', function (e) {
       var host = e.target;
       // wait a tick: the component marks its box role=dialog while opening
       setTimeout(function () {
@@ -284,7 +289,7 @@
         syncInert();
       }, 0);
     });
-    document.addEventListener('ld:' + kind + ':hide', function () { setTimeout(syncInert, 0); });
+    delegate('ld:' + kind + ':hide', function () { setTimeout(syncInert, 0); });
   });
 
   /* forms: aria-invalid once the field has been touched */
@@ -297,9 +302,9 @@
     else if (field.getAttribute('aria-invalid') === 'true') field.removeAttribute('aria-invalid');
   }
 
-  document.addEventListener('focusout', function (e) { e.target._ldTouched = true; syncInvalid(e.target); });
-  document.addEventListener('input', function (e) { if (e.target.getAttribute && e.target.getAttribute('aria-invalid')) syncInvalid(e.target); });
-  document.addEventListener('invalid', function (e) { e.target._ldTouched = true; syncInvalid(e.target); }, true);
+  delegate('focusout', function (e) { e.target._ldTouched = true; syncInvalid(e.target); });
+  delegate('input', function (e) { if (e.target.getAttribute && e.target.getAttribute('aria-invalid')) syncInvalid(e.target); });
+  delegate('invalid', function (e) { e.target._ldTouched = true; syncInvalid(e.target); }, true);
 
   /* -- audit ----------------------------------------------------------------- */
 

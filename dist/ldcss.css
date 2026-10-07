@@ -1,5 +1,5 @@
 /*!
- * ldcss v3.2.0 — Lena Dijksma CSS
+ * ldcss v3.3.0 — Lena Dijksma CSS
  * A small, opinionated framework: classes (ld-*) + custom attributes (data-ld-*)
  * License: MIT. Built from src/ — edit the files there, not this one.
  *
@@ -52,6 +52,10 @@
   --ld-font-family: var(--ld-font-sans);
   /* what body text/components use — override via ld-font-mono/ld-font-serif */
   --ld-radius: 10px;
+  --ld-border-radius-sm: calc(var(--ld-radius) / 2);
+  --ld-border-radius-lg: calc(var(--ld-radius) * 2);
+  /* sm and lg are derived from --ld-radius where it is set on :root. To change the
+     radius for one part of the page, set all three on that element. */
   --ld-border-width: 1px;
   --ld-shadow-offset: 4px;
   /* only used by data-ld-shadow='hard', defined just below */
@@ -88,9 +92,15 @@
   --ld-weight-medium: 500;
   --ld-weight-bold: 700;
 
-  --ld-leading-tight: 1.25;
-  --ld-leading-normal: 1.6;
-  --ld-leading-relaxed: 1.75;
+  --ld-line-height-none: 1;
+  --ld-line-height-tight: 1.25;
+  --ld-line-height-normal: 1.6;
+  --ld-line-height-relaxed: 1.75;
+  --ld-line-height-loose: 2;
+  /* the names used before 3.3.0 still work and follow the new ones */
+  --ld-leading-tight: var(--ld-line-height-tight);
+  --ld-leading-normal: var(--ld-line-height-normal);
+  --ld-leading-relaxed: var(--ld-line-height-relaxed);
 
   /* Stacking scale. The .ld-z-* utilities in §38e already exposed these
      as classes; components reference the same values here as custom
@@ -105,7 +115,39 @@
   --ld-z-toast: 60;
   --ld-z-command: 70;
 
-  --ld-transition: 120ms ease;
+  --ld-duration-fast: 80ms;
+  --ld-duration: 120ms;
+  --ld-duration-slow: 240ms;
+  --ld-transition-fast: var(--ld-duration-fast) ease;
+  --ld-transition: var(--ld-duration) ease;
+  --ld-transition-slow: var(--ld-duration-slow) ease;
+  /* a transition is `property + token`:  transition: color var(--ld-transition-fast);
+     The duration tokens are the numbers alone, for animation-duration and the like. */
+
+  --ld-content-width: 1320px;
+  /* widest the main content column gets. ld-container, ld-sidebar-layout and the
+     media layouts stop growing here; set it on :root to make every page narrower or wider. */
+
+  /* Opacity scale, 0 to 1. ld-opacity-N reads these, so changing one changes every use. */
+  --ld-opacity-0: 0;
+  --ld-opacity-5: 0.05;
+  --ld-opacity-10: 0.1;
+  --ld-opacity-20: 0.2;
+  --ld-opacity-25: 0.25;
+  --ld-opacity-30: 0.3;
+  --ld-opacity-40: 0.4;
+  --ld-opacity-50: 0.5;
+  --ld-opacity-60: 0.6;
+  --ld-opacity-70: 0.7;
+  --ld-opacity-75: 0.75;
+  --ld-opacity-80: 0.8;
+  --ld-opacity-90: 0.9;
+  --ld-opacity-95: 0.95;
+  --ld-opacity-100: 1;
+  --ld-opacity-disabled: 0.5;
+  /* dimmed controls and text that cannot be used right now */
+  --ld-opacity-overlay: 0.6;
+  /* how dark the scrim behind text on top of an image gets (ld-media-overlay, captions) */
 }
 
 /* Light theme (default). The same block also powers an explicit
@@ -243,6 +285,8 @@
      --ld-border on its own element, which would silently cancel this reset
      for a <body data-ld-theme="dark"> inside <html data-ld-unstyled>. */
   --ld-radius: 0px;
+  --ld-border-radius-sm: 0px;
+  --ld-border-radius-lg: 0px;
   --ld-shadow: none;
   --ld-shadow-lg: none;
   --ld-border-width: 1px;
@@ -341,7 +385,7 @@ body {
   color: var(--ld-text);
   font-family: var(--ld-font-family);
   font-size: var(--ld-text-base);
-  line-height: 1.6;
+  line-height: var(--ld-line-height-normal);
   transition: background var(--ld-transition), color var(--ld-transition);
 }
 
@@ -353,7 +397,7 @@ h5,
 h6 {
   font-family: var(--ld-font-family);
   font-weight: var(--ld-weight-bold);
-  line-height: var(--ld-leading-tight);
+  line-height: var(--ld-line-height-tight);
   margin: 0 0 var(--ld-space-3);
 }
 
@@ -387,7 +431,7 @@ code.ld-code-inline {
   color: var(--ld-code-text);
   padding: 1px 6px;
   border: 1px solid var(--ld-border-soft);
-  border-radius: calc(var(--ld-radius) / 2);
+  border-radius: var(--ld-border-radius-sm);
   font-size: 0.9em;
 }
 
@@ -424,25 +468,25 @@ code.ld-code-inline {
 
 @media (min-width: 640px) {
   .ld-container {
-    max-width: 600px;
+    max-width: min(600px, var(--ld-content-width));
   }
 }
 
 @media (min-width: 960px) {
   .ld-container {
-    max-width: 900px;
+    max-width: min(900px, var(--ld-content-width));
   }
 }
 
 @media (min-width: 1200px) {
   .ld-container {
-    max-width: 1100px;
+    max-width: min(1100px, var(--ld-content-width));
   }
 }
 
 @media (min-width: 1440px) {
   .ld-container {
-    max-width: 1320px;
+    max-width: min(1320px, var(--ld-content-width));
   }
 }
 
@@ -727,7 +771,7 @@ code.ld-code-inline {
   font-weight: 700;
   padding: 2px var(--ld-space-2);
   border: var(--ld-border-width) solid var(--ld-border-soft);
-  border-radius: calc(var(--ld-radius) / 2);
+  border-radius: var(--ld-border-radius-sm);
   color: var(--ld-text-muted);
 }
 
@@ -1073,7 +1117,7 @@ code.ld-code-inline {
   padding: var(--ld-space-2);
   background: none;
   border: none;
-  border-radius: calc(var(--ld-radius) / 2);
+  border-radius: var(--ld-border-radius-sm);
   font-family: var(--ld-font-family);
   font-size: var(--ld-text-sm);
   color: var(--ld-text);
@@ -1352,7 +1396,7 @@ code.ld-code-inline {
   font-size: var(--ld-text-xs);
   white-space: nowrap;
   padding: var(--ld-space-1) var(--ld-space-2);
-  border-radius: calc(var(--ld-radius) / 2);
+  border-radius: var(--ld-border-radius-sm);
   opacity: 0;
   pointer-events: none;
   transition: opacity var(--ld-transition);
@@ -1760,7 +1804,7 @@ code.ld-code-inline {
   height: 32px;
   padding: 0 var(--ld-space-2);
   border: 1px solid var(--ld-border-soft);
-  border-radius: calc(var(--ld-radius) / 2);
+  border-radius: var(--ld-border-radius-sm);
   background: var(--ld-surface);
   color: var(--ld-text);
   font-family: var(--ld-font-family);
@@ -1963,7 +2007,7 @@ code.ld-code-inline {
   background: linear-gradient(90deg, var(--ld-surface-raised) 25%, var(--ld-border-soft) 37%, var(--ld-surface-raised) 63%);
   background-size: 400% 100%;
   animation: ld-skeleton 1.4s ease infinite;
-  border-radius: calc(var(--ld-radius) / 2);
+  border-radius: var(--ld-border-radius-sm);
   height: 14px;
 }
 
@@ -2898,7 +2942,7 @@ code.ld-code-inline {
 
 [data-ld-combobox-option] {
   padding: var(--ld-space-2);
-  border-radius: calc(var(--ld-radius) / 2);
+  border-radius: var(--ld-border-radius-sm);
   font-size: var(--ld-text-sm);
   color: var(--ld-text);
   cursor: pointer;
@@ -4596,7 +4640,7 @@ a[data-ld-combobox-option] {
   padding: var(--ld-space-2);
   background: none;
   border: none;
-  border-radius: calc(var(--ld-radius) / 2);
+  border-radius: var(--ld-border-radius-sm);
   font-family: var(--ld-font-family);
   font-size: var(--ld-text-sm);
   color: var(--ld-text);
@@ -4762,7 +4806,7 @@ a[data-ld-combobox-option] {
 .ld-nc-item {
   display: flex;
   align-items: flex-start;
-  border-radius: calc(var(--ld-radius) / 2);
+  border-radius: var(--ld-border-radius-sm);
 }
 
 .ld-nc-item:hover {
@@ -4835,7 +4879,7 @@ a[data-ld-combobox-option] {
   margin: var(--ld-space-1);
   background: none;
   border: none;
-  border-radius: calc(var(--ld-radius) / 2);
+  border-radius: var(--ld-border-radius-sm);
   color: var(--ld-text-muted);
   font-size: var(--ld-text-lg);
   line-height: 1;
@@ -5101,7 +5145,7 @@ html.ld-resizing iframe {
   height: 32px;
   padding: 0 var(--ld-space-2);
   border: var(--ld-border-width) solid var(--ld-border-soft);
-  border-radius: calc(var(--ld-radius) / 2);
+  border-radius: var(--ld-border-radius-sm);
   background: var(--ld-surface);
   color: var(--ld-text);
   font-family: var(--ld-font-family);
@@ -5239,7 +5283,7 @@ html.ld-resizing iframe {
   transform: translateY(-50%);
   background: none;
   border: none;
-  border-radius: calc(var(--ld-radius) / 2);
+  border-radius: var(--ld-border-radius-sm);
   color: var(--ld-text-muted);
   font-size: var(--ld-text-lg);
   line-height: 1;
@@ -5288,6 +5332,459 @@ html.ld-resizing iframe {
 
   .ld-search-icon::after {
     background: ButtonText;
+  }
+}
+
+
+/* ==========================================================================
+   37zd. Layout primitives — ld-cluster, ld-sidebar-layout, ld-switcher, ld-cover
+   Small boxes that arrange their children without media queries: they react to
+   the space they are given, not to the width of the window, so the same
+   markup works in a wide page, a narrow column or a card.
+
+   Gap: set data-ld-gap="0-6|8" (a spacing step) on any of them, or the
+   custom property --ld-layout-gap for any length.
+   ========================================================================== */
+
+[data-ld-gap='0'] { --ld-layout-gap: 0; }
+[data-ld-gap='1'] { --ld-layout-gap: var(--ld-space-1); }
+[data-ld-gap='2'] { --ld-layout-gap: var(--ld-space-2); }
+[data-ld-gap='3'] { --ld-layout-gap: var(--ld-space-3); }
+[data-ld-gap='4'] { --ld-layout-gap: var(--ld-space-4); }
+[data-ld-gap='5'] { --ld-layout-gap: var(--ld-space-5); }
+[data-ld-gap='6'] { --ld-layout-gap: var(--ld-space-6); }
+[data-ld-gap='8'] { --ld-layout-gap: var(--ld-space-8); }
+
+/* -- ld-cluster: inline things that wrap, with one consistent gap ------------
+   tags, buttons, badges, a row of links. data-ld-justify: start (default) |
+   center | end | between.  data-ld-align: center (default) | start | end |
+   baseline | stretch. */
+.ld-cluster {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-start;
+  gap: var(--ld-layout-gap, var(--ld-space-3));
+}
+
+.ld-cluster[data-ld-justify='center'] { justify-content: center; }
+.ld-cluster[data-ld-justify='end'] { justify-content: flex-end; }
+.ld-cluster[data-ld-justify='between'] { justify-content: space-between; }
+.ld-cluster[data-ld-align='start'] { align-items: flex-start; }
+.ld-cluster[data-ld-align='end'] { align-items: flex-end; }
+.ld-cluster[data-ld-align='baseline'] { align-items: baseline; }
+.ld-cluster[data-ld-align='stretch'] { align-items: stretch; }
+
+/* -- ld-sidebar-layout: content next to a naturally sized sidebar ------------
+   The sidebar is the first child (data-ld-side="end": the last one, so the
+   markup order stays content first). It takes the width its own content needs,
+   or --ld-side-width; the content takes the rest. When the content would drop
+   below --ld-content-min (50% by default) the two stack, sidebar first. */
+.ld-sidebar-layout {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: var(--ld-layout-gap, var(--ld-space-5));
+}
+
+.ld-sidebar-layout > * {
+  flex: 999 1 0;
+  min-inline-size: var(--ld-content-min, 50%);
+}
+
+.ld-sidebar-layout:not([data-ld-side='end']) > :first-child,
+.ld-sidebar-layout[data-ld-side='end'] > :last-child {
+  flex: 1 1 var(--ld-side-width, auto);
+  min-inline-size: 0;
+}
+
+.ld-sidebar-layout[data-ld-align='stretch'] { align-items: stretch; }
+
+/* -- ld-switcher: side by side while they fit, stacked when they do not ------
+   Every child gets an equal share. They sit in a row while the box is wider
+   than --ld-threshold (30rem by default), and become a column below that.
+   data-ld-threshold="xs|sm|md|lg|xl" picks 20, 30, 40, 50 or 60rem.
+   data-ld-limit="2-6": with more children than that, always stack.
+   data-ld-align="start|center|end": children are as tall as the tallest by
+   default; use this when they have shapes of their own (images with ratios). */
+.ld-switcher {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--ld-layout-gap, var(--ld-space-4));
+}
+
+.ld-switcher > * {
+  flex: 1 1 calc((var(--ld-threshold, 30rem) - 100%) * 999);
+}
+
+.ld-switcher[data-ld-align='start'] { align-items: flex-start; }
+.ld-switcher[data-ld-align='center'] { align-items: center; }
+.ld-switcher[data-ld-align='end'] { align-items: flex-end; }
+
+.ld-switcher[data-ld-threshold='xs'] { --ld-threshold: 20rem; }
+.ld-switcher[data-ld-threshold='sm'] { --ld-threshold: 30rem; }
+.ld-switcher[data-ld-threshold='md'] { --ld-threshold: 40rem; }
+.ld-switcher[data-ld-threshold='lg'] { --ld-threshold: 50rem; }
+.ld-switcher[data-ld-threshold='xl'] { --ld-threshold: 60rem; }
+
+.ld-switcher[data-ld-limit='2'] > :nth-last-child(n + 3),
+.ld-switcher[data-ld-limit='2'] > :nth-last-child(n + 3) ~ *,
+.ld-switcher[data-ld-limit='3'] > :nth-last-child(n + 4),
+.ld-switcher[data-ld-limit='3'] > :nth-last-child(n + 4) ~ *,
+.ld-switcher[data-ld-limit='4'] > :nth-last-child(n + 5),
+.ld-switcher[data-ld-limit='4'] > :nth-last-child(n + 5) ~ *,
+.ld-switcher[data-ld-limit='5'] > :nth-last-child(n + 6),
+.ld-switcher[data-ld-limit='5'] > :nth-last-child(n + 6) ~ *,
+.ld-switcher[data-ld-limit='6'] > :nth-last-child(n + 7),
+.ld-switcher[data-ld-limit='6'] > :nth-last-child(n + 7) ~ * {
+  flex-basis: 100%;
+}
+
+/* -- ld-cover: content centred in a defined area -----------------------------
+   A column at least --ld-cover-height tall (the viewport by default). Mark the
+   child that should sit in the middle with data-ld-centered (or class
+   ld-cover-centered); anything before it stays at the top (a header) and
+   anything after it at the bottom (a footer). */
+.ld-cover {
+  display: flex;
+  flex-direction: column;
+  min-block-size: var(--ld-cover-height, 100vh);
+  min-block-size: var(--ld-cover-height, 100dvh);
+  padding: var(--ld-layout-gap, var(--ld-space-5));
+  gap: var(--ld-layout-gap, var(--ld-space-5));
+}
+
+.ld-cover > [data-ld-centered],
+.ld-cover > .ld-cover-centered {
+  margin-block: auto;
+}
+
+
+/* ==========================================================================
+   37ze. Media — ld-img, ld-media, ld-video, ld-figure, ld-masonry, ld-gallery
+   Pure CSS. No JavaScript, no images shipped.
+
+   <img class="ld-img" src alt>                        fluid image
+   <figure class="ld-media" data-ld-ratio="16-9"> <img …> </figure>   fixed-shape wrapper
+   <div class="ld-video"> <iframe …></iframe> </div>   embed that keeps its shape
+   <figure class="ld-figure"> <div class="ld-media">…</div> <figcaption>…</figcaption> </figure>
+   <div class="ld-masonry"> … </div>                    columns of uneven items
+   <div class="ld-gallery"> <figure class="ld-media">…</figure> … </div>   tidy tile grid
+   ========================================================================== */
+
+/* -- Fluid image: never wider than its box, keeps its own proportions ------- */
+.ld-img {
+  display: block;
+  max-width: 100%;
+  height: auto;
+}
+
+.ld-img[data-ld-rounded] { border-radius: var(--ld-border-radius-lg); }
+.ld-img[data-ld-rounded='sm'] { border-radius: var(--ld-border-radius-sm); }
+.ld-img[data-ld-rounded='full'] { border-radius: 50%; }
+
+/* -- Media wrapper ------------------------------------------------------------
+   A box with a fixed shape (data-ld-ratio) whose image, picture, video or
+   iframe fills it and is cropped, not stretched (data-ld-fit="contain" shows
+   all of it instead). Without a ratio the box takes the media's own shape.
+   data-ld-ratio: 1-1 · 4-3 · 3-2 · 16-9 · 21-9 · 3-4 · 2-3 · 9-16 */
+.ld-media {
+  position: relative;
+  display: block;
+  margin: 0;
+  overflow: hidden;
+  background: var(--ld-surface-raised);
+  border-radius: var(--ld-border-radius-lg);
+}
+
+.ld-media > img,
+.ld-media > picture,
+.ld-media > picture > img,
+.ld-media > video,
+.ld-media > canvas,
+.ld-media > svg {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.ld-media[data-ld-ratio] > img,
+.ld-media[data-ld-ratio] > picture,
+.ld-media[data-ld-ratio] > picture > img,
+.ld-media[data-ld-ratio] > video,
+.ld-media[data-ld-ratio] > canvas,
+.ld-media[data-ld-ratio] > svg,
+.ld-media[data-ld-ratio] > iframe,
+.ld-media[data-ld-ratio] > embed,
+.ld-media[data-ld-ratio] > object {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  border: 0;
+  object-fit: cover;
+}
+
+.ld-media[data-ld-fit='contain'] > img,
+.ld-media[data-ld-fit='contain'] > picture > img,
+.ld-media[data-ld-fit='contain'] > video {
+  object-fit: contain;
+}
+
+.ld-media[data-ld-ratio='1-1'] { aspect-ratio: 1 / 1; }
+.ld-media[data-ld-ratio='4-3'] { aspect-ratio: 4 / 3; }
+.ld-media[data-ld-ratio='3-2'] { aspect-ratio: 3 / 2; }
+.ld-media[data-ld-ratio='16-9'] { aspect-ratio: 16 / 9; }
+.ld-media[data-ld-ratio='21-9'] { aspect-ratio: 21 / 9; }
+.ld-media[data-ld-ratio='3-4'] { aspect-ratio: 3 / 4; }
+.ld-media[data-ld-ratio='2-3'] { aspect-ratio: 2 / 3; }
+.ld-media[data-ld-ratio='9-16'] { aspect-ratio: 9 / 16; }
+
+.ld-media[data-ld-rounded='none'] { border-radius: 0; }
+.ld-media[data-ld-rounded='sm'] { border-radius: var(--ld-border-radius-sm); }
+
+/* -- Video wrapper: an embed or <video> that keeps a consistent shape ---------
+   16:9 unless data-ld-ratio says otherwise. Same fill rules as ld-media, and the
+   frame is black behind the video while it loads. */
+.ld-video {
+  position: relative;
+  display: block;
+  margin: 0;
+  overflow: hidden;
+  aspect-ratio: 16 / 9;
+  background: #000;
+  border-radius: var(--ld-border-radius-lg);
+}
+
+.ld-video > iframe,
+.ld-video > video,
+.ld-video > embed,
+.ld-video > object {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  border: 0;
+}
+
+.ld-video[data-ld-ratio='1-1'] { aspect-ratio: 1 / 1; }
+.ld-video[data-ld-ratio='4-3'] { aspect-ratio: 4 / 3; }
+.ld-video[data-ld-ratio='3-2'] { aspect-ratio: 3 / 2; }
+.ld-video[data-ld-ratio='21-9'] { aspect-ratio: 21 / 9; }
+.ld-video[data-ld-ratio='9-16'] { aspect-ratio: 9 / 16; }
+.ld-video[data-ld-rounded='none'] { border-radius: 0; }
+
+/* -- Caption below the media -------------------------------------------------- */
+.ld-figure {
+  display: grid;
+  gap: var(--ld-space-2);
+  margin: 0;
+}
+
+.ld-figure > figcaption,
+.ld-caption {
+  font-size: var(--ld-text-sm);
+  color: var(--ld-text-muted);
+  line-height: var(--ld-line-height-tight);
+}
+
+/* -- Overlay and caption on top of the media -----------------------------------
+   Text on an image needs a scrim behind it to stay readable, so the overlay
+   draws a gradient (strength: --ld-opacity-overlay) and uses white text,
+   whatever the theme. data-ld-align: bottom (default) | center | top.
+   data-ld-show="hover": appears on hover or keyboard focus; on touch screens,
+   which cannot hover, it is always shown. */
+.ld-media-overlay,
+.ld-media-caption {
+  position: absolute;
+  inset-inline: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--ld-space-1);
+  padding: var(--ld-space-4);
+  color: #fff;
+  background: linear-gradient(to top, rgb(0 0 0 / var(--ld-opacity-overlay)), rgb(0 0 0 / 0));
+  pointer-events: none;
+}
+
+.ld-media-overlay :where(h1, h2, h3, h4, h5, h6, p) {
+  margin: 0;
+  color: inherit;
+}
+
+.ld-media-overlay a,
+.ld-media-overlay button {
+  pointer-events: auto;
+}
+
+.ld-media-caption {
+  bottom: 0;
+  padding-block: var(--ld-space-3);
+  font-size: var(--ld-text-sm);
+}
+
+.ld-media-overlay {
+  inset-block: 0;
+  justify-content: flex-end;
+}
+
+.ld-media-overlay[data-ld-align='center'] {
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  background: rgb(0 0 0 / var(--ld-opacity-overlay));
+}
+
+.ld-media-overlay[data-ld-align='top'] {
+  justify-content: flex-start;
+  background: linear-gradient(to bottom, rgb(0 0 0 / var(--ld-opacity-overlay)), rgb(0 0 0 / 0));
+}
+
+.ld-media-overlay[data-ld-show='hover'] {
+  opacity: 0;
+  transition: opacity var(--ld-transition);
+}
+
+.ld-media:hover > .ld-media-overlay[data-ld-show='hover'],
+.ld-media:focus-within > .ld-media-overlay[data-ld-show='hover'] {
+  opacity: 1;
+}
+
+@media (hover: none) {
+  .ld-media-overlay[data-ld-show='hover'] {
+    opacity: 1;
+  }
+}
+
+/* -- Masonry-like layout: items of different heights packed into columns --------
+   Works everywhere: the browser's multi-column layout. Column width is
+   --ld-masonry-min (14rem); the number of columns follows the space. Items
+   run down each column in order, not across (that is how columns work).
+   data-ld-cols="2-6" fixes the number of columns instead. Items should be
+   block elements (figure, article, a card) and are never split across columns.
+   Where the browser has true masonry (display: grid-lanes, or the older
+   grid-template-rows: masonry) that is used instead, and items then run
+   left to right. */
+.ld-masonry {
+  column-width: var(--ld-masonry-min, 14rem);
+  column-gap: var(--ld-layout-gap, var(--ld-space-4));
+}
+
+.ld-masonry[data-ld-cols='2'] { column-count: 2; column-width: auto; }
+.ld-masonry[data-ld-cols='3'] { column-count: 3; column-width: auto; }
+.ld-masonry[data-ld-cols='4'] { column-count: 4; column-width: auto; }
+.ld-masonry[data-ld-cols='5'] { column-count: 5; column-width: auto; }
+.ld-masonry[data-ld-cols='6'] { column-count: 6; column-width: auto; }
+
+.ld-masonry > * {
+  break-inside: avoid;
+  margin-block-end: var(--ld-layout-gap, var(--ld-space-4));
+}
+
+@supports (display: grid-lanes) {
+  .ld-masonry {
+    display: grid-lanes;
+    grid-template-columns: repeat(auto-fill, minmax(var(--ld-masonry-min, 14rem), 1fr));
+    column-width: auto;
+    column-count: auto;
+    gap: var(--ld-layout-gap, var(--ld-space-4));
+  }
+
+  .ld-masonry[data-ld-cols='2'] { grid-template-columns: repeat(2, 1fr); }
+  .ld-masonry[data-ld-cols='3'] { grid-template-columns: repeat(3, 1fr); }
+  .ld-masonry[data-ld-cols='4'] { grid-template-columns: repeat(4, 1fr); }
+  .ld-masonry[data-ld-cols='5'] { grid-template-columns: repeat(5, 1fr); }
+  .ld-masonry[data-ld-cols='6'] { grid-template-columns: repeat(6, 1fr); }
+
+  .ld-masonry > * {
+    margin-block-end: 0;
+  }
+}
+
+@supports (grid-template-rows: masonry) and (not (display: grid-lanes)) {
+  .ld-masonry {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(var(--ld-masonry-min, 14rem), 1fr));
+    grid-template-rows: masonry;
+    column-width: auto;
+    column-count: auto;
+    gap: var(--ld-layout-gap, var(--ld-space-4));
+  }
+
+  .ld-masonry[data-ld-cols='2'] { grid-template-columns: repeat(2, 1fr); }
+  .ld-masonry[data-ld-cols='3'] { grid-template-columns: repeat(3, 1fr); }
+  .ld-masonry[data-ld-cols='4'] { grid-template-columns: repeat(4, 1fr); }
+  .ld-masonry[data-ld-cols='5'] { grid-template-columns: repeat(5, 1fr); }
+  .ld-masonry[data-ld-cols='6'] { grid-template-columns: repeat(6, 1fr); }
+
+  .ld-masonry > * {
+    margin-block-end: 0;
+  }
+}
+
+/* -- Gallery: a tidy grid of equal tiles -----------------------------------------
+   Tiles are --ld-gallery-min wide at least (12rem), as many per row as fit,
+   all the same shape (data-ld-ratio on the gallery: 1-1 default, 4-3, 3-2,
+   16-9, 3-4). Put .ld-media tiles in it, or plain <img>/<a><img></a>.
+   data-ld-feature="first" makes the first tile twice as big. Tiles zoom a little
+   on hover (not with reduced motion); linked tiles show a focus ring. */
+.ld-gallery {
+  --ld-gallery-ratio: 1 / 1;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(var(--ld-gallery-min, 12rem), 100%), 1fr));
+  gap: var(--ld-layout-gap, var(--ld-space-3));
+}
+
+.ld-gallery[data-ld-ratio='4-3'] { --ld-gallery-ratio: 4 / 3; }
+.ld-gallery[data-ld-ratio='3-2'] { --ld-gallery-ratio: 3 / 2; }
+.ld-gallery[data-ld-ratio='16-9'] { --ld-gallery-ratio: 16 / 9; }
+.ld-gallery[data-ld-ratio='3-4'] { --ld-gallery-ratio: 3 / 4; }
+
+.ld-gallery > * {
+  aspect-ratio: var(--ld-gallery-ratio);
+  min-width: 0;
+}
+
+.ld-gallery > .ld-media {
+  aspect-ratio: var(--ld-gallery-ratio);
+}
+
+.ld-gallery img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform var(--ld-transition-slow);
+}
+
+.ld-gallery > a {
+  display: block;
+  overflow: hidden;
+  border-radius: var(--ld-border-radius-lg);
+}
+
+.ld-gallery > a:focus-visible {
+  outline-offset: 2px;
+}
+
+.ld-gallery > :hover img,
+.ld-gallery > :focus-within img {
+  transform: scale(1.04);
+}
+
+.ld-gallery[data-ld-feature='first'] > :first-child {
+  grid-column: span 2;
+  grid-row: span 2;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ld-gallery img {
+    transition: none;
+  }
+
+  .ld-gallery > :hover img,
+  .ld-gallery > :focus-within img {
+    transform: none;
   }
 }
 
@@ -6285,22 +6782,7 @@ html.ld-resizing iframe {
   max-width: 100%;
 }
 
-/* -- Aspect ratio -------------------------------------------------------------------- */
-.ld-aspect-square {
-  aspect-ratio: 1 / 1;
-}
-
-.ld-aspect-video {
-  aspect-ratio: 16 / 9;
-}
-
-.ld-aspect-4-3 {
-  aspect-ratio: 4 / 3;
-}
-
-.ld-aspect-3-2 {
-  aspect-ratio: 3 / 2;
-}
+/* Aspect-ratio utilities live in s38i (they used to be declared here too). */
 
 /* -- Link reset -----------------------------------------------------------------------
    Strip default <a> underline/color for building a custom brand mark, card-as-link,
@@ -7587,6 +8069,14 @@ html.ld-resizing iframe {
   aspect-ratio: 16 / 9;
 }
 
+.ld-aspect-4-3 {
+  aspect-ratio: 4 / 3;
+}
+
+.ld-aspect-3-2 {
+  aspect-ratio: 3 / 2;
+}
+
 .ld-aspect-portrait {
   aspect-ratio: 3 / 4;
 }
@@ -7620,47 +8110,98 @@ html.ld-resizing iframe {
 }
 
 
+/* generated by utilities/s38j-opacity-scale.gen.mjs */
 /* ==========================================================================
    38j. Opacity scale
    ========================================================================== */
 
 .ld-opacity-0 {
-  opacity: 0;
+  opacity: var(--ld-opacity-0);
+}
+
+.ld-opacity-5 {
+  opacity: var(--ld-opacity-5);
+}
+
+.ld-opacity-10 {
+  opacity: var(--ld-opacity-10);
+}
+
+.ld-opacity-20 {
+  opacity: var(--ld-opacity-20);
 }
 
 .ld-opacity-25 {
-  opacity: 0.25;
+  opacity: var(--ld-opacity-25);
+}
+
+.ld-opacity-30 {
+  opacity: var(--ld-opacity-30);
+}
+
+.ld-opacity-40 {
+  opacity: var(--ld-opacity-40);
 }
 
 .ld-opacity-50 {
-  opacity: 0.5;
+  opacity: var(--ld-opacity-50);
+}
+
+.ld-opacity-60 {
+  opacity: var(--ld-opacity-60);
+}
+
+.ld-opacity-70 {
+  opacity: var(--ld-opacity-70);
 }
 
 .ld-opacity-75 {
-  opacity: 0.75;
+  opacity: var(--ld-opacity-75);
+}
+
+.ld-opacity-80 {
+  opacity: var(--ld-opacity-80);
+}
+
+.ld-opacity-90 {
+  opacity: var(--ld-opacity-90);
+}
+
+.ld-opacity-95 {
+  opacity: var(--ld-opacity-95);
 }
 
 .ld-opacity-100 {
-  opacity: 1;
+  opacity: var(--ld-opacity-100);
 }
 
+.ld-opacity-disabled {
+  opacity: var(--ld-opacity-disabled);
+}
 
 /* ==========================================================================
    38k. Line-height utilities
    ========================================================================== */
 
 .ld-leading-tight {
-  line-height: var(--ld-leading-tight);
+  line-height: var(--ld-line-height-tight);
 }
 
 .ld-leading-normal {
-  line-height: var(--ld-leading-normal);
+  line-height: var(--ld-line-height-normal);
 }
 
 .ld-leading-relaxed {
-  line-height: var(--ld-leading-relaxed);
+  line-height: var(--ld-line-height-relaxed);
 }
 
+.ld-leading-none {
+  line-height: var(--ld-line-height-none);
+}
+
+.ld-leading-loose {
+  line-height: var(--ld-line-height-loose);
+}
 
 /* ==========================================================================
    38l. Motion utilities
@@ -10138,23 +10679,23 @@ html.ld-resizing iframe {
   }
   
   .ld-hover\:opacity-0:hover {
-    opacity: 0;
+    opacity: var(--ld-opacity-0);
   }
   
   .ld-hover\:opacity-25:hover {
-    opacity: 0.25;
+    opacity: var(--ld-opacity-25);
   }
   
   .ld-hover\:opacity-50:hover {
-    opacity: 0.5;
+    opacity: var(--ld-opacity-50);
   }
   
   .ld-hover\:opacity-75:hover {
-    opacity: 0.75;
+    opacity: var(--ld-opacity-75);
   }
   
   .ld-hover\:opacity-100:hover {
-    opacity: 1;
+    opacity: var(--ld-opacity-100);
   }
   
   .ld-hover\:shadow-none:hover {
@@ -10275,23 +10816,23 @@ html.ld-resizing iframe {
 }
 
 .ld-focus\:opacity-0:focus {
-  opacity: 0;
+  opacity: var(--ld-opacity-0);
 }
 
 .ld-focus\:opacity-25:focus {
-  opacity: 0.25;
+  opacity: var(--ld-opacity-25);
 }
 
 .ld-focus\:opacity-50:focus {
-  opacity: 0.5;
+  opacity: var(--ld-opacity-50);
 }
 
 .ld-focus\:opacity-75:focus {
-  opacity: 0.75;
+  opacity: var(--ld-opacity-75);
 }
 
 .ld-focus\:opacity-100:focus {
-  opacity: 1;
+  opacity: var(--ld-opacity-100);
 }
 
 .ld-focus\:shadow-none:focus {
@@ -10384,23 +10925,23 @@ html.ld-resizing iframe {
 }
 
 .ld-focus-visible\:opacity-0:focus-visible {
-  opacity: 0;
+  opacity: var(--ld-opacity-0);
 }
 
 .ld-focus-visible\:opacity-25:focus-visible {
-  opacity: 0.25;
+  opacity: var(--ld-opacity-25);
 }
 
 .ld-focus-visible\:opacity-50:focus-visible {
-  opacity: 0.5;
+  opacity: var(--ld-opacity-50);
 }
 
 .ld-focus-visible\:opacity-75:focus-visible {
-  opacity: 0.75;
+  opacity: var(--ld-opacity-75);
 }
 
 .ld-focus-visible\:opacity-100:focus-visible {
-  opacity: 1;
+  opacity: var(--ld-opacity-100);
 }
 
 .ld-focus-visible\:shadow-none:focus-visible {

@@ -87,6 +87,7 @@
     if (!list) return null;
     el = document.createElement('div');
     el.setAttribute('data-ld-combobox-' + kind, '');
+    el.setAttribute('data-ld-auto', '');
     if (kind === 'loading') {
       el.innerHTML = '<span class="ld-spinner" aria-hidden="true"></span> <span>Searching…</span>';
     } else if (kind === 'empty') {
@@ -551,7 +552,7 @@
     }
   }
 
-  document.addEventListener('keydown', function (e) {
+  delegate('keydown', function (e) {
     // second Escape on an already-closed combobox clears it
     if (e.key !== 'Escape') return;
     var box = e.target.closest && closestOf(e.target, '[data-ld-combobox]');
@@ -563,7 +564,7 @@
     }
   }, true);
 
-  document.addEventListener('click', function (e) {
+  delegate('click', function (e) {
     var retry = e.target.closest && closestOf(e.target, '[data-ld-combobox-retry]');
     if (retry) {
       var box = retry.closest('[data-ld-combobox]');
@@ -573,51 +574,72 @@
   });
 
   /* keep the input open/closed in step with the list when focus leaves */
-  document.addEventListener('focusin', function (e) {
+  delegate('focusin', function (e) {
     var box = e.target.closest && closestOf(e.target, '[data-ld-combobox]');
     document.querySelectorAll('[data-ld-combobox]').forEach(function (other) {
       if (other !== box) closeCombobox(other);
     });
   });
 
-  function initComboboxes(root) {
-    qsaSelf(root, '[data-ld-combobox]').forEach(function (box) {
-      var list = comboList(box), input = comboInput(box);
-      if (!list || !input) return;
-      var st = comboState(box);
-      if (!st.ready) {
-        st.ready = true;
-        input.setAttribute('role', 'combobox');
-        input.setAttribute('aria-autocomplete', 'list');
-        input.setAttribute('aria-haspopup', 'listbox');
-        input.setAttribute('aria-expanded', list.classList.contains('ld-show') ? 'true' : 'false');
-        input.setAttribute('aria-controls', ensureId(list, 'ld-listbox'));
-        if (!input.hasAttribute('autocomplete')) input.setAttribute('autocomplete', 'off');
-        list.setAttribute('role', 'listbox');
-        comboStatusRegion(box);
-        if (box.getAttribute('data-ld-source') || st.source) comboSetState(box, 'idle');
-        // a visible <label for> is the best name; fall back to the placeholder
-        if (!input.hasAttribute('aria-label') && !input.hasAttribute('aria-labelledby') && !(input.id && document.querySelector('label[for="' + input.id + '"]')) && !input.closest('label')) {
-          var fallback = input.getAttribute('placeholder');
-          if (fallback) input.setAttribute('aria-label', fallback);
-        }
-      }
-      Array.prototype.forEach.call(list.querySelectorAll('[data-ld-combobox-option]:not([role])'), function (o) {
-        o.setAttribute('role', 'option');
-        o.setAttribute('aria-selected', 'false');
-        ensureId(o, 'ld-opt');
-      });
-      var special = ['empty', 'loading', 'error'];
-      special.forEach(function (k) {
-        var el = box.querySelector('[data-ld-combobox-' + k + ']');
-        if (el && !el.hasAttribute('role')) el.setAttribute('role', 'presentation');
-      });
+  defineComponent('combobox', '[data-ld-combobox]', function (box) {
+    var list = comboList(box), input = comboInput(box);
+    if (!list || !input) return;
+    var st = comboState(box);
+    st.ready = true;
+    st.added = { role: !input.hasAttribute('role'), label: false, autocomplete: !input.hasAttribute('autocomplete'), listRole: !list.hasAttribute('role'), special: [] };
+    input.setAttribute('role', 'combobox');
+    input.setAttribute('aria-autocomplete', 'list');
+    input.setAttribute('aria-haspopup', 'listbox');
+    input.setAttribute('aria-expanded', list.classList.contains('ld-show') ? 'true' : 'false');
+    input.setAttribute('aria-controls', ensureId(list, 'ld-listbox'));
+    if (!input.hasAttribute('autocomplete')) input.setAttribute('autocomplete', 'off');
+    list.setAttribute('role', 'listbox');
+    comboStatusRegion(box);
+    if (box.getAttribute('data-ld-source') || st.source) comboSetState(box, 'idle');
+    // a visible <label for> is the best name; fall back to the placeholder
+    if (!input.hasAttribute('aria-label') && !input.hasAttribute('aria-labelledby') && !(input.id && document.querySelector('label[for="' + input.id + '"]')) && !input.closest('label')) {
+      var fallback = input.getAttribute('placeholder');
+      if (fallback) { input.setAttribute('aria-label', fallback); st.added.label = true; }
+    }
+    Array.prototype.forEach.call(list.querySelectorAll('[data-ld-combobox-option]:not([role])'), function (o) {
+      o.setAttribute('role', 'option');
+      o.setAttribute('aria-selected', 'false');
+      ensureId(o, 'ld-opt');
     });
-  }
+    ['empty', 'loading', 'error'].forEach(function (k) {
+      var el = box.querySelector('[data-ld-combobox-' + k + ']');
+      if (el && !el.hasAttribute('role')) el.setAttribute('role', 'presentation');
+    });
+  }, function (box) {
+    var list = comboList(box), input = comboInput(box), st = box._ld;
+    if (!st) return;
+    clearTimeout(st.timer);
+    if (st.controller) { st.controller.abort(); st.controller = null; }
+    st.seq++;
+    if (list) {
+      Array.prototype.forEach.call(list.querySelectorAll('[data-ld-rendered]'), function (n) { n.remove(); });
+      // the loading / empty / error rows ldcss created are removed; ones you wrote stay
+      ['loading', 'empty', 'error'].forEach(function (k) { var n = list.querySelector('[data-ld-combobox-' + k + '][data-ld-auto]'); if (n) n.remove(); });
+      list.classList.remove('ld-show');
+      list.removeAttribute('role');
+      list.removeAttribute('aria-busy');
+      list.removeAttribute('data-ld-stale');
+    }
+    if (input) {
+      ['aria-autocomplete', 'aria-haspopup', 'aria-expanded', 'aria-controls', 'aria-activedescendant', 'aria-busy'].forEach(function (a) { input.removeAttribute(a); });
+      if (st.added && st.added.role) input.removeAttribute('role');
+      if (st.added && st.added.label) input.removeAttribute('aria-label');
+    }
+    var status = box.querySelector('[data-ld-combobox-status]');
+    if (status) status.remove();
+    box.removeAttribute('data-ld-state');
+    // the source, renderer and items you configured stay, so reinit picks up where it was
+    st.ready = false;
+    st.cache = {};
+  }, { gate: true });
 
   function comboRef(el) { return typeof el === 'string' ? document.querySelector(el) : el; }
 
-  moduleInits.push(initComboboxes);
   window.ldcss.combobox = {
     source: function (el, fn) { var box = comboRef(el); comboState(box).source = fn; comboSetState(box, 'idle'); },
     render: function (el, fn) { comboState(comboRef(el)).renderer = fn; },

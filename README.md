@@ -84,8 +84,17 @@ ldcss.fuzzy.search('btn', items, { keys: ['name'] });
 ldcss.a11y.audit();
 ```
 
-Markup added after load is initialised automatically. See the cheat sheet's
-"JavaScript API & events" page.
+Markup added after load is initialised automatically, and markup that is removed is cleaned up. To
+control it yourself:
+
+```js
+ldcss.init('#panel');                    // set up the components inside #panel
+ldcss.destroy('#panel');                 // remove their listeners, observers and generated markup
+ldcss.reinit('#panel', 'table');         // just the table component, again, after replacing its rows
+ldcss.component('table').on('sort', fn); // same event names everywhere: ld:{component}:{event}
+```
+
+See the cheat sheet's "JavaScript API & events" page, section "Component lifecycle".
 
 ## Upgrading from 2.x
 

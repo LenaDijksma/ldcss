@@ -3,14 +3,21 @@
    ========================================================================== */
 
 .ld-leading-tight {
-  line-height: var(--ld-leading-tight);
+  line-height: var(--ld-line-height-tight);
 }
 
 .ld-leading-normal {
-  line-height: var(--ld-leading-normal);
+  line-height: var(--ld-line-height-normal);
 }
 
 .ld-leading-relaxed {
-  line-height: var(--ld-leading-relaxed);
+  line-height: var(--ld-line-height-relaxed);
 }
 
+.ld-leading-none {
+  line-height: var(--ld-line-height-none);
+}
+
+.ld-leading-loose {
+  line-height: var(--ld-line-height-loose);
+}

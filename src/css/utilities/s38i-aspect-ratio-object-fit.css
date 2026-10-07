@@ -10,6 +10,14 @@
   aspect-ratio: 16 / 9;
 }
 
+.ld-aspect-4-3 {
+  aspect-ratio: 4 / 3;
+}
+
+.ld-aspect-3-2 {
+  aspect-ratio: 3 / 2;
+}
+
 .ld-aspect-portrait {
   aspect-ratio: 3 / 4;
 }

@@ -48,7 +48,7 @@
   <aside class="ld-sidebar">
     <div class="ld-sidebar-header">
       <a href="index.html" class="ld-nav-brand" data-ld-mark="$">ldcss</a>
-      <span class="ld-badge" data-ld-variant="primary">v3.2.0</span>
+      <span class="ld-badge" data-ld-variant="primary">v3.3.0</span>
       <button class="ld-btn ld-sidebar-toggle" data-ld-size="sm" data-ld-variant="ghost" data-ld-toggle="navbar-collapse" data-ld-target="#side-menu" aria-controls="side-menu" aria-expanded="false">Menu</button>
     </div>
     <nav class="ld-sidebar-body" id="side-menu" aria-label="Cheat sheet pages">
@@ -187,12 +187,16 @@ ldcss.theme.set('auto');    // forget the choice, follow the OS again</pre>
           <tr><td>--ld-focus-ring, --ld-focus-border, --ld-code-text</td><td>Colour of the focus outline; the border colour of a focused field (the accent darkened toward the focus colour so it reaches 3:1 on every surface); code text.</td></tr>
           <tr><td>--ld-danger, --ld-success, --ld-warning, --ld-info (+ <code class="ld-code-inline">-text</code>)</td><td>Status colours and the readable text colour for each.</td></tr>
           <tr><td>--ld-shadow, --ld-shadow-lg, --ld-shadow-soft, --ld-shadow-soft-lg, --ld-shadow-color, --ld-shadow-offset</td><td>Elevation. The soft pair is what <code class="ld-code-inline">data-ld-shadow="soft"</code> points at; colour and offset belong to <code class="ld-code-inline">data-ld-shadow="hard"</code>.</td></tr>
-          <tr><td>--ld-radius</td><td>Corner radius for components.</td></tr>
+          <tr><td>--ld-radius, --ld-border-radius-sm, --ld-border-radius-lg</td><td>Corner radius for components (10px), and a smaller (half) and larger (double) step derived from it. Set all three on an element to change the radius for just that part of the page.</td></tr>
           <tr><td>--ld-space-{1-6,8}</td><td>Spacing scale: 4, 8, 12, 16, 24, 32, 48px. <code class="ld-code-inline">--ld-gutter</code> is one step of it used for layout gaps.</td></tr>
           <tr><td>--ld-text-{xs…4xl}, --ld-weight-{normal,medium,bold}, --ld-leading-{tight,normal,relaxed}</td><td>Type sizes, weights and line heights.</td></tr>
           <tr><td>--ld-font-sans, --ld-font-mono, --ld-font-family</td><td>Font stacks; <code class="ld-code-inline">--ld-font-family</code> is what text actually uses.</td></tr>
           <tr><td>--ld-z-{dropdown,popover,tooltip,modal,offcanvas,toast,command}</td><td>Stacking order of the overlay components.</td></tr>
-          <tr><td>--ld-transition</td><td>Default speed and easing (120ms ease) for hover and focus changes.</td></tr>
+          <tr><td>--ld-transition-fast, --ld-transition, --ld-transition-slow</td><td>Speed and easing for hover and focus changes: 80ms, 120ms and 240ms, all <code class="ld-code-inline">ease</code>. Use as <code class="ld-code-inline">transition: color var(--ld-transition-fast)</code>. <code class="ld-code-inline">--ld-duration-fast</code>, <code class="ld-code-inline">--ld-duration</code> and <code class="ld-code-inline">--ld-duration-slow</code> are the numbers alone.</td></tr>
+          <tr><td>--ld-content-width</td><td>Widest the content column gets (1320px). <code class="ld-code-inline">ld-container</code> stops growing here, and so do other layouts that use it.</td></tr>
+          <tr><td>--ld-line-height-{none,tight,normal,relaxed,loose}</td><td>Line heights: 1, 1.25, 1.6, 1.75, 2. Headings use <code class="ld-code-inline">tight</code>, body text <code class="ld-code-inline">normal</code>. The older <code class="ld-code-inline">--ld-leading-{tight,normal,relaxed}</code> names still work and follow these.</td></tr>
+          <tr><td>--ld-opacity-{0,5,10,20,25,30,40,50,60,70,75,80,90,95,100}</td><td>Opacity scale from 0 to 1. <code class="ld-code-inline">ld-opacity-N</code> reads the matching token, so changing a token changes every use of it.</td></tr>
+          <tr><td>--ld-opacity-disabled, --ld-opacity-overlay</td><td>Opacity of a control that cannot be used right now (0.5), and how dark the scrim behind text on an image is (0.6).</td></tr>
           <tr><td>--ld-sidebar-width</td><td>Width of the <code class="ld-code-inline">ld-shell</code> sidebar column (15rem).</td></tr>
         </tbody>
       </table>
@@ -265,6 +269,54 @@ ldcss.theme.set('auto');    // forget the choice, follow the OS again</pre>
           <tr><td><code class="ld-code-inline">ld-hero</code>, <code class="ld-code-inline">data-ld-size</code>: sm</td><td>New in v3.0.0 — page header block; <code class="ld-code-inline">sm</code> is the compact version</td></tr>
           <tr><td><code class="ld-code-inline">ld-section</code>, <code class="ld-code-inline">ld-section-title</code>, <code class="ld-code-inline">ld-section-sub</code>, <code class="ld-code-inline">data-ld-size</code>: sm</td><td>New in v3.0.0 — a page section with a top hairline, title and optional one-line subtitle</td></tr>
           <tr><td><code class="ld-code-inline">ld-footer</code></td><td>New in v2.4.0 — bottom counterpart to <code class="ld-code-inline">ld-nav</code>: same padding/surface, <code class="ld-code-inline">border-top</code> instead of <code class="ld-code-inline">border-bottom</code>. Pair with <code class="ld-code-inline">ld-shadow-up*</code> for a lift instead of (or alongside) the border</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+  <section class="ld-section" data-ld-size="sm" id="primitives" data-cs-section>
+    <h2 class="ld-section-title">Layout primitives <a class="cs-anchor" href="#/layout/primitives" aria-label="Link to Layout primitives">#</a></h2>
+    <p class="ld-section-sub">Boxes that arrange themselves without media queries</p>
+    <div class="cs-prose"><p>These four react to the space they are given, not to the window, so the same markup works in a wide page, a narrow column or inside a card. Set the gap with <code class="ld-code-inline">data-ld-gap="0-6|8"</code> (a spacing step) or <code class="ld-code-inline">--ld-layout-gap</code> (any length).</p><p><code class="ld-code-inline">ld-cluster</code> is inline things that wrap with one gap (tags, buttons, links). <code class="ld-code-inline">ld-sidebar-layout</code> puts content next to a sidebar that is only as wide as it needs to be, and stacks them when the content would get squeezed. <code class="ld-code-inline">ld-switcher</code> lays children side by side while they fit and stacks them below a width. <code class="ld-code-inline">ld-cover</code> centres one child in an area of a chosen height.</p></div>
+    <pre class="ld-code" tabindex="0">&lt;div class="ld-cluster" data-ld-gap="2" data-ld-justify="between"&gt; …tags or buttons… &lt;/div&gt;
+
+&lt;div class="ld-sidebar-layout" style="--ld-side-width: 14rem"&gt;
+  &lt;aside&gt;Sidebar, first child&lt;/aside&gt;
+  &lt;main&gt;Content&lt;/main&gt;
+&lt;/div&gt;
+
+&lt;div class="ld-switcher" data-ld-threshold="md" data-ld-limit="3"&gt; …cards… &lt;/div&gt;
+
+&lt;section class="ld-cover" style="--ld-cover-height: 60vh"&gt;
+  &lt;header&gt;Top&lt;/header&gt;
+  &lt;div data-ld-centered&gt;In the middle&lt;/div&gt;
+  &lt;footer&gt;Bottom&lt;/footer&gt;
+&lt;/section&gt;</pre>
+    <div class="cs-demo" role="group" aria-label="Live example">
+      <p class="cs-demo-label">Live example</p>
+<p class="cs-demo-label">ld-cluster</p>
+<div class="ld-cluster" data-ld-gap="2"><span class="ld-badge">design</span><span class="ld-badge">tokens</span><span class="ld-badge">accessibility</span><span class="ld-badge">no build step</span><span class="ld-badge">dark mode</span><span class="ld-badge">tables</span><span class="ld-badge">search</span><span class="ld-badge">media</span></div>
+<p class="cs-demo-label ld-mar-t-4">ld-sidebar-layout (resize the window: the sidebar stacks on top when the content would be squeezed)</p>
+<div class="ld-sidebar-layout" style="--ld-side-width: 11rem"><aside class="ld-card">Sidebar</aside><div class="ld-card">Content takes the rest of the row. Wrap it in whatever you like.</div></div>
+<p class="cs-demo-label ld-mar-t-4">ld-switcher (three across, one column below 30rem of width)</p>
+<div class="ld-switcher"><div class="ld-card">One</div><div class="ld-card">Two</div><div class="ld-card">Three</div></div>
+<p class="cs-demo-label ld-mar-t-4">ld-cover (--ld-cover-height: 9rem)</p>
+<div class="ld-cover ld-card" style="--ld-cover-height: 9rem"><span class="ld-text-muted ld-text-sm">header</span><strong data-ld-centered>Centred in the area</strong><span class="ld-text-muted ld-text-sm">footer</span></div>
+    </div>
+    <div class="ld-table-wrap" role="region" tabindex="0" aria-label="Layout primitives reference">
+      <table class="ld-table" data-ld-striped="true">
+        <thead><tr><th scope="col">Class / attribute</th><th scope="col">What it does</th></tr></thead>
+        <tbody>
+          <tr><td>ld-cluster</td><td>Flex row that wraps, with one gap, vertically centred.</td></tr>
+          <tr><td>data-ld-justify, data-ld-align</td><td>On <code class="ld-code-inline">ld-cluster</code>: <code class="ld-code-inline">start</code> · <code class="ld-code-inline">center</code> · <code class="ld-code-inline">end</code> · <code class="ld-code-inline">between</code>; and <code class="ld-code-inline">center</code> · <code class="ld-code-inline">start</code> · <code class="ld-code-inline">end</code> · <code class="ld-code-inline">baseline</code> · <code class="ld-code-inline">stretch</code>.</td></tr>
+          <tr><td>ld-sidebar-layout</td><td>The first child is the sidebar, the last is the content. The sidebar is as wide as its content (or <code class="ld-code-inline">--ld-side-width</code>); the content takes the rest and never gets narrower than <code class="ld-code-inline">--ld-content-min</code> (50%), below which they stack.</td></tr>
+          <tr><td>data-ld-side="end"</td><td>The sidebar is the last child instead, so the markup can stay content first.</td></tr>
+          <tr><td>--ld-side-width, --ld-content-min</td><td>Ideal sidebar width, and the narrowest the content may get before wrapping.</td></tr>
+          <tr><td>ld-switcher</td><td>Children share the row equally. Row while the box is wider than <code class="ld-code-inline">--ld-threshold</code> (30rem), column otherwise.</td></tr>
+          <tr><td>data-ld-threshold</td><td><code class="ld-code-inline">xs</code> · <code class="ld-code-inline">sm</code> · <code class="ld-code-inline">md</code> · <code class="ld-code-inline">lg</code> · <code class="ld-code-inline">xl</code> = 20 · 30 · 40 · 50 · 60rem. Or set <code class="ld-code-inline">--ld-threshold</code> to any length.</td></tr>
+          <tr><td>data-ld-limit="2-6"</td><td>On <code class="ld-code-inline">ld-switcher</code>: with more children than this, always stack.</td></tr>
+          <tr><td>data-ld-align="start|center|end"</td><td>On <code class="ld-code-inline">ld-switcher</code>: by default children are as tall as the tallest; use this when they have shapes of their own, such as images with a ratio.</td></tr>
+          <tr><td>ld-cover</td><td>A column at least <code class="ld-code-inline">--ld-cover-height</code> tall (the viewport by default). The child with <code class="ld-code-inline">data-ld-centered</code> (or <code class="ld-code-inline">ld-cover-centered</code>) sits in the middle; earlier children stay at the top, later ones at the bottom.</td></tr>
+          <tr><td>data-ld-gap, --ld-layout-gap</td><td>Gap for all four: spacing step <code class="ld-code-inline">0</code>-<code class="ld-code-inline">6</code> or <code class="ld-code-inline">8</code>, or any length through the custom property.</td></tr>
         </tbody>
       </table>
     </div>
@@ -372,7 +424,7 @@ ldcss.theme.set('auto');    // forget the choice, follow the OS again</pre>
           <tr><td><code class="ld-code-inline">ld-tracking-wide</code></td><td>letter-spacing: 0.05em</td></tr>
           <tr><td><code class="ld-code-inline">ld-truncate</code></td><td>Single-line ellipsis</td></tr>
           <tr><td><code class="ld-code-inline">ld-line-clamp-*</code></td><td>2·3 — Multi-line ellipsis</td></tr>
-          <tr><td><code class="ld-code-inline">ld-leading-{tight,normal,relaxed}</code></td><td>Line-height, maps to new <code class="ld-code-inline">--ld-leading-*</code> tokens</td></tr>
+          <tr><td>ld-leading-{none,tight,normal,relaxed,loose}</td><td>Line height from the <code class="ld-code-inline">--ld-line-height-*</code> tokens: 1, 1.25, 1.6, 1.75, 2.</td></tr>
           <tr><td>ld-underline, ld-no-underline</td><td>Text decoration. Pair <code class="ld-code-inline">ld-no-underline</code> with <code class="ld-code-inline">ld-hover:underline</code> for links that underline on hover.</td></tr>
         </tbody>
       </table>
@@ -388,7 +440,7 @@ ldcss.theme.set('auto');    // forget the choice, follow the OS again</pre>
         <tbody>
           <tr><td><code class="ld-code-inline">ld-text-*</code></td><td>muted·accent·danger — Text color</td></tr>
           <tr><td><code class="ld-code-inline">ld-bg-*</code></td><td>surface·raised·transparent·accent·danger·success·warning·info — Background color. The last five (new in v2.4.0) read the same semantic tokens as their <code class="ld-code-inline">ld-text-*</code>/border counterparts</td></tr>
-          <tr><td><code class="ld-code-inline">ld-opacity-{0,25,50,75,100}</code></td><td>Opacity scale</td></tr>
+          <tr><td>ld-opacity-{0,5,10,20,25,30,40,50,60,70,75,80,90,95,100}, ld-opacity-disabled</td><td>Opacity from the <code class="ld-code-inline">--ld-opacity-*</code> tokens. Pair with <code class="ld-code-inline">ld-hover:opacity-*</code> for fade effects.</td></tr>
         </tbody>
       </table>
     </div>
@@ -707,6 +759,145 @@ ldcss.theme.set('auto');    // forget the choice, follow the OS again</pre>
           <tr><td><code class="ld-code-inline">ld-avatar</code>, <code class="ld-code-inline">data-ld-size</code>, <code class="ld-code-inline">data-ld-variant</code></td><td>Values: size: sm·lg; variant: accent</td></tr>
           <tr><td><code class="ld-code-inline">ld-kbd</code></td><td>Keyboard key badge</td></tr>
           <tr><td><code class="ld-code-inline">ld-icon</code>, <code class="ld-code-inline">ld-icon-sm</code>, <code class="ld-code-inline">ld-icon-lg</code></td><td>Sizing convention for inline SVGs (1em by default, tracks surrounding font-size) — not an icon set; bring your own SVG with <code class="ld-code-inline">stroke="currentColor"</code></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+</article>
+
+<article class="cs-page" id="page-media" data-cs-page="media" data-title="Media &amp; galleries" data-group="Components">
+  <header class="ld-hero" data-ld-size="sm">
+    <p class="cs-kicker">Components</p>
+    <h1 tabindex="-1">Media &amp; galleries</h1>
+    <p class="ld-text-muted">Images, video, captions, overlays, masonry and galleries. CSS only.</p>
+  </header>
+  <section class="ld-section" data-ld-size="sm" id="images" data-cs-section>
+    <h2 class="ld-section-title">Images and fixed-shape wrappers <a class="cs-anchor" href="#/media/images" aria-label="Link to Images and fixed-shape wrappers">#</a></h2>
+    <p class="ld-section-sub">Fluid images, and boxes that keep a shape</p>
+    <div class="cs-prose"><p><code class="ld-code-inline">ld-img</code> makes an image fluid: never wider than its box, keeping its own proportions. <code class="ld-code-inline">ld-media</code> is a wrapper with a fixed shape (<code class="ld-code-inline">data-ld-ratio</code>) whose image, <code class="ld-code-inline">&lt;picture&gt;</code>, <code class="ld-code-inline">&lt;video&gt;</code> or <code class="ld-code-inline">&lt;iframe&gt;</code> fills it and is cropped rather than stretched. <code class="ld-code-inline">data-ld-fit="contain"</code> shows the whole image instead. Without a ratio the wrapper takes the media's own shape. Always give images an <code class="ld-code-inline">alt</code> (empty when decorative) and <code class="ld-code-inline">loading="lazy"</code> below the fold.</p></div>
+    <pre class="ld-code" tabindex="0">&lt;img class="ld-img" src="photo.jpg" alt="…" loading="lazy"&gt;
+
+&lt;figure class="ld-media" data-ld-ratio="16-9"&gt;
+  &lt;img src="photo.jpg" alt="…" loading="lazy"&gt;
+&lt;/figure&gt;</pre>
+    <div class="cs-demo" role="group" aria-label="Live example">
+      <p class="cs-demo-label">Live example</p>
+<div class="ld-switcher" data-ld-threshold="md" data-ld-align="start">
+  <figure class="ld-media" data-ld-ratio="16-9"><img src="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20width%3D%22100%22%20height%3D%22100%22%20viewBox%3D%220%200%20100%20100%22%3E%3Cdefs%3E%3ClinearGradient%20id%3D%22g%22%20x1%3D%220%22%20y1%3D%220%22%20x2%3D%221%22%20y2%3D%221%22%3E%3Cstop%20offset%3D%220%22%20stop-color%3D%22%232563eb%22/%3E%3Cstop%20offset%3D%221%22%20stop-color%3D%22%237c3aed%22/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect%20width%3D%22100%22%20height%3D%22100%22%20fill%3D%22url%28%23g%29%22/%3E%3Ctext%20x%3D%2250%25%22%20y%3D%2250%25%22%20fill%3D%22white%22%20font-family%3D%22sans-serif%22%20font-size%3D%2214%22%20text-anchor%3D%22middle%22%20dominant-baseline%3D%22middle%22%3E1%3A1%20cropped%20to%2016%3A9%3C/text%3E%3C/svg%3E" alt="A square image cropped to 16:9"></figure>
+  <figure class="ld-media" data-ld-ratio="16-9" data-ld-fit="contain"><img src="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20width%3D%22100%22%20height%3D%22100%22%20viewBox%3D%220%200%20100%20100%22%3E%3Cdefs%3E%3ClinearGradient%20id%3D%22g%22%20x1%3D%220%22%20y1%3D%220%22%20x2%3D%221%22%20y2%3D%221%22%3E%3Cstop%20offset%3D%220%22%20stop-color%3D%22%23f5741e%22/%3E%3Cstop%20offset%3D%221%22%20stop-color%3D%22%23e11d48%22/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect%20width%3D%22100%22%20height%3D%22100%22%20fill%3D%22url%28%23g%29%22/%3E%3Ctext%20x%3D%2250%25%22%20y%3D%2250%25%22%20fill%3D%22white%22%20font-family%3D%22sans-serif%22%20font-size%3D%2214%22%20text-anchor%3D%22middle%22%20dominant-baseline%3D%22middle%22%3Econtain%3C/text%3E%3C/svg%3E" alt="The same square image shown whole"></figure>
+  <figure class="ld-media" data-ld-ratio="3-4"><img src="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20width%3D%22300%22%20height%3D%22400%22%20viewBox%3D%220%200%20300%20400%22%3E%3Cdefs%3E%3ClinearGradient%20id%3D%22g%22%20x1%3D%220%22%20y1%3D%220%22%20x2%3D%221%22%20y2%3D%221%22%3E%3Cstop%20offset%3D%220%22%20stop-color%3D%22%23059669%22/%3E%3Cstop%20offset%3D%221%22%20stop-color%3D%22%230ea5e9%22/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect%20width%3D%22300%22%20height%3D%22400%22%20fill%3D%22url%28%23g%29%22/%3E%3Ctext%20x%3D%2250%25%22%20y%3D%2250%25%22%20fill%3D%22white%22%20font-family%3D%22sans-serif%22%20font-size%3D%2230%22%20text-anchor%3D%22middle%22%20dominant-baseline%3D%22middle%22%3E3%3A4%3C/text%3E%3C/svg%3E" alt="A portrait image"></figure>
+</div>
+    </div>
+    <div class="ld-table-wrap" role="region" tabindex="0" aria-label="Images and fixed-shape wrappers reference">
+      <table class="ld-table" data-ld-striped="true">
+        <thead><tr><th scope="col">Class / attribute</th><th scope="col">What it does</th></tr></thead>
+        <tbody>
+          <tr><td>ld-img</td><td>Fluid image: <code class="ld-code-inline">max-width: 100%; height: auto; display: block</code>. <code class="ld-code-inline">data-ld-rounded</code> (or <code class="ld-code-inline">sm</code>, <code class="ld-code-inline">full</code>) rounds it.</td></tr>
+          <tr><td>ld-media</td><td>Wrapper with a rounded, clipped box and a quiet background while loading. Children (<code class="ld-code-inline">img</code>, <code class="ld-code-inline">picture</code>, <code class="ld-code-inline">video</code>, <code class="ld-code-inline">canvas</code>, <code class="ld-code-inline">svg</code>) fill the width.</td></tr>
+          <tr><td>data-ld-ratio</td><td>On <code class="ld-code-inline">ld-media</code> or <code class="ld-code-inline">ld-video</code>: <code class="ld-code-inline">1-1</code> · <code class="ld-code-inline">4-3</code> · <code class="ld-code-inline">3-2</code> · <code class="ld-code-inline">16-9</code> · <code class="ld-code-inline">21-9</code> · <code class="ld-code-inline">3-4</code> · <code class="ld-code-inline">2-3</code> · <code class="ld-code-inline">9-16</code>. Media then fills and crops to the box.</td></tr>
+          <tr><td>data-ld-fit="contain"</td><td>Show the whole image inside the shape instead of cropping it.</td></tr>
+          <tr><td>data-ld-rounded="none|sm"</td><td>On <code class="ld-code-inline">ld-media</code>: square corners or the small radius.</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+  <section class="ld-section" data-ld-size="sm" id="video" data-cs-section>
+    <h2 class="ld-section-title">Video and embeds <a class="cs-anchor" href="#/media/video" aria-label="Link to Video and embeds">#</a></h2>
+    <p class="ld-section-sub">Consistent aspect ratios</p>
+    <div class="cs-prose"><p><code class="ld-code-inline">ld-video</code> is a 16:9 box (a different one with <code class="ld-code-inline">data-ld-ratio</code>) that an <code class="ld-code-inline">&lt;iframe&gt;</code> or <code class="ld-code-inline">&lt;video&gt;</code> fills completely, so an embed keeps its shape at every width instead of collapsing to 150px tall. The frame is black behind it while it loads. Give iframes a <code class="ld-code-inline">title</code>.</p></div>
+    <pre class="ld-code" tabindex="0">&lt;div class="ld-video"&gt;
+  &lt;iframe src="https://www.youtube-nocookie.com/embed/…" title="Talk recording" allowfullscreen&gt;&lt;/iframe&gt;
+&lt;/div&gt;
+&lt;div class="ld-video" data-ld-ratio="4-3"&gt;&lt;video controls src="clip.mp4"&gt;&lt;/video&gt;&lt;/div&gt;</pre>
+    <div class="ld-table-wrap" role="region" tabindex="0" aria-label="Video and embeds reference">
+      <table class="ld-table" data-ld-striped="true">
+        <thead><tr><th scope="col">Class / attribute</th><th scope="col">What it does</th></tr></thead>
+        <tbody>
+          <tr><td>ld-video</td><td>16:9 box; <code class="ld-code-inline">iframe</code>, <code class="ld-code-inline">video</code>, <code class="ld-code-inline">embed</code> and <code class="ld-code-inline">object</code> children fill it with no border.</td></tr>
+          <tr><td>data-ld-ratio</td><td><code class="ld-code-inline">1-1</code> · <code class="ld-code-inline">4-3</code> · <code class="ld-code-inline">3-2</code> · <code class="ld-code-inline">21-9</code> · <code class="ld-code-inline">9-16</code>, or leave it for 16:9.</td></tr>
+          <tr><td>ld-aspect-{square,video,4-3,3-2,portrait,wide}</td><td>The plain aspect-ratio utilities, for anything else.</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+  <section class="ld-section" data-ld-size="sm" id="captions" data-cs-section>
+    <h2 class="ld-section-title">Captions and overlays <a class="cs-anchor" href="#/media/captions" aria-label="Link to Captions and overlays">#</a></h2>
+    <p class="ld-section-sub">Text with or on top of an image</p>
+    <div class="cs-prose"><p>A caption below the image: wrap the <code class="ld-code-inline">ld-media</code> and a <code class="ld-code-inline">&lt;figcaption&gt;</code> in <code class="ld-code-inline">ld-figure</code>. A caption or overlay on top of the image: put <code class="ld-code-inline">ld-media-caption</code> or <code class="ld-code-inline">ld-media-overlay</code> inside the <code class="ld-code-inline">ld-media</code>. Text on an image needs something behind it to stay readable, so both draw a dark gradient (strength <code class="ld-code-inline">--ld-opacity-overlay</code>) and use white text in every theme. <code class="ld-code-inline">data-ld-show="hover"</code> shows an overlay on hover and keyboard focus; touch screens, which cannot hover, always show it.</p></div>
+    <pre class="ld-code" tabindex="0">&lt;figure class="ld-figure"&gt;
+  &lt;div class="ld-media" data-ld-ratio="1-1"&gt;&lt;img src="a.jpg" alt="…"&gt;&lt;/div&gt;
+  &lt;figcaption&gt;Caption below&lt;/figcaption&gt;
+&lt;/figure&gt;
+
+&lt;figure class="ld-media" data-ld-ratio="4-3"&gt;
+  &lt;img src="a.jpg" alt="…"&gt;
+  &lt;div class="ld-media-overlay" data-ld-show="hover"&gt;
+    &lt;h3&gt;Title&lt;/h3&gt;&lt;p&gt;Shown on hover or focus&lt;/p&gt;
+  &lt;/div&gt;
+&lt;/figure&gt;</pre>
+    <div class="cs-demo" role="group" aria-label="Live example">
+      <p class="cs-demo-label">Live example</p>
+<div class="ld-switcher" data-ld-threshold="md" data-ld-align="start">
+  <figure class="ld-figure"><div class="ld-media" data-ld-ratio="4-3"><img src="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20width%3D%22400%22%20height%3D%22300%22%20viewBox%3D%220%200%20400%20300%22%3E%3Cdefs%3E%3ClinearGradient%20id%3D%22g%22%20x1%3D%220%22%20y1%3D%220%22%20x2%3D%221%22%20y2%3D%221%22%3E%3Cstop%20offset%3D%220%22%20stop-color%3D%22%23a855f7%22/%3E%3Cstop%20offset%3D%221%22%20stop-color%3D%22%23ec4899%22/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect%20width%3D%22400%22%20height%3D%22300%22%20fill%3D%22url%28%23g%29%22/%3E%3Ctext%20x%3D%2250%25%22%20y%3D%2250%25%22%20fill%3D%22white%22%20font-family%3D%22sans-serif%22%20font-size%3D%2240%22%20text-anchor%3D%22middle%22%20dominant-baseline%3D%22middle%22%3Ebelow%3C/text%3E%3C/svg%3E" alt="Sample"></div><figcaption>A caption below the image</figcaption></figure>
+  <figure class="ld-media" data-ld-ratio="4-3"><img src="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20width%3D%22400%22%20height%3D%22300%22%20viewBox%3D%220%200%20400%20300%22%3E%3Cdefs%3E%3ClinearGradient%20id%3D%22g%22%20x1%3D%220%22%20y1%3D%220%22%20x2%3D%221%22%20y2%3D%221%22%3E%3Cstop%20offset%3D%220%22%20stop-color%3D%22%23475569%22/%3E%3Cstop%20offset%3D%221%22%20stop-color%3D%22%230f172a%22/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect%20width%3D%22400%22%20height%3D%22300%22%20fill%3D%22url%28%23g%29%22/%3E%3Ctext%20x%3D%2250%25%22%20y%3D%2250%25%22%20fill%3D%22white%22%20font-family%3D%22sans-serif%22%20font-size%3D%2240%22%20text-anchor%3D%22middle%22%20dominant-baseline%3D%22middle%22%3Ecaption%3C/text%3E%3C/svg%3E" alt="Sample"><figcaption class="ld-media-caption">A caption on the image</figcaption></figure>
+  <figure class="ld-media" data-ld-ratio="4-3"><img src="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20width%3D%22400%22%20height%3D%22300%22%20viewBox%3D%220%200%20400%20300%22%3E%3Cdefs%3E%3ClinearGradient%20id%3D%22g%22%20x1%3D%220%22%20y1%3D%220%22%20x2%3D%221%22%20y2%3D%221%22%3E%3Cstop%20offset%3D%220%22%20stop-color%3D%22%23ca8a04%22/%3E%3Cstop%20offset%3D%221%22%20stop-color%3D%22%23ea580c%22/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect%20width%3D%22400%22%20height%3D%22300%22%20fill%3D%22url%28%23g%29%22/%3E%3Ctext%20x%3D%2250%25%22%20y%3D%2250%25%22%20fill%3D%22white%22%20font-family%3D%22sans-serif%22%20font-size%3D%2240%22%20text-anchor%3D%22middle%22%20dominant-baseline%3D%22middle%22%3Ehover%20me%3C/text%3E%3C/svg%3E" alt="Sample"><div class="ld-media-overlay" data-ld-show="hover"><h3>Overlay</h3><p>Shown on hover and focus</p></div></figure>
+</div>
+    </div>
+    <div class="ld-table-wrap" role="region" tabindex="0" aria-label="Captions and overlays reference">
+      <table class="ld-table" data-ld-striped="true">
+        <thead><tr><th scope="col">Class / attribute</th><th scope="col">What it does</th></tr></thead>
+        <tbody>
+          <tr><td>ld-figure</td><td>Figure with the media and a caption stacked; <code class="ld-code-inline">figcaption</code> (or <code class="ld-code-inline">ld-caption</code>) is small and muted.</td></tr>
+          <tr><td>ld-media-caption</td><td>Caption laid over the bottom of an <code class="ld-code-inline">ld-media</code>, on a gradient.</td></tr>
+          <tr><td>ld-media-overlay</td><td>Fills the media with a gradient and holds any content; links and buttons inside stay clickable.</td></tr>
+          <tr><td>data-ld-align</td><td>On <code class="ld-code-inline">ld-media-overlay</code>: <code class="ld-code-inline">bottom</code> (default), <code class="ld-code-inline">center</code> (with an even scrim) or <code class="ld-code-inline">top</code>.</td></tr>
+          <tr><td>data-ld-show="hover"</td><td>Overlay is hidden until hover or focus within; always visible on devices that cannot hover.</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+  <section class="ld-section" data-ld-size="sm" id="masonry" data-cs-section>
+    <h2 class="ld-section-title">Masonry-like layout <a class="cs-anchor" href="#/media/masonry" aria-label="Link to Masonry-like layout">#</a></h2>
+    <p class="ld-section-sub">Items of different heights packed into columns</p>
+    <div class="cs-prose"><p><code class="ld-code-inline">ld-masonry</code> uses the browser's multi-column layout, so it works everywhere with no JavaScript: columns are <code class="ld-code-inline">--ld-masonry-min</code> wide (14rem) and their number follows the space. Items run down each column in order, not across, which is how columns work. Where the browser supports real masonry (<code class="ld-code-inline">display: grid-lanes</code>, or the older <code class="ld-code-inline">grid-template-rows: masonry</code>) that is used instead and items run left to right; I could only test the columns version, since the browser used for testing had neither.</p></div>
+    <pre class="ld-code" tabindex="0">&lt;div class="ld-masonry" style="--ld-masonry-min: 12rem"&gt;
+  &lt;figure class="ld-media"&gt;&lt;img src="a.jpg" alt="…"&gt;&lt;/figure&gt;
+  &lt;figure class="ld-media"&gt;&lt;img src="b.jpg" alt="…"&gt;&lt;/figure&gt;
+&lt;/div&gt;</pre>
+    <div class="cs-demo" role="group" aria-label="Live example">
+      <p class="cs-demo-label">Live example</p>
+<div class="ld-masonry" data-ld-cols="3"><figure class="ld-media"><img src="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20width%3D%22400%22%20height%3D%22300%22%20viewBox%3D%220%200%20400%20300%22%3E%3Cdefs%3E%3ClinearGradient%20id%3D%22g%22%20x1%3D%220%22%20y1%3D%220%22%20x2%3D%221%22%20y2%3D%221%22%3E%3Cstop%20offset%3D%220%22%20stop-color%3D%22%232563eb%22/%3E%3Cstop%20offset%3D%221%22%20stop-color%3D%22%237c3aed%22/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect%20width%3D%22400%22%20height%3D%22300%22%20fill%3D%22url%28%23g%29%22/%3E%3Ctext%20x%3D%2250%25%22%20y%3D%2250%25%22%20fill%3D%22white%22%20font-family%3D%22sans-serif%22%20font-size%3D%2240%22%20text-anchor%3D%22middle%22%20dominant-baseline%3D%22middle%22%3E1%3C/text%3E%3C/svg%3E" alt="Sample 1"></figure><figure class="ld-media"><img src="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20width%3D%22400%22%20height%3D%22420%22%20viewBox%3D%220%200%20400%20420%22%3E%3Cdefs%3E%3ClinearGradient%20id%3D%22g%22%20x1%3D%220%22%20y1%3D%220%22%20x2%3D%221%22%20y2%3D%221%22%3E%3Cstop%20offset%3D%220%22%20stop-color%3D%22%23f5741e%22/%3E%3Cstop%20offset%3D%221%22%20stop-color%3D%22%23e11d48%22/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect%20width%3D%22400%22%20height%3D%22420%22%20fill%3D%22url%28%23g%29%22/%3E%3Ctext%20x%3D%2250%25%22%20y%3D%2250%25%22%20fill%3D%22white%22%20font-family%3D%22sans-serif%22%20font-size%3D%2240%22%20text-anchor%3D%22middle%22%20dominant-baseline%3D%22middle%22%3E2%3C/text%3E%3C/svg%3E" alt="Sample 2"></figure><figure class="ld-media"><img src="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20width%3D%22400%22%20height%3D%22260%22%20viewBox%3D%220%200%20400%20260%22%3E%3Cdefs%3E%3ClinearGradient%20id%3D%22g%22%20x1%3D%220%22%20y1%3D%220%22%20x2%3D%221%22%20y2%3D%221%22%3E%3Cstop%20offset%3D%220%22%20stop-color%3D%22%23059669%22/%3E%3Cstop%20offset%3D%221%22%20stop-color%3D%22%230ea5e9%22/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect%20width%3D%22400%22%20height%3D%22260%22%20fill%3D%22url%28%23g%29%22/%3E%3Ctext%20x%3D%2250%25%22%20y%3D%2250%25%22%20fill%3D%22white%22%20font-family%3D%22sans-serif%22%20font-size%3D%2240%22%20text-anchor%3D%22middle%22%20dominant-baseline%3D%22middle%22%3E3%3C/text%3E%3C/svg%3E" alt="Sample 3"></figure><figure class="ld-media"><img src="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20width%3D%22400%22%20height%3D%22380%22%20viewBox%3D%220%200%20400%20380%22%3E%3Cdefs%3E%3ClinearGradient%20id%3D%22g%22%20x1%3D%220%22%20y1%3D%220%22%20x2%3D%221%22%20y2%3D%221%22%3E%3Cstop%20offset%3D%220%22%20stop-color%3D%22%23a855f7%22/%3E%3Cstop%20offset%3D%221%22%20stop-color%3D%22%23ec4899%22/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect%20width%3D%22400%22%20height%3D%22380%22%20fill%3D%22url%28%23g%29%22/%3E%3Ctext%20x%3D%2250%25%22%20y%3D%2250%25%22%20fill%3D%22white%22%20font-family%3D%22sans-serif%22%20font-size%3D%2240%22%20text-anchor%3D%22middle%22%20dominant-baseline%3D%22middle%22%3E4%3C/text%3E%3C/svg%3E" alt="Sample 4"></figure><figure class="ld-media"><img src="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20width%3D%22400%22%20height%3D%22340%22%20viewBox%3D%220%200%20400%20340%22%3E%3Cdefs%3E%3ClinearGradient%20id%3D%22g%22%20x1%3D%220%22%20y1%3D%220%22%20x2%3D%221%22%20y2%3D%221%22%3E%3Cstop%20offset%3D%220%22%20stop-color%3D%22%23475569%22/%3E%3Cstop%20offset%3D%221%22%20stop-color%3D%22%230f172a%22/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect%20width%3D%22400%22%20height%3D%22340%22%20fill%3D%22url%28%23g%29%22/%3E%3Ctext%20x%3D%2250%25%22%20y%3D%2250%25%22%20fill%3D%22white%22%20font-family%3D%22sans-serif%22%20font-size%3D%2240%22%20text-anchor%3D%22middle%22%20dominant-baseline%3D%22middle%22%3E5%3C/text%3E%3C/svg%3E" alt="Sample 5"></figure><figure class="ld-media"><img src="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20width%3D%22400%22%20height%3D%22480%22%20viewBox%3D%220%200%20400%20480%22%3E%3Cdefs%3E%3ClinearGradient%20id%3D%22g%22%20x1%3D%220%22%20y1%3D%220%22%20x2%3D%221%22%20y2%3D%221%22%3E%3Cstop%20offset%3D%220%22%20stop-color%3D%22%23ca8a04%22/%3E%3Cstop%20offset%3D%221%22%20stop-color%3D%22%23ea580c%22/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect%20width%3D%22400%22%20height%3D%22480%22%20fill%3D%22url%28%23g%29%22/%3E%3Ctext%20x%3D%2250%25%22%20y%3D%2250%25%22%20fill%3D%22white%22%20font-family%3D%22sans-serif%22%20font-size%3D%2240%22%20text-anchor%3D%22middle%22%20dominant-baseline%3D%22middle%22%3E6%3C/text%3E%3C/svg%3E" alt="Sample 6"></figure><figure class="ld-media"><img src="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20width%3D%22400%22%20height%3D%22280%22%20viewBox%3D%220%200%20400%20280%22%3E%3Cdefs%3E%3ClinearGradient%20id%3D%22g%22%20x1%3D%220%22%20y1%3D%220%22%20x2%3D%221%22%20y2%3D%221%22%3E%3Cstop%20offset%3D%220%22%20stop-color%3D%22%232563eb%22/%3E%3Cstop%20offset%3D%221%22%20stop-color%3D%22%237c3aed%22/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect%20width%3D%22400%22%20height%3D%22280%22%20fill%3D%22url%28%23g%29%22/%3E%3Ctext%20x%3D%2250%25%22%20y%3D%2250%25%22%20fill%3D%22white%22%20font-family%3D%22sans-serif%22%20font-size%3D%2240%22%20text-anchor%3D%22middle%22%20dominant-baseline%3D%22middle%22%3E7%3C/text%3E%3C/svg%3E" alt="Sample 7"></figure><figure class="ld-media"><img src="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20width%3D%22400%22%20height%3D%22360%22%20viewBox%3D%220%200%20400%20360%22%3E%3Cdefs%3E%3ClinearGradient%20id%3D%22g%22%20x1%3D%220%22%20y1%3D%220%22%20x2%3D%221%22%20y2%3D%221%22%3E%3Cstop%20offset%3D%220%22%20stop-color%3D%22%23f5741e%22/%3E%3Cstop%20offset%3D%221%22%20stop-color%3D%22%23e11d48%22/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect%20width%3D%22400%22%20height%3D%22360%22%20fill%3D%22url%28%23g%29%22/%3E%3Ctext%20x%3D%2250%25%22%20y%3D%2250%25%22%20fill%3D%22white%22%20font-family%3D%22sans-serif%22%20font-size%3D%2240%22%20text-anchor%3D%22middle%22%20dominant-baseline%3D%22middle%22%3E8%3C/text%3E%3C/svg%3E" alt="Sample 8"></figure><figure class="ld-media"><img src="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20width%3D%22400%22%20height%3D%22440%22%20viewBox%3D%220%200%20400%20440%22%3E%3Cdefs%3E%3ClinearGradient%20id%3D%22g%22%20x1%3D%220%22%20y1%3D%220%22%20x2%3D%221%22%20y2%3D%221%22%3E%3Cstop%20offset%3D%220%22%20stop-color%3D%22%23059669%22/%3E%3Cstop%20offset%3D%221%22%20stop-color%3D%22%230ea5e9%22/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect%20width%3D%22400%22%20height%3D%22440%22%20fill%3D%22url%28%23g%29%22/%3E%3Ctext%20x%3D%2250%25%22%20y%3D%2250%25%22%20fill%3D%22white%22%20font-family%3D%22sans-serif%22%20font-size%3D%2240%22%20text-anchor%3D%22middle%22%20dominant-baseline%3D%22middle%22%3E9%3C/text%3E%3C/svg%3E" alt="Sample 9"></figure></div>
+    </div>
+    <div class="ld-table-wrap" role="region" tabindex="0" aria-label="Masonry-like layout reference">
+      <table class="ld-table" data-ld-striped="true">
+        <thead><tr><th scope="col">Class / attribute</th><th scope="col">What it does</th></tr></thead>
+        <tbody>
+          <tr><td>ld-masonry</td><td>Multi-column layout with <code class="ld-code-inline">--ld-masonry-min</code> (14rem) wide columns; items never split across columns.</td></tr>
+          <tr><td>data-ld-cols="2-6"</td><td>Fix the number of columns instead of letting the width decide.</td></tr>
+          <tr><td>--ld-masonry-min, --ld-layout-gap</td><td>Column width, and the gap (column and row) in any length.</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+  <section class="ld-section" data-ld-size="sm" id="gallery" data-cs-section>
+    <h2 class="ld-section-title">Gallery <a class="cs-anchor" href="#/media/gallery" aria-label="Link to Gallery">#</a></h2>
+    <p class="ld-section-sub">A tidy grid of equal tiles</p>
+    <div class="cs-prose"><p><code class="ld-code-inline">ld-gallery</code> is a grid of equal tiles, at least <code class="ld-code-inline">--ld-gallery-min</code> wide (12rem) and as many per row as fit. Tiles can be <code class="ld-code-inline">ld-media</code> figures (with captions or overlays), plain images, or links around images. Images crop to the tile and zoom slightly on hover (not with reduced motion); linked tiles show a focus ring. There is deliberately no lightbox: it is layout only.</p></div>
+    <pre class="ld-code" tabindex="0">&lt;div class="ld-gallery" data-ld-ratio="4-3" data-ld-feature="first"&gt;
+  &lt;figure class="ld-media"&gt;&lt;img src="1.jpg" alt="…"&gt;&lt;figcaption class="ld-media-caption"&gt;First&lt;/figcaption&gt;&lt;/figure&gt;
+  &lt;a href="2.jpg"&gt;&lt;img src="2-thumb.jpg" alt="…"&gt;&lt;/a&gt;
+&lt;/div&gt;</pre>
+    <div class="cs-demo" role="group" aria-label="Live example">
+      <p class="cs-demo-label">Live example</p>
+<div class="ld-gallery" data-ld-ratio="4-3" data-ld-feature="first"><figure class="ld-media"><img src="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20width%3D%22600%22%20height%3D%22450%22%20viewBox%3D%220%200%20600%20450%22%3E%3Cdefs%3E%3ClinearGradient%20id%3D%22g%22%20x1%3D%220%22%20y1%3D%220%22%20x2%3D%221%22%20y2%3D%221%22%3E%3Cstop%20offset%3D%220%22%20stop-color%3D%22%232563eb%22/%3E%3Cstop%20offset%3D%221%22%20stop-color%3D%22%237c3aed%22/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect%20width%3D%22600%22%20height%3D%22450%22%20fill%3D%22url%28%23g%29%22/%3E%3Ctext%20x%3D%2250%25%22%20y%3D%2250%25%22%20fill%3D%22white%22%20font-family%3D%22sans-serif%22%20font-size%3D%2260%22%20text-anchor%3D%22middle%22%20dominant-baseline%3D%22middle%22%3E1%3C/text%3E%3C/svg%3E" alt="Gallery tile 1"><figcaption class="ld-media-caption">Tile 1</figcaption></figure><figure class="ld-media"><img src="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20width%3D%22600%22%20height%3D%22450%22%20viewBox%3D%220%200%20600%20450%22%3E%3Cdefs%3E%3ClinearGradient%20id%3D%22g%22%20x1%3D%220%22%20y1%3D%220%22%20x2%3D%221%22%20y2%3D%221%22%3E%3Cstop%20offset%3D%220%22%20stop-color%3D%22%23f5741e%22/%3E%3Cstop%20offset%3D%221%22%20stop-color%3D%22%23e11d48%22/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect%20width%3D%22600%22%20height%3D%22450%22%20fill%3D%22url%28%23g%29%22/%3E%3Ctext%20x%3D%2250%25%22%20y%3D%2250%25%22%20fill%3D%22white%22%20font-family%3D%22sans-serif%22%20font-size%3D%2260%22%20text-anchor%3D%22middle%22%20dominant-baseline%3D%22middle%22%3E2%3C/text%3E%3C/svg%3E" alt="Gallery tile 2"><figcaption class="ld-media-caption">Tile 2</figcaption></figure><figure class="ld-media"><img src="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20width%3D%22600%22%20height%3D%22450%22%20viewBox%3D%220%200%20600%20450%22%3E%3Cdefs%3E%3ClinearGradient%20id%3D%22g%22%20x1%3D%220%22%20y1%3D%220%22%20x2%3D%221%22%20y2%3D%221%22%3E%3Cstop%20offset%3D%220%22%20stop-color%3D%22%23059669%22/%3E%3Cstop%20offset%3D%221%22%20stop-color%3D%22%230ea5e9%22/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect%20width%3D%22600%22%20height%3D%22450%22%20fill%3D%22url%28%23g%29%22/%3E%3Ctext%20x%3D%2250%25%22%20y%3D%2250%25%22%20fill%3D%22white%22%20font-family%3D%22sans-serif%22%20font-size%3D%2260%22%20text-anchor%3D%22middle%22%20dominant-baseline%3D%22middle%22%3E3%3C/text%3E%3C/svg%3E" alt="Gallery tile 3"><figcaption class="ld-media-caption">Tile 3</figcaption></figure><figure class="ld-media"><img src="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20width%3D%22600%22%20height%3D%22450%22%20viewBox%3D%220%200%20600%20450%22%3E%3Cdefs%3E%3ClinearGradient%20id%3D%22g%22%20x1%3D%220%22%20y1%3D%220%22%20x2%3D%221%22%20y2%3D%221%22%3E%3Cstop%20offset%3D%220%22%20stop-color%3D%22%23a855f7%22/%3E%3Cstop%20offset%3D%221%22%20stop-color%3D%22%23ec4899%22/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect%20width%3D%22600%22%20height%3D%22450%22%20fill%3D%22url%28%23g%29%22/%3E%3Ctext%20x%3D%2250%25%22%20y%3D%2250%25%22%20fill%3D%22white%22%20font-family%3D%22sans-serif%22%20font-size%3D%2260%22%20text-anchor%3D%22middle%22%20dominant-baseline%3D%22middle%22%3E4%3C/text%3E%3C/svg%3E" alt="Gallery tile 4"><figcaption class="ld-media-caption">Tile 4</figcaption></figure><figure class="ld-media"><img src="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20width%3D%22600%22%20height%3D%22450%22%20viewBox%3D%220%200%20600%20450%22%3E%3Cdefs%3E%3ClinearGradient%20id%3D%22g%22%20x1%3D%220%22%20y1%3D%220%22%20x2%3D%221%22%20y2%3D%221%22%3E%3Cstop%20offset%3D%220%22%20stop-color%3D%22%23475569%22/%3E%3Cstop%20offset%3D%221%22%20stop-color%3D%22%230f172a%22/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect%20width%3D%22600%22%20height%3D%22450%22%20fill%3D%22url%28%23g%29%22/%3E%3Ctext%20x%3D%2250%25%22%20y%3D%2250%25%22%20fill%3D%22white%22%20font-family%3D%22sans-serif%22%20font-size%3D%2260%22%20text-anchor%3D%22middle%22%20dominant-baseline%3D%22middle%22%3E5%3C/text%3E%3C/svg%3E" alt="Gallery tile 5"><figcaption class="ld-media-caption">Tile 5</figcaption></figure><figure class="ld-media"><img src="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20width%3D%22600%22%20height%3D%22450%22%20viewBox%3D%220%200%20600%20450%22%3E%3Cdefs%3E%3ClinearGradient%20id%3D%22g%22%20x1%3D%220%22%20y1%3D%220%22%20x2%3D%221%22%20y2%3D%221%22%3E%3Cstop%20offset%3D%220%22%20stop-color%3D%22%23ca8a04%22/%3E%3Cstop%20offset%3D%221%22%20stop-color%3D%22%23ea580c%22/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect%20width%3D%22600%22%20height%3D%22450%22%20fill%3D%22url%28%23g%29%22/%3E%3Ctext%20x%3D%2250%25%22%20y%3D%2250%25%22%20fill%3D%22white%22%20font-family%3D%22sans-serif%22%20font-size%3D%2260%22%20text-anchor%3D%22middle%22%20dominant-baseline%3D%22middle%22%3E6%3C/text%3E%3C/svg%3E" alt="Gallery tile 6"><figcaption class="ld-media-caption">Tile 6</figcaption></figure><figure class="ld-media"><img src="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20width%3D%22600%22%20height%3D%22450%22%20viewBox%3D%220%200%20600%20450%22%3E%3Cdefs%3E%3ClinearGradient%20id%3D%22g%22%20x1%3D%220%22%20y1%3D%220%22%20x2%3D%221%22%20y2%3D%221%22%3E%3Cstop%20offset%3D%220%22%20stop-color%3D%22%232563eb%22/%3E%3Cstop%20offset%3D%221%22%20stop-color%3D%22%237c3aed%22/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect%20width%3D%22600%22%20height%3D%22450%22%20fill%3D%22url%28%23g%29%22/%3E%3Ctext%20x%3D%2250%25%22%20y%3D%2250%25%22%20fill%3D%22white%22%20font-family%3D%22sans-serif%22%20font-size%3D%2260%22%20text-anchor%3D%22middle%22%20dominant-baseline%3D%22middle%22%3E7%3C/text%3E%3C/svg%3E" alt="Gallery tile 7"><figcaption class="ld-media-caption">Tile 7</figcaption></figure></div>
+    </div>
+    <div class="ld-table-wrap" role="region" tabindex="0" aria-label="Gallery reference">
+      <table class="ld-table" data-ld-striped="true">
+        <thead><tr><th scope="col">Class / attribute</th><th scope="col">What it does</th></tr></thead>
+        <tbody>
+          <tr><td>ld-gallery</td><td>Grid of tiles, <code class="ld-code-inline">--ld-gallery-min</code> (12rem) wide at least, <code class="ld-code-inline">--ld-layout-gap</code> apart.</td></tr>
+          <tr><td>data-ld-ratio</td><td>Shape of every tile: <code class="ld-code-inline">1-1</code> (default), <code class="ld-code-inline">4-3</code>, <code class="ld-code-inline">3-2</code>, <code class="ld-code-inline">16-9</code>, <code class="ld-code-inline">3-4</code>.</td></tr>
+          <tr><td>data-ld-feature="first"</td><td>The first tile spans two columns and two rows.</td></tr>
         </tbody>
       </table>
     </div>
@@ -1310,6 +1501,7 @@ off();                                                    // unsubscribe</pre>
           <tr><td>ld:table:sort, :filter, :page, :select, :render</td><td><code class="ld-code-inline">{ key, column, direction }</code>, <code class="ld-code-inline">{ query, count }</code>, <code class="ld-code-inline">{ page, pageSize, pageCount }</code>, <code class="ld-code-inline">{ count, rows }</code>, <code class="ld-code-inline">{ visible, total }</code>.</td></tr>
           <tr><td>ld:search:filter</td><td><code class="ld-code-inline">{ query, count, total }</code>.</td></tr>
           <tr><td>ld:init</td><td>Fired on an element ldcss just initialised after it was added to the page.</td></tr>
+          <tr><td>ld:{component}:init, :destroy</td><td>One component was set up or torn down on this element: <code class="ld-code-inline">{ component }</code>. See Component lifecycle.</td></tr>
           <tr><td>ld:theme:change</td><td>Fired on <code class="ld-code-inline">&lt;html&gt;</code> by <code class="ld-code-inline">ldcss.theme.set()</code> and the theme toggle: <code class="ld-code-inline">{ theme, setting }</code> (<code class="ld-code-inline">theme</code> is what shows, <code class="ld-code-inline">setting</code> is <code class="ld-code-inline">light</code>, <code class="ld-code-inline">dark</code> or <code class="ld-code-inline">auto</code>).</td></tr>
           <tr><td>ldcss.on(type, fn, options), ldcss.off(type, fn), ldcss.once(type, fn, options)</td><td><code class="ld-code-inline">type</code> with or without the <code class="ld-code-inline">ld:</code> prefix, or <code class="ld-code-inline">"*"</code>. Options: <code class="ld-code-inline">target</code> (selector; only events from inside it), <code class="ld-code-inline">root</code>, <code class="ld-code-inline">once</code>. <code class="ld-code-inline">on</code> returns an unsubscribe function.</td></tr>
           <tr><td>ldcss.emit(el, name, detail, cancelable)</td><td>Dispatch your own <code class="ld-code-inline">ld:</code> events through the same system; returns <code class="ld-code-inline">false</code> when cancelled.</td></tr>
@@ -1317,10 +1509,62 @@ off();                                                    // unsubscribe</pre>
       </table>
     </div>
   </section>
+  <section class="ld-section" data-ld-size="sm" id="lifecycle" data-cs-section>
+    <h2 class="ld-section-title">Component lifecycle <a class="cs-anchor" href="#/js-api/lifecycle" aria-label="Link to Component lifecycle">#</a></h2>
+    <p class="ld-section-sub">Set up, tear down and set up again, one component or a whole subtree</p>
+    <div class="cs-prose"><p>Components that need per-element setup (tables, search bars, comboboxes, resizable panels, carousels, disclosures, tooltips and more) are registered by name. You can initialise just one, destroy it and have everything it attached removed, and initialise it again after changing its content. The page-wide mutation observer uses the same calls: markup that is added gets <code class="ld-code-inline">init</code>, markup that is removed gets <code class="ld-code-inline">destroy</code>, so nothing leaks timers, observers or listeners.</p><p><code class="ld-code-inline">destroy</code> removes what the component created: its listeners, observers and timers, generated markup (a table's toolbar, a search bar's button, a combobox's result rows), and attributes it added. The original markup is put back, in its original order. Open dialogs inside are closed. Delegated behaviour (tabs, toggles, the context menu) stops responding there until <code class="ld-code-inline">init</code> runs again, which is what <code class="ld-code-inline">data-ld-destroyed</code> on the element means. A combobox's <code class="ld-code-inline">source</code> and <code class="ld-code-inline">render</code> functions survive, so <code class="ld-code-inline">reinit</code> picks up where it was.</p></div>
+    <pre class="ld-code" tabindex="0">ldcss.init('#people');                       // every component inside #people
+ldcss.init('#people', 'table');              // only the table component
+ldcss.destroy('#people');                    // everything inside, and its listeners
+ldcss.destroy('#people table', ['table']);   // names can be an array
+ldcss.reinit('#people');                     // destroy + init, e.g. after replacing its content
+
+const table = ldcss.component('table');      // handle for one component
+table.init(el); table.destroy(el); table.reinit(el);
+table.has(el);                               // is this element set up?
+table.instances();                           // every live table
+const stop = table.on('sort', (e, d) =&gt; {}); // ld:table:sort, same options as ldcss.on
+ldcss.on('toast:show', fn, { root: panel }); // removed when panel is destroyed
+
+ldcss.destroy();                             // the whole page: components, observer, every listener
+ldcss.init();                                // and back</pre>
+    <div class="cs-demo" role="group" aria-label="Live example">
+      <p class="cs-demo-label">Live example</p>
+<table class="ld-table" id="demo-life-table" data-ld-table data-ld-search data-ld-page-size="3">
+  <caption>Lifecycle demo</caption>
+  <thead><tr><th>Name</th><th>Score</th></tr></thead>
+  <tbody><tr><td>Ada</td><td>91</td></tr><tr><td>Grace</td><td>88</td></tr><tr><td>Linus</td><td>72</td></tr><tr><td>Margaret</td><td>95</td></tr><tr><td>Dennis</td><td>67</td></tr></tbody>
+</table>
+<div class="ld-row ld-mar-t-3">
+  <button class="ld-btn" id="demo-life-destroy">destroy</button>
+  <button class="ld-btn" id="demo-life-init">init</button>
+  <button class="ld-btn" id="demo-life-replace">replace rows + reinit</button>
+  <span class="ld-text-muted ld-text-sm" id="demo-life-status" role="status"></span>
+</div>
+<pre class="ld-code ld-mar-t-2" id="demo-life-log" tabindex="0" style="max-height:8rem;overflow:auto">(lifecycle events appear here)</pre>
+    </div>
+    <div class="ld-table-wrap" role="region" tabindex="0" aria-label="Component lifecycle reference">
+      <table class="ld-table" data-ld-striped="true">
+        <thead><tr><th scope="col">Call</th><th scope="col">What it does</th></tr></thead>
+        <tbody>
+          <tr><td>ldcss.init(target?, names?)</td><td>Set up components inside <code class="ld-code-inline">target</code> (element, selector or list; default the whole page), or only the named ones. Safe to call again: already initialised elements are skipped. <code class="ld-code-inline">ldcss.refresh</code> is the old name.</td></tr>
+          <tr><td>ldcss.destroy(target?, names?)</td><td>Tear down. With a target: that subtree (or just the named components). With no arguments: the whole page, which also stops the mutation observer and removes every document and window listener ldcss attached.</td></tr>
+          <tr><td>ldcss.reinit(target, names?)</td><td>Destroy then init. Use after replacing the content of a component, or after changing a <code class="ld-code-inline">data-ld-*</code> setting that is only read at setup.</td></tr>
+          <tr><td>ldcss.component(name)</td><td>A handle: <code class="ld-code-inline">init</code>, <code class="ld-code-inline">destroy</code>, <code class="ld-code-inline">reinit</code>, <code class="ld-code-inline">has(el)</code>, <code class="ld-code-inline">instances(root?)</code>, <code class="ld-code-inline">on(type, fn, options)</code>, <code class="ld-code-inline">once(...)</code>. Throws with the list of known names when the name is wrong.</td></tr>
+          <tr><td>ldcss.components(), ldcss.isInitialized(el, name?)</td><td>The registered names; whether an element is set up (for one component, or any).</td></tr>
+          <tr><td>Component names</td><td>progress, animate, pagination, rating, stepper, tabs, segmented, scrollspy, carousel, input-clear, autosize, disclosure, context-menu, notification, combobox, resizable, search, table, tooltip, carousel-a11y.</td></tr>
+          <tr><td>ld:{component}:init, ld:{component}:destroy</td><td>Events on the element when one component is set up or torn down; <code class="ld-code-inline">detail.component</code> is the name. They bubble and reach <code class="ld-code-inline">ldcss.on</code> and the <code class="ld-code-inline">"*"</code> listener.</td></tr>
+          <tr><td>ldcss.on(type, fn, { root: el })</td><td>A listener owned by <code class="ld-code-inline">el</code>: it is removed automatically when <code class="ld-code-inline">el</code> (or an ancestor) is destroyed or removed from the page.</td></tr>
+          <tr><td>data-ld-destroyed</td><td>Set by <code class="ld-code-inline">destroy</code> on the element. While present, ldcss ignores events from inside it. <code class="ld-code-inline">init</code> clears it.</td></tr>
+          <tr><td>Always-on pieces</td><td>Components that work only through document-level listeners (modal, dropdown, toggles) have nothing per element to tear down; destroying a subtree closes anything open inside it and silences it. Accessibility attributes added by the accessibility layer are not removed.</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
   <section class="ld-section" data-ld-size="sm" id="init" data-cs-section>
     <h2 class="ld-section-title">Initialisation and observer <a class="cs-anchor" href="#/js-api/init" aria-label="Link to Initialisation and observer">#</a></h2>
     <p class="ld-section-sub">Add markup whenever you like</p>
-    <div class="cs-prose"><p>ldcss starts a <code class="ld-code-inline">MutationObserver</code> on <code class="ld-code-inline">&lt;body&gt;</code>, so components in markup added later (from <code class="ld-code-inline">fetch</code>, <code class="ld-code-inline">innerHTML</code> or a framework) work with no extra call. It pauses while it initialises, so what it builds itself can never cause a loop.</p></div>
+    <div class="cs-prose"><p>ldcss starts a <code class="ld-code-inline">MutationObserver</code> on <code class="ld-code-inline">&lt;body&gt;</code>, so components in markup added later (from <code class="ld-code-inline">fetch</code>, <code class="ld-code-inline">innerHTML</code> or a framework) work with no extra call, and components in markup that is removed are destroyed. It pauses while it initialises, so what it builds itself can never cause a loop.</p></div>
     <pre class="ld-code" tabindex="0">&lt;body data-ld-observe="false"&gt;      &lt;!-- opt out for the whole page --&gt;
 &lt;div data-ld-no-observe&gt; … &lt;/div&gt;   &lt;!-- opt out for one subtree --&gt;
 
@@ -1333,8 +1577,8 @@ ldcss.refresh(someElement);            // manual init of one subtree</pre>
           <tr><td>data-ld-observe="false"</td><td>On <code class="ld-code-inline">&lt;body&gt;</code>: do not watch the page for added markup.</td></tr>
           <tr><td>data-ld-no-observe</td><td>On any element: markup inside it is left alone.</td></tr>
           <tr><td>ldcss.observe(), ldcss.unobserve()</td><td>Start or stop watching.</td></tr>
-          <tr><td>ldcss.refresh(root?)</td><td>Initialise components in <code class="ld-code-inline">root</code> (default the whole document), including <code class="ld-code-inline">root</code> itself.</td></tr>
-          <tr><td>ldcss.destroy()</td><td>Stops the mutation observer, entrance-animation observers and carousel autoplay timers. Call it before removing a large chunk of DOM; <code class="ld-code-inline">ldcss.observe()</code> starts watching again.</td></tr>
+          <tr><td>ldcss.refresh(root?)</td><td>The old name of <code class="ld-code-inline">ldcss.init(root)</code>; see Component lifecycle.</td></tr>
+          <tr><td>ldcss.destroy()</td><td>Everything: all components, the mutation observer and every document/window listener. <code class="ld-code-inline">ldcss.init()</code> starts it all again. See Component lifecycle for the targeted form.</td></tr>
           <tr><td>ldcss.debounce(fn, ms)</td><td>The debounce helper ldcss uses internally.</td></tr>
           <tr><td>ldcss.version</td><td>The version string.</td></tr>
         </tbody>
@@ -1725,6 +1969,33 @@ npm run watch     # rebuilds when src/ or build/ changes</pre>
       });
     });
   }
+
+  // lifecycle demo
+  (function () {
+    var status = document.getElementById('demo-life-status');
+    var log = document.getElementById('demo-life-log');
+    var table = document.getElementById('demo-life-table');
+    if (!table) return;
+    function report() {
+      var live = ldcss.component('table').has(table);
+      status.textContent = live ? 'table component: running' : 'table component: destroyed (plain table)';
+    }
+    ldcss.on('*', function (e) {
+      if (!/^ld:(table|search):(init|destroy)$/.test(e.type) || !table.contains(e.target) && e.target !== table) return;
+      log.textContent = (log.textContent.indexOf('(lifecycle') === 0 ? '' : log.textContent + '\n') + e.type + '  →  ' + e.target.tagName.toLowerCase();
+      log.scrollTop = log.scrollHeight;
+    });
+    on('demo-life-destroy', function () { ldcss.destroy('#demo-life-table', 'table'); report(); });
+    on('demo-life-init', function () { ldcss.init('#demo-life-table', 'table'); report(); });
+    on('demo-life-replace', function () {
+      var rows = ['Barbara', 'Ken', 'Radia', 'Tim', 'Vint', 'Guido', 'Bjarne'];
+      var tbody = table.tBodies[0];
+      tbody.innerHTML = rows.map(function (n, i) { return '<tr><td>' + n + '</td><td>' + (50 + i * 7) + '</td></tr>'; }).join('');
+      ldcss.component('table').reinit(table);
+      report();
+    });
+    report();
+  })();
 
   on('demo-audit', function () {
     var found = ldcss.a11y.audit();

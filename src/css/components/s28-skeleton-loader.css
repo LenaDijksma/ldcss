@@ -6,7 +6,7 @@
   background: linear-gradient(90deg, var(--ld-surface-raised) 25%, var(--ld-border-soft) 37%, var(--ld-surface-raised) 63%);
   background-size: 400% 100%;
   animation: ld-skeleton 1.4s ease infinite;
-  border-radius: calc(var(--ld-radius) / 2);
+  border-radius: var(--ld-border-radius-sm);
   height: 14px;
 }
 

@@ -260,7 +260,7 @@
   }
 
   // a hidden tab is not reading anything: hold the timers until it is visible again
-  document.addEventListener('visibilitychange', function () {
+  delegate('visibilitychange', function () {
     toastActive.forEach(function (entry) {
       if (document.hidden) pauseToastTimer(entry);
       else if (!entry.el.matches(':hover') && !entry.el.contains(document.activeElement)) resumeToastTimer(entry);
@@ -433,12 +433,13 @@
 
   function renderNotifications() {
     var count = unreadCount();
-    qsaSelf(document, '[data-ld-notification-count]').forEach(function (badge) {
+    // only instances: a destroyed badge or centre is left alone until it is initialised again
+    qsaSelf(document, '[data-ld-notification-count]').filter(function (b) { return !!instanceOf(b, 'notification'); }).forEach(function (badge) {
       badge.textContent = count > 99 ? '99+' : String(count);
       badge.hidden = count === 0;
       badge.setAttribute('data-ld-count', String(count));
     });
-    qsaSelf(document, '[data-ld-notification-center]').forEach(renderNotificationCenter);
+    qsaSelf(document, '[data-ld-notification-center]').filter(function (c) { return !!instanceOf(c, 'notification'); }).forEach(renderNotificationCenter);
   }
 
   function findNotification(id) {
@@ -507,7 +508,7 @@
     emit(document.body, 'ld:notification:clear', {});
   }
 
-  document.addEventListener('click', function (e) {
+  delegate('click', function (e) {
     var notifyTrigger = e.target.closest && closestOf(e.target, '[data-ld-notify]');
     if (notifyTrigger) {
       var spec = toastSpecFromTrigger(notifyTrigger, 'notify');
@@ -533,23 +534,29 @@
 
   // opening whatever holds the centre (popover, dropdown, offcanvas…) can mark everything read
   ['popover', 'dropdown', 'offcanvas', 'modal'].forEach(function (kind) {
-    document.addEventListener('ld:' + kind + ':show', function (e) {
+    delegate('ld:' + kind + ':show', function (e) {
       var centers = qsaSelf(e.target, '[data-ld-notification-center][data-ld-mark-read="open"]');
       if (centers.length) setTimeout(markAllNotificationsRead, 600);
     });
   });
 
-  moduleInits.push(function (root) {
+  defineComponent('notification', '[data-ld-notification-center], [data-ld-notification-count]', function (el) {
     loadNotifications();
-    // only touch what is new: re-rendering an already-rendered centre would drop keyboard focus
-    var fresh = qsaSelf(root, '[data-ld-notification-center]:not(.ld-nc)');
-    var badges = qsaSelf(root, '[data-ld-notification-count]:not([data-ld-count])');
-    fresh.forEach(function (c) {
-      if (!c.hasAttribute('tabindex')) c.setAttribute('tabindex', '-1');
-      renderNotificationCenter(c);
-    });
-    if (badges.length) renderNotifications();
-  });
+    if (el.hasAttribute('data-ld-notification-center')) {
+      if (!el.hasAttribute('tabindex')) { el.setAttribute('tabindex', '-1'); el._ldAddedTabindex = true; }
+      renderNotificationCenter(el);
+    } else {
+      renderNotifications();
+    }
+  }, function (el) {
+    if (el.hasAttribute('data-ld-notification-center')) {
+      el.textContent = '';
+      el.classList.remove('ld-nc');
+      if (el._ldAddedTabindex) { el.removeAttribute('tabindex'); el._ldAddedTabindex = false; }
+    } else {
+      el.removeAttribute('data-ld-count');
+    }
+  }, { event: 'notification', gate: true });
 
   window.ldcss.toast = toast;
   window.ldcss.notify = notify;

@@ -70,37 +70,45 @@
     return open;
   }
 
-  function initDisclosures(root) {
-    qsaSelf(root, '[data-ld-disclosure]').forEach(function (trigger) {
-      var panel = disclosurePanel(trigger);
+  defineComponent('disclosure', '[data-ld-disclosure], .ld-disclosure', function (el) {
+    if (el.hasAttribute('data-ld-disclosure')) {
+      var panel = disclosurePanel(el);
       if (!panel) return;
-      trigger.setAttribute('aria-controls', ensureId(panel, 'ld-disclosure'));
-      if (trigger.tagName !== 'BUTTON' && !trigger.hasAttribute('tabindex')) trigger.setAttribute('tabindex', '0');
-      if (trigger.tagName !== 'BUTTON' && !trigger.hasAttribute('role')) trigger.setAttribute('role', 'button');
+      el.setAttribute('aria-controls', ensureId(panel, 'ld-disclosure'));
+      if (el.tagName !== 'BUTTON' && !el.hasAttribute('tabindex')) { el.setAttribute('tabindex', '0'); el._ldAddedTabindex = true; }
+      if (el.tagName !== 'BUTTON' && !el.hasAttribute('role')) { el.setAttribute('role', 'button'); el._ldAddedRole = true; }
       paintDisclosure(panel, panel.getAttribute('data-ld-open') === 'true');
-    });
-    qsaSelf(root, '.ld-disclosure').forEach(function (panel) {
-      if (!panel.hasAttribute('data-ld-open')) paintDisclosure(panel, false);
-      else paintDisclosure(panel, panel.getAttribute('data-ld-open') === 'true');
-    });
-  }
+    }
+    if (el.classList.contains('ld-disclosure')) {
+      paintDisclosure(el, el.getAttribute('data-ld-open') === 'true');
+    }
+  }, function (el) {
+    if (el.classList.contains('ld-disclosure')) {
+      el.removeAttribute('inert'); // an open or closed panel stays as it is, but must be reachable
+    }
+    if (el.hasAttribute('data-ld-disclosure')) {
+      if (el._ldAddedTabindex) { el.removeAttribute('tabindex'); el._ldAddedTabindex = false; }
+      if (el._ldAddedRole) { el.removeAttribute('role'); el._ldAddedRole = false; }
+    }
+  }, { gate: true });
 
-  document.addEventListener('click', function (e) {
+  delegate('click', function (e) {
     var trigger = e.target.closest && closestOf(e.target, '[data-ld-disclosure]');
     if (!trigger || trigger.disabled || trigger.getAttribute('aria-disabled') === 'true') return;
+    var panelOf = disclosurePanel(trigger);
+    if (panelOf && isDestroyed(panelOf)) return;
     if (trigger.tagName === 'A') e.preventDefault();
     setDisclosure(trigger, !isDisclosureOpen(trigger), trigger);
   });
 
   // non-button triggers (role="button") need Enter / Space themselves
-  document.addEventListener('keydown', function (e) {
+  delegate('keydown', function (e) {
     var trigger = e.target.closest && closestOf(e.target, '[data-ld-disclosure]');
     if (!trigger || trigger.tagName === 'BUTTON' || (e.key !== 'Enter' && e.key !== ' ')) return;
     e.preventDefault();
     setDisclosure(trigger, !isDisclosureOpen(trigger), trigger);
   });
 
-  moduleInits.push(initDisclosures);
   window.ldcss.disclosure = {
     show: function (ref) { return setDisclosure(ref, true); },
     hide: function (ref) { return setDisclosure(ref, false); },

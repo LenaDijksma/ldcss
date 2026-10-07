@@ -18,7 +18,7 @@ body {
   color: var(--ld-text);
   font-family: var(--ld-font-family);
   font-size: var(--ld-text-base);
-  line-height: 1.6;
+  line-height: var(--ld-line-height-normal);
   transition: background var(--ld-transition), color var(--ld-transition);
 }
 
@@ -30,7 +30,7 @@ h5,
 h6 {
   font-family: var(--ld-font-family);
   font-weight: var(--ld-weight-bold);
-  line-height: var(--ld-leading-tight);
+  line-height: var(--ld-line-height-tight);
   margin: 0 0 var(--ld-space-3);
 }
 
@@ -64,7 +64,7 @@ code.ld-code-inline {
   color: var(--ld-code-text);
   padding: 1px 6px;
   border: 1px solid var(--ld-border-soft);
-  border-radius: calc(var(--ld-radius) / 2);
+  border-radius: var(--ld-border-radius-sm);
   font-size: 0.9em;
 }
 

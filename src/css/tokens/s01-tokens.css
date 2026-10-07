@@ -16,6 +16,10 @@
   --ld-font-family: var(--ld-font-sans);
   /* what body text/components use — override via ld-font-mono/ld-font-serif */
   --ld-radius: 10px;
+  --ld-border-radius-sm: calc(var(--ld-radius) / 2);
+  --ld-border-radius-lg: calc(var(--ld-radius) * 2);
+  /* sm and lg are derived from --ld-radius where it is set on :root. To change the
+     radius for one part of the page, set all three on that element. */
   --ld-border-width: 1px;
   --ld-shadow-offset: 4px;
   /* only used by data-ld-shadow='hard', defined just below */
@@ -52,9 +56,15 @@
   --ld-weight-medium: 500;
   --ld-weight-bold: 700;
 
-  --ld-leading-tight: 1.25;
-  --ld-leading-normal: 1.6;
-  --ld-leading-relaxed: 1.75;
+  --ld-line-height-none: 1;
+  --ld-line-height-tight: 1.25;
+  --ld-line-height-normal: 1.6;
+  --ld-line-height-relaxed: 1.75;
+  --ld-line-height-loose: 2;
+  /* the names used before 3.3.0 still work and follow the new ones */
+  --ld-leading-tight: var(--ld-line-height-tight);
+  --ld-leading-normal: var(--ld-line-height-normal);
+  --ld-leading-relaxed: var(--ld-line-height-relaxed);
 
   /* Stacking scale. The .ld-z-* utilities in §38e already exposed these
      as classes; components reference the same values here as custom
@@ -69,7 +79,39 @@
   --ld-z-toast: 60;
   --ld-z-command: 70;
 
-  --ld-transition: 120ms ease;
+  --ld-duration-fast: 80ms;
+  --ld-duration: 120ms;
+  --ld-duration-slow: 240ms;
+  --ld-transition-fast: var(--ld-duration-fast) ease;
+  --ld-transition: var(--ld-duration) ease;
+  --ld-transition-slow: var(--ld-duration-slow) ease;
+  /* a transition is `property + token`:  transition: color var(--ld-transition-fast);
+     The duration tokens are the numbers alone, for animation-duration and the like. */
+
+  --ld-content-width: 1320px;
+  /* widest the main content column gets. ld-container, ld-sidebar-layout and the
+     media layouts stop growing here; set it on :root to make every page narrower or wider. */
+
+  /* Opacity scale, 0 to 1. ld-opacity-N reads these, so changing one changes every use. */
+  --ld-opacity-0: 0;
+  --ld-opacity-5: 0.05;
+  --ld-opacity-10: 0.1;
+  --ld-opacity-20: 0.2;
+  --ld-opacity-25: 0.25;
+  --ld-opacity-30: 0.3;
+  --ld-opacity-40: 0.4;
+  --ld-opacity-50: 0.5;
+  --ld-opacity-60: 0.6;
+  --ld-opacity-70: 0.7;
+  --ld-opacity-75: 0.75;
+  --ld-opacity-80: 0.8;
+  --ld-opacity-90: 0.9;
+  --ld-opacity-95: 0.95;
+  --ld-opacity-100: 1;
+  --ld-opacity-disabled: 0.5;
+  /* dimmed controls and text that cannot be used right now */
+  --ld-opacity-overlay: 0.6;
+  /* how dark the scrim behind text on top of an image gets (ld-media-overlay, captions) */
 }
 
 /* Light theme (default). The same block also powers an explicit
@@ -176,6 +218,8 @@
      --ld-border on its own element, which would silently cancel this reset
      for a <body data-ld-theme="dark"> inside <html data-ld-unstyled>. */
   --ld-radius: 0px;
+  --ld-border-radius-sm: 0px;
+  --ld-border-radius-lg: 0px;
   --ld-shadow: none;
   --ld-shadow-lg: none;
   --ld-border-width: 1px;

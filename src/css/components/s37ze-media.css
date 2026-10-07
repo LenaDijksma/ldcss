@@ -1,0 +1,328 @@
+/* ==========================================================================
+   37ze. Media — ld-img, ld-media, ld-video, ld-figure, ld-masonry, ld-gallery
+   Pure CSS. No JavaScript, no images shipped.
+
+   <img class="ld-img" src alt>                        fluid image
+   <figure class="ld-media" data-ld-ratio="16-9"> <img …> </figure>   fixed-shape wrapper
+   <div class="ld-video"> <iframe …></iframe> </div>   embed that keeps its shape
+   <figure class="ld-figure"> <div class="ld-media">…</div> <figcaption>…</figcaption> </figure>
+   <div class="ld-masonry"> … </div>                    columns of uneven items
+   <div class="ld-gallery"> <figure class="ld-media">…</figure> … </div>   tidy tile grid
+   ========================================================================== */
+
+/* -- Fluid image: never wider than its box, keeps its own proportions ------- */
+.ld-img {
+  display: block;
+  max-width: 100%;
+  height: auto;
+}
+
+.ld-img[data-ld-rounded] { border-radius: var(--ld-border-radius-lg); }
+.ld-img[data-ld-rounded='sm'] { border-radius: var(--ld-border-radius-sm); }
+.ld-img[data-ld-rounded='full'] { border-radius: 50%; }
+
+/* -- Media wrapper ------------------------------------------------------------
+   A box with a fixed shape (data-ld-ratio) whose image, picture, video or
+   iframe fills it and is cropped, not stretched (data-ld-fit="contain" shows
+   all of it instead). Without a ratio the box takes the media's own shape.
+   data-ld-ratio: 1-1 · 4-3 · 3-2 · 16-9 · 21-9 · 3-4 · 2-3 · 9-16 */
+.ld-media {
+  position: relative;
+  display: block;
+  margin: 0;
+  overflow: hidden;
+  background: var(--ld-surface-raised);
+  border-radius: var(--ld-border-radius-lg);
+}
+
+.ld-media > img,
+.ld-media > picture,
+.ld-media > picture > img,
+.ld-media > video,
+.ld-media > canvas,
+.ld-media > svg {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.ld-media[data-ld-ratio] > img,
+.ld-media[data-ld-ratio] > picture,
+.ld-media[data-ld-ratio] > picture > img,
+.ld-media[data-ld-ratio] > video,
+.ld-media[data-ld-ratio] > canvas,
+.ld-media[data-ld-ratio] > svg,
+.ld-media[data-ld-ratio] > iframe,
+.ld-media[data-ld-ratio] > embed,
+.ld-media[data-ld-ratio] > object {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  border: 0;
+  object-fit: cover;
+}
+
+.ld-media[data-ld-fit='contain'] > img,
+.ld-media[data-ld-fit='contain'] > picture > img,
+.ld-media[data-ld-fit='contain'] > video {
+  object-fit: contain;
+}
+
+.ld-media[data-ld-ratio='1-1'] { aspect-ratio: 1 / 1; }
+.ld-media[data-ld-ratio='4-3'] { aspect-ratio: 4 / 3; }
+.ld-media[data-ld-ratio='3-2'] { aspect-ratio: 3 / 2; }
+.ld-media[data-ld-ratio='16-9'] { aspect-ratio: 16 / 9; }
+.ld-media[data-ld-ratio='21-9'] { aspect-ratio: 21 / 9; }
+.ld-media[data-ld-ratio='3-4'] { aspect-ratio: 3 / 4; }
+.ld-media[data-ld-ratio='2-3'] { aspect-ratio: 2 / 3; }
+.ld-media[data-ld-ratio='9-16'] { aspect-ratio: 9 / 16; }
+
+.ld-media[data-ld-rounded='none'] { border-radius: 0; }
+.ld-media[data-ld-rounded='sm'] { border-radius: var(--ld-border-radius-sm); }
+
+/* -- Video wrapper: an embed or <video> that keeps a consistent shape ---------
+   16:9 unless data-ld-ratio says otherwise. Same fill rules as ld-media, and the
+   frame is black behind the video while it loads. */
+.ld-video {
+  position: relative;
+  display: block;
+  margin: 0;
+  overflow: hidden;
+  aspect-ratio: 16 / 9;
+  background: #000;
+  border-radius: var(--ld-border-radius-lg);
+}
+
+.ld-video > iframe,
+.ld-video > video,
+.ld-video > embed,
+.ld-video > object {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  border: 0;
+}
+
+.ld-video[data-ld-ratio='1-1'] { aspect-ratio: 1 / 1; }
+.ld-video[data-ld-ratio='4-3'] { aspect-ratio: 4 / 3; }
+.ld-video[data-ld-ratio='3-2'] { aspect-ratio: 3 / 2; }
+.ld-video[data-ld-ratio='21-9'] { aspect-ratio: 21 / 9; }
+.ld-video[data-ld-ratio='9-16'] { aspect-ratio: 9 / 16; }
+.ld-video[data-ld-rounded='none'] { border-radius: 0; }
+
+/* -- Caption below the media -------------------------------------------------- */
+.ld-figure {
+  display: grid;
+  gap: var(--ld-space-2);
+  margin: 0;
+}
+
+.ld-figure > figcaption,
+.ld-caption {
+  font-size: var(--ld-text-sm);
+  color: var(--ld-text-muted);
+  line-height: var(--ld-line-height-tight);
+}
+
+/* -- Overlay and caption on top of the media -----------------------------------
+   Text on an image needs a scrim behind it to stay readable, so the overlay
+   draws a gradient (strength: --ld-opacity-overlay) and uses white text,
+   whatever the theme. data-ld-align: bottom (default) | center | top.
+   data-ld-show="hover": appears on hover or keyboard focus; on touch screens,
+   which cannot hover, it is always shown. */
+.ld-media-overlay,
+.ld-media-caption {
+  position: absolute;
+  inset-inline: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--ld-space-1);
+  padding: var(--ld-space-4);
+  color: #fff;
+  background: linear-gradient(to top, rgb(0 0 0 / var(--ld-opacity-overlay)), rgb(0 0 0 / 0));
+  pointer-events: none;
+}
+
+.ld-media-overlay :where(h1, h2, h3, h4, h5, h6, p) {
+  margin: 0;
+  color: inherit;
+}
+
+.ld-media-overlay a,
+.ld-media-overlay button {
+  pointer-events: auto;
+}
+
+.ld-media-caption {
+  bottom: 0;
+  padding-block: var(--ld-space-3);
+  font-size: var(--ld-text-sm);
+}
+
+.ld-media-overlay {
+  inset-block: 0;
+  justify-content: flex-end;
+}
+
+.ld-media-overlay[data-ld-align='center'] {
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  background: rgb(0 0 0 / var(--ld-opacity-overlay));
+}
+
+.ld-media-overlay[data-ld-align='top'] {
+  justify-content: flex-start;
+  background: linear-gradient(to bottom, rgb(0 0 0 / var(--ld-opacity-overlay)), rgb(0 0 0 / 0));
+}
+
+.ld-media-overlay[data-ld-show='hover'] {
+  opacity: 0;
+  transition: opacity var(--ld-transition);
+}
+
+.ld-media:hover > .ld-media-overlay[data-ld-show='hover'],
+.ld-media:focus-within > .ld-media-overlay[data-ld-show='hover'] {
+  opacity: 1;
+}
+
+@media (hover: none) {
+  .ld-media-overlay[data-ld-show='hover'] {
+    opacity: 1;
+  }
+}
+
+/* -- Masonry-like layout: items of different heights packed into columns --------
+   Works everywhere: the browser's multi-column layout. Column width is
+   --ld-masonry-min (14rem); the number of columns follows the space. Items
+   run down each column in order, not across (that is how columns work).
+   data-ld-cols="2-6" fixes the number of columns instead. Items should be
+   block elements (figure, article, a card) and are never split across columns.
+   Where the browser has true masonry (display: grid-lanes, or the older
+   grid-template-rows: masonry) that is used instead, and items then run
+   left to right. */
+.ld-masonry {
+  column-width: var(--ld-masonry-min, 14rem);
+  column-gap: var(--ld-layout-gap, var(--ld-space-4));
+}
+
+.ld-masonry[data-ld-cols='2'] { column-count: 2; column-width: auto; }
+.ld-masonry[data-ld-cols='3'] { column-count: 3; column-width: auto; }
+.ld-masonry[data-ld-cols='4'] { column-count: 4; column-width: auto; }
+.ld-masonry[data-ld-cols='5'] { column-count: 5; column-width: auto; }
+.ld-masonry[data-ld-cols='6'] { column-count: 6; column-width: auto; }
+
+.ld-masonry > * {
+  break-inside: avoid;
+  margin-block-end: var(--ld-layout-gap, var(--ld-space-4));
+}
+
+@supports (display: grid-lanes) {
+  .ld-masonry {
+    display: grid-lanes;
+    grid-template-columns: repeat(auto-fill, minmax(var(--ld-masonry-min, 14rem), 1fr));
+    column-width: auto;
+    column-count: auto;
+    gap: var(--ld-layout-gap, var(--ld-space-4));
+  }
+
+  .ld-masonry[data-ld-cols='2'] { grid-template-columns: repeat(2, 1fr); }
+  .ld-masonry[data-ld-cols='3'] { grid-template-columns: repeat(3, 1fr); }
+  .ld-masonry[data-ld-cols='4'] { grid-template-columns: repeat(4, 1fr); }
+  .ld-masonry[data-ld-cols='5'] { grid-template-columns: repeat(5, 1fr); }
+  .ld-masonry[data-ld-cols='6'] { grid-template-columns: repeat(6, 1fr); }
+
+  .ld-masonry > * {
+    margin-block-end: 0;
+  }
+}
+
+@supports (grid-template-rows: masonry) and (not (display: grid-lanes)) {
+  .ld-masonry {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(var(--ld-masonry-min, 14rem), 1fr));
+    grid-template-rows: masonry;
+    column-width: auto;
+    column-count: auto;
+    gap: var(--ld-layout-gap, var(--ld-space-4));
+  }
+
+  .ld-masonry[data-ld-cols='2'] { grid-template-columns: repeat(2, 1fr); }
+  .ld-masonry[data-ld-cols='3'] { grid-template-columns: repeat(3, 1fr); }
+  .ld-masonry[data-ld-cols='4'] { grid-template-columns: repeat(4, 1fr); }
+  .ld-masonry[data-ld-cols='5'] { grid-template-columns: repeat(5, 1fr); }
+  .ld-masonry[data-ld-cols='6'] { grid-template-columns: repeat(6, 1fr); }
+
+  .ld-masonry > * {
+    margin-block-end: 0;
+  }
+}
+
+/* -- Gallery: a tidy grid of equal tiles -----------------------------------------
+   Tiles are --ld-gallery-min wide at least (12rem), as many per row as fit,
+   all the same shape (data-ld-ratio on the gallery: 1-1 default, 4-3, 3-2,
+   16-9, 3-4). Put .ld-media tiles in it, or plain <img>/<a><img></a>.
+   data-ld-feature="first" makes the first tile twice as big. Tiles zoom a little
+   on hover (not with reduced motion); linked tiles show a focus ring. */
+.ld-gallery {
+  --ld-gallery-ratio: 1 / 1;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(var(--ld-gallery-min, 12rem), 100%), 1fr));
+  gap: var(--ld-layout-gap, var(--ld-space-3));
+}
+
+.ld-gallery[data-ld-ratio='4-3'] { --ld-gallery-ratio: 4 / 3; }
+.ld-gallery[data-ld-ratio='3-2'] { --ld-gallery-ratio: 3 / 2; }
+.ld-gallery[data-ld-ratio='16-9'] { --ld-gallery-ratio: 16 / 9; }
+.ld-gallery[data-ld-ratio='3-4'] { --ld-gallery-ratio: 3 / 4; }
+
+.ld-gallery > * {
+  aspect-ratio: var(--ld-gallery-ratio);
+  min-width: 0;
+}
+
+.ld-gallery > .ld-media {
+  aspect-ratio: var(--ld-gallery-ratio);
+}
+
+.ld-gallery img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform var(--ld-transition-slow);
+}
+
+.ld-gallery > a {
+  display: block;
+  overflow: hidden;
+  border-radius: var(--ld-border-radius-lg);
+}
+
+.ld-gallery > a:focus-visible {
+  outline-offset: 2px;
+}
+
+.ld-gallery > :hover img,
+.ld-gallery > :focus-within img {
+  transform: scale(1.04);
+}
+
+.ld-gallery[data-ld-feature='first'] > :first-child {
+  grid-column: span 2;
+  grid-row: span 2;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ld-gallery img {
+    transition: none;
+  }
+
+  .ld-gallery > :hover img,
+  .ld-gallery > :focus-within img {
+    transform: none;
+  }
+}
+

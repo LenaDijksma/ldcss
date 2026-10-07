@@ -88,7 +88,7 @@
     return node && node.closest ? node.closest('[data-ld-context-menu]') : null;
   }
 
-  document.addEventListener('contextmenu', function (e) {
+  delegate('contextmenu', function (e) {
     var region = contextRegionFor(e.target);
     // let people reach the browser menu: Shift+right-click, or inside the menu itself
     if (e.shiftKey || (contextState.menu && contextState.menu.contains(e.target))) {
@@ -116,7 +116,7 @@
   (function () {
     var timer = null, startX = 0, startY = 0, suppressClick = false;
     function cancel() { clearTimeout(timer); timer = null; }
-    document.addEventListener('pointerdown', function (e) {
+    delegate('pointerdown', function (e) {
       if (e.pointerType !== 'touch') return;
       var region = contextRegionFor(e.target);
       if (!region || region.getAttribute('data-ld-longpress') === 'false') return;
@@ -128,20 +128,20 @@
         if (menu && openContextMenu(menu, startX, startY, region, e.target, false)) suppressClick = true;
       }, LONG_PRESS_MS);
     });
-    document.addEventListener('pointermove', function (e) {
+    delegate('pointermove', function (e) {
       if (timer && (Math.abs(e.clientX - startX) > 10 || Math.abs(e.clientY - startY) > 10)) cancel();
     });
-    ['pointerup', 'pointercancel'].forEach(function (t) { document.addEventListener(t, cancel); });
-    document.addEventListener('click', function (e) {
+    ['pointerup', 'pointercancel'].forEach(function (t) { delegate(t, cancel); });
+    delegate('click', function (e) {
       if (suppressClick) { suppressClick = false; e.preventDefault(); e.stopPropagation(); }
     }, true);
   })();
 
-  document.addEventListener('pointerdown', function (e) {
+  delegate('pointerdown', function (e) {
     if (contextState.menu && !contextState.menu.contains(e.target)) closeContextMenu(false);
   }, true);
 
-  document.addEventListener('click', function (e) {
+  delegate('click', function (e) {
     var item = e.target.closest && closestOf(e.target, '.ld-context-item');
     if (!item || !contextState.menu || !contextState.menu.contains(item)) return;
     if (item.disabled || item.getAttribute('aria-disabled') === 'true') { e.preventDefault(); return; }
@@ -152,7 +152,7 @@
     closeContextMenu(true);
   });
 
-  document.addEventListener('keydown', function (e) {
+  delegate('keydown', function (e) {
     var menu = contextState.menu;
     if (!menu) return;
     var items = contextItems(menu);
@@ -171,29 +171,37 @@
     }
   }, true);
 
-  document.addEventListener('mouseover', function (e) {
+  delegate('mouseover', function (e) {
     var item = e.target.closest && closestOf(e.target, '.ld-context-item');
     if (item && contextState.menu && contextState.menu.contains(item) && !item.disabled && item.getAttribute('aria-disabled') !== 'true') {
       focusContextItem(contextState.menu, item);
     }
   });
 
-  window.addEventListener('resize', function () { closeContextMenu(false); });
-  window.addEventListener('blur', function () { closeContextMenu(false); });
-  window.addEventListener('scroll', function (e) {
+  delegateWindow('resize', function () { closeContextMenu(false); });
+  delegateWindow('blur', function () { closeContextMenu(false); });
+  delegateWindow('scroll', function (e) {
     if (contextState.menu && !contextState.menu.contains(e.target)) closeContextMenu(false);
   }, true);
 
-  function initContextMenus(root) {
-    qsaSelf(root, '[data-ld-context-menu]').forEach(function (region) {
-      region.setAttribute('aria-haspopup', 'menu');
-      var menu = document.querySelector(region.getAttribute('data-ld-context-menu'));
+  defineComponent('context-menu', '[data-ld-context-menu], .ld-context-menu', function (el) {
+    if (el.hasAttribute('data-ld-context-menu')) {
+      el.setAttribute('aria-haspopup', 'menu');
+      var menu = document.querySelector(el.getAttribute('data-ld-context-menu'));
       if (menu) prepareContextMenu(menu);
-    });
-    qsaSelf(root, '.ld-context-menu').forEach(prepareContextMenu);
-  }
+    }
+    if (el.classList.contains('ld-context-menu')) prepareContextMenu(el);
+  }, function (el) {
+    if (el.hasAttribute('data-ld-context-menu')) {
+      el.removeAttribute('aria-haspopup');
+      if (contextState.region === el) closeContextMenu(false);
+    }
+    if (el.classList.contains('ld-context-menu')) {
+      if (contextState.menu === el) closeContextMenu(false);
+      el._ldReady = false;
+    }
+  }, { event: 'contextmenu', gate: true });
 
-  moduleInits.push(initContextMenus);
   window.ldcss.contextMenu = {
     open: function (menu, x, y, region) { return openContextMenu(typeof menu === 'string' ? document.querySelector(menu) : menu, x, y, region || null, region || null, false); },
     close: function () { closeContextMenu(true); }
