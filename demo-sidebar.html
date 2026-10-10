@@ -1,58 +1,64 @@
 <!doctype html>
 <html lang="en" data-ld-theme="light">
+
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ldcss — Sidebar &amp; app shell</title>
-<link rel="stylesheet" href="dist/ldcss.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ldcss — Sidebar &amp; app shell</title>
+  <link rel="stylesheet" href="dist/ldcss.css">
+  <link rel="shortcut icon" href="images/logo.png" type="image/png">
   <script src="dist/ldcss-theme.js"></script>
 </head>
+
 <body>
 
-<!-- data-ld-collapse-at on .ld-shell: sm (default) · md · lg · xl — the width at which the
+  <!-- data-ld-collapse-at on .ld-shell: sm (default) · md · lg · xl — the width at which the
      sidebar appears. Below it, the sidebar is a sticky top bar with a dropdown menu. -->
-<div class="ld-shell">
-  <aside class="ld-sidebar">
-    <div class="ld-sidebar-header">
-      <a href="index.html" class="ld-nav-brand" data-ld-mark="$">ldcss</a>
-      <button class="ld-btn ld-sidebar-toggle" data-ld-size="sm" data-ld-variant="ghost"
-              data-ld-toggle="navbar-collapse" data-ld-target="#side-menu"
-              aria-controls="side-menu" aria-expanded="false">Menu</button>
-    </div>
-
-    <nav class="ld-sidebar-body" id="side-menu" aria-label="Main">
-      <ul class="ld-sidebar-links" data-ld-scrollspy>
-        <li><a class="ld-sidebar-link" href="#overview" data-ld-active="true">Overview</a></li>
-        <li><a class="ld-sidebar-link" href="#markup">Markup</a></li>
-        <li class="ld-sidebar-heading">Behavior</li>
-        <li><a class="ld-sidebar-link" href="#responsive">Responsive</a></li>
-        <li><a class="ld-sidebar-link" href="#variants">Hover &amp; focus variants</a></li>
-      </ul>
-      <div class="ld-sidebar-footer">
-        <button class="ld-btn" data-ld-size="sm" data-ld-variant="ghost" data-ld-toggle="theme">Toggle theme</button>
+  <div class="ld-shell">
+    <aside class="ld-sidebar">
+      <div class="ld-sidebar-header">
+        <a href="index.html" class="ld-nav-brand" data-ld-mark="$">ldcss</a>
+        <button class="ld-btn ld-sidebar-toggle" data-ld-size="sm" data-ld-variant="ghost"
+          data-ld-toggle="navbar-collapse" data-ld-target="#side-menu" aria-controls="side-menu"
+          aria-expanded="false">Menu</button>
       </div>
-    </nav>
-  </aside>
 
-  <main class="ld-shell-main" id="top">
-    <div class="ld-container">
+      <nav class="ld-sidebar-body" id="side-menu" aria-label="Main">
+        <ul class="ld-sidebar-links" data-ld-scrollspy>
+          <li><a class="ld-sidebar-link" href="#overview" data-ld-active="true">Overview</a></li>
+          <li><a class="ld-sidebar-link" href="#markup">Markup</a></li>
+          <li class="ld-sidebar-heading">Behavior</li>
+          <li><a class="ld-sidebar-link" href="#responsive">Responsive</a></li>
+          <li><a class="ld-sidebar-link" href="#variants">Hover &amp; focus variants</a></li>
+        </ul>
+        <div class="ld-sidebar-footer">
+          <button class="ld-btn" data-ld-size="sm" data-ld-variant="ghost" data-ld-toggle="theme">Toggle theme</button>
+        </div>
+      </nav>
+    </aside>
 
-      <header class="ld-hero" data-ld-size="sm">
-        <span class="ld-badge" data-ld-variant="primary">v3.0.0</span>
-        <h1>Sidebar &amp; app shell</h1>
-        <p class="ld-text-muted">A sticky sidebar column on larger screens that turns into a top bar with a dropdown menu on small ones.</p>
-      </header>
+    <main class="ld-shell-main" id="top">
+      <div class="ld-container">
 
-      <section class="ld-section" id="overview">
-        <h2 class="ld-section-title">Overview</h2>
-        <p class="ld-section-sub">ld-shell wraps an ld-sidebar and the page content (ld-shell-main)</p>
-        <p>Scroll this page: the active link in the sidebar follows you because the link list carries <code class="ld-code-inline">data-ld-scrollspy</code>. Resize the window below 640px and the sidebar collapses into a bar with a Menu button; picking a link, or pressing Escape, closes the menu again.</p>
-      </section>
+        <header class="ld-hero" data-ld-size="sm">
+          <span class="ld-badge" data-ld-variant="primary">v3.0.0</span>
+          <h1>Sidebar &amp; app shell</h1>
+          <p class="ld-text-muted">A sticky sidebar column on larger screens that turns into a top bar with a dropdown
+            menu on small ones.</p>
+        </header>
 
-      <section class="ld-section" id="markup">
-        <h2 class="ld-section-title">Markup</h2>
-        <p class="ld-section-sub">Everything is class-based; the only JS-driven attribute is the toggle button</p>
-<pre class="ld-code">&lt;div class="ld-shell" data-ld-collapse-at="md"&gt;
+        <section class="ld-section" id="overview">
+          <h2 class="ld-section-title">Overview</h2>
+          <p class="ld-section-sub">ld-shell wraps an ld-sidebar and the page content (ld-shell-main)</p>
+          <p>Scroll this page: the active link in the sidebar follows you because the link list carries <code
+              class="ld-code-inline">data-ld-scrollspy</code>. Resize the window below 640px and the sidebar collapses
+            into a bar with a Menu button; picking a link, or pressing Escape, closes the menu again.</p>
+        </section>
+
+        <section class="ld-section" id="markup">
+          <h2 class="ld-section-title">Markup</h2>
+          <p class="ld-section-sub">Everything is class-based; the only JS-driven attribute is the toggle button</p>
+          <pre class="ld-code">&lt;div class="ld-shell" data-ld-collapse-at="md"&gt;
   &lt;aside class="ld-sidebar"&gt;
     &lt;div class="ld-sidebar-header"&gt;
       &lt;a class="ld-nav-brand" href="/"&gt;Brand&lt;/a&gt;
@@ -67,42 +73,65 @@
   &lt;/aside&gt;
   &lt;main class="ld-shell-main"&gt; … &lt;/main&gt;
 &lt;/div&gt;</pre>
-      </section>
+        </section>
 
-      <section class="ld-section" id="responsive">
-        <h2 class="ld-section-title">Responsive</h2>
-        <p class="ld-section-sub">Pick the breakpoint with data-ld-collapse-at on ld-shell</p>
-        <table class="ld-table" data-ld-striped="true">
-          <thead><tr><th>Value</th><th>Sidebar appears at</th></tr></thead>
-          <tbody>
-            <tr><td><code class="ld-code-inline">sm</code> (default)</td><td>640px</td></tr>
-            <tr><td><code class="ld-code-inline">md</code></td><td>960px</td></tr>
-            <tr><td><code class="ld-code-inline">lg</code></td><td>1200px</td></tr>
-            <tr><td><code class="ld-code-inline">xl</code></td><td>1440px</td></tr>
-          </tbody>
-        </table>
-      </section>
+        <section class="ld-section" id="responsive">
+          <h2 class="ld-section-title">Responsive</h2>
+          <p class="ld-section-sub">Pick the breakpoint with data-ld-collapse-at on ld-shell</p>
+          <table class="ld-table" data-ld-striped="true">
+            <thead>
+              <tr>
+                <th>Value</th>
+                <th>Sidebar appears at</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><code class="ld-code-inline">sm</code> (default)</td>
+                <td>640px</td>
+              </tr>
+              <tr>
+                <td><code class="ld-code-inline">md</code></td>
+                <td>960px</td>
+              </tr>
+              <tr>
+                <td><code class="ld-code-inline">lg</code></td>
+                <td>1200px</td>
+              </tr>
+              <tr>
+                <td><code class="ld-code-inline">xl</code></td>
+                <td>1440px</td>
+              </tr>
+            </tbody>
+          </table>
+        </section>
 
-      <section class="ld-section" id="variants">
-        <h2 class="ld-section-title">Hover &amp; focus variants</h2>
-        <p class="ld-section-sub">New in v3.0.0 — ld-hover:*, ld-focus:*, ld-focus-visible:*</p>
-        <div class="ld-row">
-          <a href="#variants" id="v-link" class="ld-text-muted ld-no-underline ld-hover:text-accent ld-hover:underline">Hover me: accent + underline</a>
-          <button id="v-btn" class="ld-btn ld-focus-visible:ring" data-ld-variant="outline">Tab to me: focus ring</button>
-          <div id="v-box" class="ld-card ld-bg-surface ld-hover:bg-raised ld-shadow-soft ld-hover:shadow-soft-lg">Hover me: surface + shadow</div>
-        </div>
-      </section>
+        <section class="ld-section" id="variants">
+          <h2 class="ld-section-title">Hover &amp; focus variants</h2>
+          <p class="ld-section-sub">New in v3.0.0 — ld-hover:*, ld-focus:*, ld-focus-visible:*</p>
+          <div class="ld-row">
+            <a href="#variants" id="v-link"
+              class="ld-text-muted ld-no-underline ld-hover:text-accent ld-hover:underline">Hover me: accent +
+              underline</a>
+            <button id="v-btn" class="ld-btn ld-focus-visible:ring" data-ld-variant="outline">Tab to me: focus
+              ring</button>
+            <div id="v-box" class="ld-card ld-bg-surface ld-hover:bg-raised ld-shadow-soft ld-hover:shadow-soft-lg">
+              Hover me: surface + shadow</div>
+          </div>
+        </section>
 
-      <section class="ld-section" id="more" style="min-height: 60vh">
-        <h2 class="ld-section-title">Room to scroll</h2>
-        <p class="ld-section-sub">So the scrollspy and sticky sidebar have something to do</p>
-        <p class="ld-text-muted">Anchor jumps leave room for the sticky top bar on small screens (scroll-margin-top).</p>
-      </section>
+        <section class="ld-section" id="more" style="min-height: 60vh">
+          <h2 class="ld-section-title">Room to scroll</h2>
+          <p class="ld-section-sub">So the scrollspy and sticky sidebar have something to do</p>
+          <p class="ld-text-muted">Anchor jumps leave room for the sticky top bar on small screens (scroll-margin-top).
+          </p>
+        </section>
 
-    </div>
-  </main>
-</div>
+      </div>
+    </main>
+  </div>
 
-<script src="dist/ldcss.js"></script>
+  <script src="dist/ldcss.js"></script>
 </body>
+
 </html>

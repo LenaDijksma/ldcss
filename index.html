@@ -5,6 +5,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>ldcss — Lena Dijksma CSS</title>
+  <link rel="shortcut icon" href="images/logo.png" type="image/png">
   <link rel="stylesheet" href="dist/ldcss.css">
   <script src="dist/ldcss-theme.js"></script>
   <style>
@@ -123,101 +124,109 @@
   </div>
 
   <main id="main">
-  <header class="ld-hero">
-    <span class="ld-badge" data-ld-variant="primary">Open source</span>
-    <h1>ldcss</h1>
-    <p class="ld-lead">A dependency-free CSS + JS framework, class- and attribute-driven. Pick a destination below.</p>
+    <header class="ld-hero">
+      <span class="ld-badge" data-ld-variant="primary">Open source</span>
+      <h1>ldcss</h1>
+      <p class="ld-lead">A dependency-free CSS + JS framework, class- and attribute-driven. Pick a destination below.
+      </p>
 
-    <div class="ld-dest-grid">
-      <a href="demo.html" class="ld-card ld-link-reset ld-dest-card" data-ld-interactive="true">
-        <div class="ld-card-eyebrow">Components</div>
-        <div class="ld-card-title">
-          Demo
-          <span class="ld-text-muted" aria-hidden="true">→</span>
-        </div>
-        <div class="ld-card-body ld-text-muted">Every component and utility rendered live — buttons, cards, forms,
-          overlays, tabs, and the full changelog.</div>
-      </a>
+      <div class="ld-dest-grid">
+        <a href="demo.html" class="ld-card ld-link-reset ld-dest-card" data-ld-interactive="true">
+          <div class="ld-card-eyebrow">Components</div>
+          <div class="ld-card-title">
+            Demo
+            <span class="ld-text-muted" aria-hidden="true">→</span>
+          </div>
+          <div class="ld-card-body ld-text-muted">Every component and utility rendered live — buttons, cards, forms,
+            overlays, tabs, and the full changelog.</div>
+        </a>
 
-      <a href="cheat-sheet.html" class="ld-card ld-link-reset ld-dest-card" data-ld-interactive="true">
-        <div class="ld-card-eyebrow">Reference</div>
-        <div class="ld-card-title">
-          Cheat sheet
-          <span class="ld-text-muted" aria-hidden="true">→</span>
-        </div>
-        <div class="ld-card-body ld-text-muted">Every <code class="ld-code-inline">ld-*</code> class,
-          <code class="ld-code-inline">data-ld-*</code> attribute and JavaScript call, in pages with explanations,
-          examples and fuzzy search.</div>
-      </a>
+        <a href="cheat-sheet.html" class="ld-card ld-link-reset ld-dest-card" data-ld-interactive="true">
+          <div class="ld-card-eyebrow">Reference</div>
+          <div class="ld-card-title">
+            Cheat sheet
+            <span class="ld-text-muted" aria-hidden="true">→</span>
+          </div>
+          <div class="ld-card-body ld-text-muted">Every <code class="ld-code-inline">ld-*</code> class,
+            <code class="ld-code-inline">data-ld-*</code> attribute and JavaScript call, in pages with explanations,
+            examples and fuzzy search.
+          </div>
+        </a>
 
-      <a href="demo-sidebar.html" class="ld-card ld-link-reset ld-dest-card" data-ld-interactive="true">
-        <div class="ld-card-eyebrow">Layout</div>
-        <div class="ld-card-title">
-          Sidebar demo
-          <span class="ld-text-muted" aria-hidden="true">→</span>
-        </div>
-        <div class="ld-card-body ld-text-muted">The sidebar app shell: a sticky column on wide screens that becomes a
-          top bar with a dropdown menu on small ones.</div>
-      </a>
-    </div>
-
-    <div class="ld-row">
-      <code class="ld-code-inline">npm run build</code>
-      <span class="ld-text-muted ld-text-sm">writes <code class="ld-code-inline">dist/</code> from <code class="ld-code-inline">src/</code>;
-        <code class="ld-code-inline">npm run watch</code> rebuilds on every change</span>
-    </div>
-  </header>
-
-  <div class="ld-container">
-    <section class="ld-section">
-      <h2 class="ld-section-title">Files in this project</h2>
-      <p class="ld-section-sub">What you link, and what you edit</p>
-      <div class="ld-table-wrap" role="region" tabindex="0" aria-label="Project files">
-        <table class="ld-table" data-ld-striped="true">
-          <thead>
-            <tr>
-              <th scope="col">File</th>
-              <th scope="col">Purpose</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td><code class="ld-code-inline">dist/ldcss.css</code>, <code class="ld-code-inline">dist/ldcss.min.css</code></td>
-              <td>The stylesheet — tokens, components, utilities, in cascade layers. Link this one.</td>
-            </tr>
-            <tr>
-              <td><code class="ld-code-inline">dist/ldcss.js</code>, <code class="ld-code-inline">dist/ldcss.min.js</code></td>
-              <td>Behaviour for toggles, overlays, tables, search, toasts, and so on. Link this one too.</td>
-            </tr>
-            <tr>
-              <td><code class="ld-code-inline">dist/ldcss-theme.js</code></td>
-              <td>Optional 0.3 KB script for <code class="ld-code-inline">&lt;head&gt;</code>: applies a saved theme before the first paint, so there is no flash.</td>
-            </tr>
-            <tr>
-              <td><code class="ld-code-inline">dist/fonts/</code></td>
-              <td>Self-hosted JetBrains Mono. Keep it next to the CSS file.</td>
-            </tr>
-            <tr>
-              <td><code class="ld-code-inline">src/</code>, <code class="ld-code-inline">build/</code></td>
-              <td>The source and the build script. Edit these, then run <code class="ld-code-inline">npm run build</code>.</td>
-            </tr>
-            <tr>
-              <td><code class="ld-code-inline">demo.html</code>, <code class="ld-code-inline">demo-sidebar.html</code></td>
-              <td>Live component gallery with the version changelog, and the sidebar shell.</td>
-            </tr>
-            <tr>
-              <td><code class="ld-code-inline">cheat-sheet.html</code></td>
-              <td>The searchable reference.</td>
-            </tr>
-            <tr>
-              <td><code class="ld-code-inline">README.md</code>, <code class="ld-code-inline">CHANGELOG.md</code></td>
-              <td>Usage docs and the release notes.</td>
-            </tr>
-          </tbody>
-        </table>
+        <a href="demo-sidebar.html" class="ld-card ld-link-reset ld-dest-card" data-ld-interactive="true">
+          <div class="ld-card-eyebrow">Layout</div>
+          <div class="ld-card-title">
+            Sidebar demo
+            <span class="ld-text-muted" aria-hidden="true">→</span>
+          </div>
+          <div class="ld-card-body ld-text-muted">The sidebar app shell: a sticky column on wide screens that becomes a
+            top bar with a dropdown menu on small ones.</div>
+        </a>
       </div>
-    </section>
-  </div>
+
+      <div class="ld-row">
+        <code class="ld-code-inline">npm run build</code>
+        <span class="ld-text-muted ld-text-sm">writes <code class="ld-code-inline">dist/</code> from <code
+            class="ld-code-inline">src/</code>;
+          <code class="ld-code-inline">npm run watch</code> rebuilds on every change</span>
+      </div>
+    </header>
+
+    <div class="ld-container">
+      <section class="ld-section">
+        <h2 class="ld-section-title">Files in this project</h2>
+        <p class="ld-section-sub">What you link, and what you edit</p>
+        <div class="ld-table-wrap" role="region" tabindex="0" aria-label="Project files">
+          <table class="ld-table" data-ld-striped="true">
+            <thead>
+              <tr>
+                <th scope="col">File</th>
+                <th scope="col">Purpose</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><code class="ld-code-inline">dist/ldcss.css</code>, <code
+                    class="ld-code-inline">dist/ldcss.min.css</code></td>
+                <td>The stylesheet — tokens, components, utilities, in cascade layers. Link this one.</td>
+              </tr>
+              <tr>
+                <td><code class="ld-code-inline">dist/ldcss.js</code>, <code
+                    class="ld-code-inline">dist/ldcss.min.js</code></td>
+                <td>Behaviour for toggles, overlays, tables, search, toasts, and so on. Link this one too.</td>
+              </tr>
+              <tr>
+                <td><code class="ld-code-inline">dist/ldcss-theme.js</code></td>
+                <td>Optional 0.3 KB script for <code class="ld-code-inline">&lt;head&gt;</code>: applies a saved theme
+                  before the first paint, so there is no flash.</td>
+              </tr>
+              <tr>
+                <td><code class="ld-code-inline">dist/fonts/</code></td>
+                <td>Self-hosted JetBrains Mono. Keep it next to the CSS file.</td>
+              </tr>
+              <tr>
+                <td><code class="ld-code-inline">src/</code>, <code class="ld-code-inline">build/</code></td>
+                <td>The source and the build script. Edit these, then run <code
+                    class="ld-code-inline">npm run build</code>.</td>
+              </tr>
+              <tr>
+                <td><code class="ld-code-inline">demo.html</code>, <code class="ld-code-inline">demo-sidebar.html</code>
+                </td>
+                <td>Live component gallery with the version changelog, and the sidebar shell.</td>
+              </tr>
+              <tr>
+                <td><code class="ld-code-inline">cheat-sheet.html</code></td>
+                <td>The searchable reference.</td>
+              </tr>
+              <tr>
+                <td><code class="ld-code-inline">README.md</code>, <code class="ld-code-inline">CHANGELOG.md</code></td>
+                <td>Usage docs and the release notes.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+    </div>
   </main>
 
   <!-- Command palette -->
@@ -226,9 +235,11 @@
       <input class="ld-command-input" type="text" placeholder="Type a command or search…" data-ld-autofocus>
       <ul class="ld-command-list" data-ld-command-list>
         <li class="ld-command-item" data-ld-command-item data-ld-command-action="theme">Toggle theme</li>
-        <li class="ld-command-item" data-ld-command-item data-ld-command-action="goto:cheat-sheet.html">Open the cheat sheet</li>
+        <li class="ld-command-item" data-ld-command-item data-ld-command-action="goto:cheat-sheet.html">Open the cheat
+          sheet</li>
         <li class="ld-command-item" data-ld-command-item data-ld-command-action="goto:demo.html">Open the demo</li>
-        <li class="ld-command-item" data-ld-command-item data-ld-command-action="goto:demo-sidebar.html">Open the sidebar demo</li>
+        <li class="ld-command-item" data-ld-command-item data-ld-command-action="goto:demo-sidebar.html">Open the
+          sidebar demo</li>
       </ul>
       <div class="ld-command-empty">No matching commands.</div>
       <div class="ld-command-hint"><span class="ld-kbd">↑↓</span> navigate <span class="ld-kbd">↵</span> select <span
